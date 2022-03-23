@@ -1,0 +1,164 @@
+// out: false
+
+.transition(@duration: 0.3s; @function: ease) {
+    -webkit-transition: all @duration;
+    transition: all @duration;
+    -webkit-transition-timing-function: @function;
+    transition-timing-function: @function;
+}
+
+.fixed(@top: initial; @right: initial; @bottom: initial; @left: initial) {
+    position: fixed;
+    top: @top;
+    right: @right;
+    bottom: @bottom;
+    left: @left;
+}
+
+.absolute(@top: initial; @right: initial; @bottom: initial; @left: initial) {
+    position: absolute;
+    top: @top;
+    right: @right;
+    bottom: @bottom;
+    left: @left;
+}
+
+.flex() {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.flex-center-content() {
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+
+.flex-center-items() {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.flex-center-all() {
+    .flex-center-content();
+    .flex-center-items();
+}
+
+.flex-center-items() {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.flex-column() {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.flex-items(@items) {
+    -webkit-box-align: @items;
+    -ms-flex-align: @items;
+    align-items: @items;
+}
+
+.flex-content(@content) {
+    -webkit-box-pack: @content;
+    -ms-flex-pack: @content;
+    justify-content: @content;
+}
+
+.flex-wrap {
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.flex-grow (@grow: 1) {
+    -webkit-box-flex: @grow;
+    -ms-flex-positive: @grow;
+    flex-grow: @grow;
+}
+
+.flex-shrink(@shrink: 0) {
+    -ms-flex-negative: @shrink;
+    flex-shrink: @shrink;
+}
+
+.radius(@radius: 10px) {
+    border-radius: @radius;
+}
+
+.shadow (@shadow: 0 0 10px rgba(0,0,0,0.3)) {
+    -webkit-box-shadow: @shadow;
+            box-shadow: @shadow;
+}
+
+.border-box {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+.border-position (@position, @width: 1px) {
+    border-@{position}-width: @width;
+    border-@{position}-style: solid;
+}
+
+.border (@width: 1px) {
+    border-width: @width;
+    border-style: solid;
+}
+
+.scroll-x(@thick: 10px) {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+        height: @thick;
+    }
+}
+
+.scroll-y(@thick: 10px) {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+        width : @thick;
+    }
+}
+
+.scroll-all(@thick: 10px) {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+        width : @thick;
+        height: @thick;
+    }
+}
+
+.img-adapt {
+    width: initial;
+    height: initial;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.drag {
+    -webkit-app-region: drag; /* 让元素可拖动，设置了drag的元素不可点击 */
+}
+
+.no_drag {
+    -webkit-app-region: no-drag; /* 设置了drag的元素将不可点击，故设置no-drag，让元素可点击 */
+}

@@ -1,0 +1,16 @@
+html,.page {
+    background: linear-gradient(45deg, #1f2331 5%, #070a0d);
+}
+
+* {
+    color: #ffffff;
+    border-color: #272938;
+}
+
+::-webkit-scrollbar-thumb {
+    background   : #ededed;
+}
+
+::-webkit-scrollbar-track {
+    background   : #535353;
+}

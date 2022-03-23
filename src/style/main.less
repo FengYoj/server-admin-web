@@ -1,0 +1,110 @@
+// out: false
+
+@import (reference) "./color.less";
+@import (reference) "./utils.less";
+
+@font-face {
+    font-family: "CascadiaCode";
+    src: url("../../public/static/font/CascadiaCode.ttf");
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    color: #333;
+    border-color: #f3f3f3;
+    font-family: "CascadiaCode";
+}
+
+img,
+input {
+    width: 100%;
+    height: 100%;
+}
+
+input, textarea {
+    background: none;
+    outline: none;
+    border-width: 0;
+}
+
+input[type=number] {
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+    -moz-appearance: textfield;
+}
+
+ol,
+ul {
+    list-style: none;
+}
+
+button {
+    margin: initial;
+    outline:none;
+    cursor: pointer;
+    padding: 5px 15px;
+    line-height: initial;
+    border: 0;
+    border-radius: 4rpx;
+    -webkit-border-radius: 4rpx;
+    -moz-border-radius: 4rpx;
+    -ms-border-radius: 4rpx;
+    -o-border-radius: 4rpx;
+    background: transparent;
+    
+    .flex;
+    .flex-center-all;
+}
+
+button::after {
+    border: initial;
+}
+
+a {
+    color: initial;
+    text-decoration: none;
+}
+
+[v-cloak] {
+    visibility: hidden;
+}
+
+[tabindex] {
+    outline: none;
+}
+
+html,.page {
+    position: absolute;
+    width: 100%;
+    min-height: 100%;
+    background: #f9fafa;
+
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+        width : 10px;
+    }
+}
+
+.drag {
+    -webkit-app-region: drag; /* 让元素可拖动，设置了drag的元素不可点击 */
+}
+
+.no_drag {
+    -webkit-app-region: no-drag; /* 设置了drag的元素将不可点击，故设置no-drag，让元素可点击 */
+}
+
+&::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background   : #535353;
+}
+
+&::-webkit-scrollbar-track {
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background   : #ededed;
+}

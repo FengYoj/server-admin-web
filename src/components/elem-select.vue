@@ -1,0 +1,359 @@
+<template>
+    <div class="elem-select-box">
+        <elem-input-object :name="name" :value="val" :title="title" :required="required"></elem-input-object>
+        <div class="select-base" dark-class="select-base-dark">
+            <div class="select-box" :class="{ unfold: unfold }">
+                <div class="first-box">
+                    <div class="label-box" v-if="multiple">
+                        <div class="label-item-box" v-for="(item, idx) in label" :key="idx">
+                            <p>{{item}}</p>
+                            <div class="delete-btn" @click.stop="onDeleteLabel(idx)">
+                                <elem-icon src="static/icon/components/elem-select/" name="close"></elem-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <input v-model="val_text" class="input" type="text" :placeholder="ph" @focus="onInputFocus" @blur="onInputBlur" @input="onSearchSelect">
+                </div>
+                <div class="drop-icon">
+                    <elem-icon v-show="val == null && !val_text" src="static/icon/components/elem-select/" name="arrow_bottom" width="50%" height="50%"></elem-icon>
+                    <elem-icon v-show="val != null" src="static/icon/components/elem-select/" name="correct" width="60%" height="60%"></elem-icon>
+                    <elem-icon v-show="val == null && val_text" src="static/icon/components/elem-select/" name="error" width="60%" height="60%"></elem-icon>
+                </div>
+                <div class="item-base" :class="{ unfold: unfold }">
+                    <div class="item-box" v-for="(item, idx) in data_list" :key="idx" :value="item.id" :selected="item.id == value" @click="onSelect(item.id, item.value)" v-show="!search || item.value.indexOf(search) > -1">{{item.value}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import Utils from "../module/utils/utils"
+import elemIcon from './elem-icon.vue'
+import elemInputObject from './elem-input-object.vue'
+import Theme from '../module/theme/theme'
+
+export default {
+    name: "elem-select",
+
+    data() {
+        return {
+            data_list: null,
+            unfold: false,
+            val: null,
+            val_text: null,
+            search: null,
+            ph: "",
+            label: []
+        }
+    },
+
+    props: {
+        data: {
+            type: Array,
+            default: new Array
+        },
+        required: {
+            type: Boolean,
+            default: true
+        },
+        title: String,
+        placeholder: {
+            type: String,
+            default: ""
+        },
+		name: {
+			type: String,
+            default: "switch"
+        },
+        multiple: {
+            type: Boolean,
+            default: false
+        },
+        value: null
+    },
+
+    watch: {
+        'val': function(value, oldValue) {
+            this.onChangeData(value, oldValue)
+        }
+    },
+
+    components: {
+        elemIcon,
+        elemInputObject
+    },
+
+    created() {
+        if (this.data) {
+            const data_list = Utils.copy(this.data)
+
+            Utils.each(data_list, (v, i) => {
+                return { id: i, value: v }
+            }, c => "string" === typeof c)
+
+            this.data_list = data_list
+        }
+    },
+    
+    mounted() {
+        Theme.processPage(this.$el)
+
+        this.ph = this.placeholder ? this.placeholder : `选择${this.title || this.name}${this.required ? '' : '（可选）'}`
+
+        const value = this.value
+        
+        if (Utils.isExist(value)) {
+            if (this.multiple) {
+                Utils.each(value, v => {
+                    // Can't choose repeatedly
+                    if (this.val && this.val.indexOf(v) > -1) {
+                        return
+                    }
+
+                    this.val ? this.val.push(v) : this.val = [v]
+
+                    Utils.each<obj>(this.data, v => {
+                        this.label.push(v.value)
+                    }, c => c.id == v)
+                })
+            } else {
+                this.val = value
+
+                Utils.each<obj>(this.data, v => {
+                    this.val_text = v.value
+                }, c => c.id == value)
+            }
+        }
+    },
+
+    methods: {
+
+        onChangeData(value, oldValue) {
+            this.$emit('change', {
+                value: value,
+                type: "elem-select",
+                name: this.name,
+                restore: () => {
+                    this.val = oldValue
+                }
+            })
+        },
+
+        onInputFocus() {
+            this.unfold = true
+        },
+
+        onInputBlur() {
+            setTimeout(() => {
+                this.unfold = false
+            }, 100)
+        },
+
+        onSelect(id, val) {
+            if (this.multiple) {
+                // Can't choose repeatedly
+                if (this.val && this.val.indexOf(id) > -1) {
+                    return
+                }
+
+                this.val ? this.val.push(id) : this.val = [id]
+                this.label.push(val)
+                this.val_text = ""
+            } else {
+                this.val = id
+                this.val_text = val
+            }
+
+            setTimeout(() => {
+                this.search = null
+            }, 500)
+        },
+
+        onSearchSelect(evt) {
+            this.val = null
+
+            this.search = (evt.target || evt.srcElement).value
+        },
+
+        onDeleteLabel(idx) {
+            if (this.val.length > 1) {
+                this.val.splice(idx, 1)
+            } else {
+                this.val = null
+            }
+
+            this.label.splice(idx, 1)
+        }
+    }
+}
+</script>
+
+<style lang="less">
+@import (reference) "/src/style/utils.less";
+@import (reference) "/src/style/color.less";
+
+.elem-select-box {
+    position: relative;
+    width: 100%;
+    height: 40px;
+
+    .select-base {
+        position: relative;
+        width: 100%;
+        height: 100%;
+
+        .select-box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+
+            .border;
+
+            &:hover {
+                border-color: #b3b3b3;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                z-index: 20;
+            }
+
+            .first-box {
+                position: relative;
+                padding: 0 12px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+
+                .scroll-x(2px);
+
+                .label-box {
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+
+                    .label-item-box {
+                        margin-right: 10px;
+                        padding: 3px 5px 3px 10px;
+                        display: flex;
+                        align-items: center;
+                        background: #2faaf7;
+                        border-radius: 4px;
+                        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        transition: all 0.3s ease;
+
+                        &:hover {
+                            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                        }
+
+                        p {
+                            font-size: 14px;
+                            color: #fff;
+                        }
+
+                        .delete-btn {
+                            cursor: pointer;
+                            padding: 3px 8px;
+                            width: 10px;
+                            height: 10px;
+                            display: flex;
+                        }
+                    }
+                }
+
+                .input {
+                    cursor: pointer;
+                    position: relative;
+                    width: auto;
+                    padding-right: 40px;
+                    box-sizing: border-box;
+                    z-index: 10;
+                    font-size: 14px;
+
+                    .flex-grow;
+                }
+            }
+
+            .drop-icon {
+                position: absolute;
+                top: 0;
+                right: 0;
+                height: 40px;
+                width: 50px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 8;
+
+                .flex-shrink;
+
+                img {
+                    width: 25px;
+                    height: 25px;
+                }
+            }
+
+            .item-base {
+                width: 100%;
+                max-height: 0;
+                overflow-y: hidden;
+                transition: all 0.2s ease;
+                position: relative;
+                z-index: 40;
+
+                .item-box {
+                    padding: 0 12px;
+                    height: 40px;
+                    line-height: 40px;
+                    font-size: 14px;
+
+                    .border-position(top);
+
+                    &:hover {
+                        cursor: pointer;
+                        background: #f3f3f3;
+                    }
+                }
+            }
+
+            .unfold {
+                max-height: 300px;
+                z-index: 20;
+
+                .scroll-y;
+            }
+        }
+
+        >.unfold {
+            border-color: #b3b3b3;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 20;
+        }
+    }
+
+    .select-base-dark {
+        .select-box {
+            background: #252a31;
+            border-color: @dark_border;
+
+            .item-base .item-box {
+                border-color: #333;
+
+                &:hover {
+                    background: #3e3f46;
+                }
+            }
+
+            &:hover {
+                border-color: #666666;
+            }
+        }
+    }
+}
+</style>
