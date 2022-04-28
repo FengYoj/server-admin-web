@@ -5,7 +5,7 @@
             <div id="panel-menu">
                 <ul>
                     <li v-for="(menu, idx) in menus" :key="idx">
-                        <a :href="menu.href">{{menu.name}}</a>
+                        <a :href="menu.href">{{ menu.name }}</a>
                         <ul v-if="menu.child" v-html="getMobileMenuChild(menu.child)"></ul>
                     </li>
                 </ul>
@@ -18,15 +18,15 @@
                 <img class="icon" v-if="setting_info.icon" :src="setting_info.icon.url" />
             </div>
             <div class="main-menu-pc">
-                <div class="menu-item" v-for="(menu, idx) in menus" :key="idx" :class="{ 'menu-item-activity' : d_menu_root === menu.root }">
+                <div class="menu-item" v-for="(menu, idx) in menus" :key="idx" :class="{ 'menu-item-activity': d_menu_root === menu.root }">
                     <a class="menu-item-box" :href="menu.href" :title="menu.name">
-                        <img class="icon" :src="'static/icon/menu_icon/'+menu.icon" />
+                        <img class="icon" :src="'static/icon/menu_icon/' + menu.icon" />
                     </a>
                     <div class="menu-child-base menu-child-box" v-if="menu.child" v-html="getMenuChild(menu.child)" @click="hideMenuChild()"></div>
                 </div>
             </div>
             <div class="main-menu-pc">
-                <div class="menu-item" v-for="(menu, idx) in submenus" :key="idx" :class="{ 'menu-item-activity' : d_menu_root === menu.root }">
+                <div class="menu-item" v-for="(menu, idx) in submenus" :key="idx" :class="{ 'menu-item-activity': d_menu_root === menu.root }">
                     <a class="menu-item-box" :href="menu.href" :title="menu.name">
                         <img class="icon" :src="'static/icon/menu_icon/' + menu.icon" />
                     </a>
@@ -62,7 +62,7 @@
                     <div class="icon">
                         <elem-icon src="static/icon/menu_icon/" :key="page_icon" :name="page_icon"></elem-icon>
                     </div>
-                    <p class="name">{{page_title}}</p>
+                    <p class="name">{{ page_title }}</p>
                 </div>
                 <div class="operating-box">
                     <div class="search-box" id="SearchBox">
@@ -77,8 +77,8 @@
                             </div>
                             <div class="search-result" v-show="display_search && search_result && search_result.length > 0">
                                 <a class="result-item" v-for="(item, idx) in search_result" :key="idx" :href="item.href">
-                                    <p class="name">{{item.title}}</p>
-                                    <p class="path">{{item.href}}</p>
+                                    <p class="name">{{ item.title }}</p>
+                                    <p class="path">{{ item.href }}</p>
                                 </a>
                             </div>
                         </div>
@@ -92,7 +92,7 @@
                     </div>
                     <div class="user-box" v-if="userinfo && userinfo.avatar">
                         <div class="avatar-box">
-                            <img class="avatar" :src="userinfo.avatar.url">
+                            <img class="avatar" :src="userinfo.avatar.url" />
                             <div class="status"></div>
                         </div>
                         <div class="btn-icon">
@@ -120,19 +120,19 @@
 </template>
 
 <script lang="ts">
-import Utils from '@/module/utils/utils'
-import Component, { ComponentMethods } from '@/module/component/component'
-import Cache from '@/module/cache/cache'
-import Href from '@/module/config/href'
-import Theme from '@/module/theme/theme'
-import Message from '@/module/interactive/message'
+import Utils from "@/module/utils/utils"
+import Component, { ComponentMethods } from "@/module/component/component"
+import Cache from "@/module/cache/cache"
+import Href from "@/module/config/href"
+import Theme from "@/module/theme/theme"
+import Message from "@/module/interactive/message"
 
-import elemIcon from '@/components/elem-icon.vue'
-import elemOptions from '@/components/elem-options.vue'
-import compMenu from '@/components/comp-menu.vue'
-import pageAbout from '@/components/page-about.vue'
+import elemIcon from "@/components/elem-icon.vue"
+import elemOptions from "@/components/elem-options.vue"
+import compMenu from "@/components/comp-menu.vue"
+import pageAbout from "@/components/page-about.vue"
 
-import Version from '@/module/version/version'
+import Version from "@/module/version/version"
 
 class Framework {
     private static index: IndexView
@@ -148,7 +148,6 @@ class Framework {
 }
 
 class IndexView extends ComponentMethods implements ComponentEntity {
-
     public page_title: string = "首页"
 
     public page_icon: string = "data"
@@ -159,74 +158,88 @@ class IndexView extends ComponentMethods implements ComponentEntity {
 
     public submenus = null
 
-    public userMenu = [{
-        title: "账号管理",
-        sub: [{
-            id: "edit_password",
-            icon: "password",
-            name: "修改密码"
-        }, {
-            id: "sign_out",
-            icon: "sign_out",
-            name: "退出登录"
-        }]
-    }]
+    public userMenu = [
+        {
+            title: "账号管理",
+            sub: [
+                {
+                    id: "edit_password",
+                    icon: "password",
+                    name: "修改密码",
+                },
+                {
+                    id: "sign_out",
+                    icon: "sign_out",
+                    name: "退出登录",
+                },
+            ],
+        },
+    ]
 
-    public settingMenu = [{
-        title: "主题",
-        prompt: "自动模式下，将根据系统主题自动切换浅色模式或深色模式。",
-        sub: [{
-            id: "auto_theme",
-            icon: "auto",
-            name: "自动模式"
-        }, {
-            id: "light_theme",
-            icon: "light",
-            name: "浅色模式"
-        }, {
-            id: "dark_theme",
-            icon: "dark",
-            name: "深色模式"
-        }]
-    }, {
-        title: "系统",
-        sub: [{
-            id: "update",
-            icon: "update",
-            name: "检查更新"
-        }, {
-            id: "version",
-            icon: "about",
-            name: "版本"
-        }]
-    }]
+    public settingMenu = [
+        {
+            title: "主题",
+            prompt: "自动模式下，将根据系统主题自动切换浅色模式或深色模式。",
+            sub: [
+                {
+                    id: "auto_theme",
+                    icon: "auto",
+                    name: "自动模式",
+                },
+                {
+                    id: "light_theme",
+                    icon: "light",
+                    name: "浅色模式",
+                },
+                {
+                    id: "dark_theme",
+                    icon: "dark",
+                    name: "深色模式",
+                },
+            ],
+        },
+        {
+            title: "系统",
+            sub: [
+                {
+                    id: "update",
+                    icon: "update",
+                    name: "检查更新",
+                },
+                {
+                    id: "version",
+                    icon: "about",
+                    name: "版本",
+                },
+            ],
+        },
+    ]
 
     data() {
         return {
-            online_service_user_id_activity: null
+            online_service_user_id_activity: null,
 
             // 是否显示在线服务页面
-            , isDisplayOnlineServicePage: false
+            isDisplayOnlineServicePage: false,
 
             // 在线服务菜单
-            , online_service_menu: 'new'
+            online_service_menu: "new",
 
-            , chats: [
+            chats: [
                 {
-                    isCurrent: false
-                    , type: 'user'
-                    , name: '晟浩科技'
-                    , date: '2019-08-22 10:00'
-                    , content: '测试内容'
-                }
-                ,
+                    isCurrent: false,
+                    type: "user",
+                    name: "晟浩科技",
+                    date: "2019-08-22 10:00",
+                    content: "测试内容",
+                },
                 {
-                    isCurrent: true
-                    , type: 'admin'
-                    , name: '晟浩科技'
-                    , date: '2019-08-22 10:00'
-                    , content: '测试内容'
-                }
+                    isCurrent: true,
+                    type: "admin",
+                    name: "晟浩科技",
+                    date: "2019-08-22 10:00",
+                    content: "测试内容",
+                },
             ],
 
             search_result: null,
@@ -235,7 +248,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
 
             setting_info: Cache.get("setting_info"),
 
-            userinfo: Cache.get("userinfo")
+            userinfo: Cache.get("userinfo"),
         }
     }
 
@@ -243,17 +256,13 @@ class IndexView extends ComponentMethods implements ComponentEntity {
         elemIcon,
         compMenu,
         elemOptions,
-        pageAbout
+        pageAbout,
     }
 
     watch = {
         $route: async function (to) {
             this.processRoute(to)
-        }
-    }
-
-    setup() {
-        console.log(this)
+        },
     }
 
     created() {
@@ -268,7 +277,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
             })
         })
 
-        Cache.onGet("userinfo", (v) => {
+        Cache.onGet("userinfo", v => {
             this.userinfo = v
         })
     }
@@ -289,9 +298,9 @@ class IndexView extends ComponentMethods implements ComponentEntity {
      */
     onScroll(evt: obj): void {
         const e: HTMLDivElement = evt.target
-        var wScrollY = e.scrollTop // 当前滚动条位置  
-        var wInnerH = e.clientHeight; // 设备窗口的高度（不会变）  
-        var bScrollH = e.scrollHeight; // 滚动条总高度      
+        var wScrollY = e.scrollTop // 当前滚动条位置
+        var wInnerH = e.clientHeight // 设备窗口的高度（不会变）
+        var bScrollH = e.scrollHeight // 滚动条总高度
         if (wScrollY + wInnerH >= bScrollH) {
             const page = this.$route.matched[0].instances.default
             // 触发触底事件
@@ -311,10 +320,10 @@ class IndexView extends ComponentMethods implements ComponentEntity {
             if (route.matched.length <= 0) {
                 return
             }
-            
+
             const page = route.matched[0].instances.default
             // 设置页面标题
-            this.page_title = (typeof page.title === 'function' ? page.title() : page.title) || "首页"
+            this.page_title = (typeof page.title === "function" ? page.title() : page.title) || "首页"
             // 设置页面图标
             this.page_icon = page.icon || "data"
             // 写入框架方法
@@ -327,7 +336,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
     }
 
     onSelectSettingMenu(evt: CompEvent<any>) {
-        switch(evt.value) {
+        switch (evt.value) {
             case "auto_theme":
                 Theme.changeTheme("auto")
                 break
@@ -351,7 +360,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
     private _setMenuChildBoxStyle() {
         Utils.getElementAll<HTMLDivElement>(".menu-child-base", e => {
             const p = e.getBoundingClientRect()
-            
+
             if (p.height + p.y > window.innerHeight) {
                 if (!e.classList.contains("menu-child-box-bottom")) {
                     e.classList.add("menu-child-box-bottom")
@@ -375,11 +384,11 @@ class IndexView extends ComponentMethods implements ComponentEntity {
         Utils.each(child, v => {
             childs += `
                 <div class="menu-child-item">
-                    <a class="menu-child-item-box" ${v.href ? 'href="'+ v.href +'" @click="hideMenuChild()"' : ''}>
+                    <a class="menu-child-item-box" ${v.href ? 'href="' + v.href + '" @click="hideMenuChild()"' : ""}>
                         <img class="menu-child-icon" src="static/icon/menu_icon/${v.icon}" />
                         <p class="menu-child-name">${v.name}</p>
                     </a>
-                    ${v.child ? this.getMenuChild(v.child, true) : ''}
+                    ${v.child ? this.getMenuChild(v.child, true) : ""}
                 </div>
             `
         })
@@ -399,8 +408,8 @@ class IndexView extends ComponentMethods implements ComponentEntity {
         Utils.each(child, v => {
             childs += `
                 <li>
-                    <a ${v.href ? 'href="'+ v.href +'"' : ''}>${v.name}</a>
-                    ${v.child ? this.getMobileMenuChild(v.child, true) : ''}
+                    <a ${v.href ? 'href="' + v.href + '"' : ""}>${v.name}</a>
+                    ${v.child ? this.getMobileMenuChild(v.child, true) : ""}
                 </li>
             `
         })
@@ -410,7 +419,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
 
     public hideMenuChild() {
         const dom = document.querySelectorAll<HTMLDivElement>(".menu-child-box")
-    
+
         if (dom.length > 0) {
             Utils.eachNode(dom, v => {
                 v.hidden = true
@@ -455,7 +464,7 @@ interface MenuObj {
     child?: MenuObj[]
 }
 
-export default Component.build(new IndexView)
+export default Component.build(new IndexView())
 </script>
 
 <style lang="less">
@@ -495,7 +504,7 @@ export default Component.build(new IndexView)
             display: none;
         }
 
-        >.info-box {
+        > .info-box {
             width: 100%;
             height: 80px;
 
@@ -514,7 +523,7 @@ export default Component.build(new IndexView)
 
             .flex();
             .flex-column();
-            
+
             .menu-item {
                 position: relative;
                 width: 100%;
@@ -545,7 +554,7 @@ export default Component.build(new IndexView)
                     .transition(0.2s);
 
                     &::after {
-                        content: '';
+                        content: "";
                         width: 0;
                         height: 0;
                         border-top: 8px solid transparent;
@@ -554,7 +563,7 @@ export default Component.build(new IndexView)
 
                         .absolute(25px, initial, initial, 8px);
                     }
-                
+
                     .menu-child-box {
                         position: relative;
                         background: #fff;
@@ -562,57 +571,57 @@ export default Component.build(new IndexView)
 
                         .shadow(0 0 20px rgba(0, 0, 0, 0.1));
                         .radius(6px);
-                
+
                         .menu-child-item {
                             position: relative;
                             height: 65px;
-                
+
                             &:last-child {
-                                >.menu-child-item-box::after {
+                                > .menu-child-item-box::after {
                                     border-bottom: initial;
                                 }
                             }
-                
+
                             &:hover {
                                 > .menu-child-base {
                                     visibility: initial;
                                     opacity: 1;
                                 }
-                
+
                                 > .menu-child-item-box {
                                     .menu-child-icon {
                                         filter: initial;
                                     }
                                     .menu-child-name {
-                                        color: #00A2FF;
+                                        color: #00a2ff;
                                     }
                                 }
                             }
-                
+
                             .menu-child-item-box {
                                 position: relative;
                                 height: 100%;
                                 padding: 0 30px;
-                
+
                                 .flex();
                                 .flex-center-items();
-                
+
                                 &::after {
-                                    content: '';
+                                    content: "";
                                     border-color: #f3f3f3;
 
                                     .border-position(bottom);
                                     .absolute(initial, 20px, 0, 20px);
                                 }
-                
+
                                 .menu-child-icon {
                                     filter: grayscale(1);
                                     width: 22px;
                                     height: 22px;
-                
+
                                     .flex-shrink();
                                 }
-                
+
                                 .menu-child-name {
                                     margin: 0 20px;
                                     color: #666;
@@ -621,7 +630,7 @@ export default Component.build(new IndexView)
                                     white-space: nowrap;
                                     overflow: hidden;
                                     text-overflow: ellipsis;
-                
+
                                     .flex-grow();
                                 }
                             }
@@ -642,7 +651,7 @@ export default Component.build(new IndexView)
                         filter: grayscale(0);
                     }
 
-                    >.menu-child-base {
+                    > .menu-child-base {
                         visibility: initial;
                         opacity: 1;
                     }
@@ -651,8 +660,8 @@ export default Component.build(new IndexView)
 
             .menu-item-activity {
                 &::after {
-                    content: '';
-                    background: #00A2FF;
+                    content: "";
+                    background: #00a2ff;
                     width: 2.25px;
                     border-radius: 2px;
 
@@ -666,7 +675,7 @@ export default Component.build(new IndexView)
         }
     }
 
-    >.secondary-page {
+    > .secondary-page {
         width: 600px;
         height: 100%;
 
@@ -703,7 +712,7 @@ export default Component.build(new IndexView)
                 .flex;
                 .flex-wrap;
 
-                >.item-box {
+                > .item-box {
                     margin: 10px;
                     width: 50px;
                     height: 80px;
@@ -742,19 +751,19 @@ export default Component.build(new IndexView)
         }
     }
 
-    >.column-box {
+    > .column-box {
         overflow: hidden;
 
         .flex;
         .flex-column;
         .flex-grow;
 
-        >.head-box {
+        > .head-box {
             height: 100px;
             z-index: 50;
             padding: 20px 20px 0 20px;
             margin: 0 20px;
-            
+
             .flex-shrink;
             .border-box;
             .flex;
@@ -822,63 +831,63 @@ export default Component.build(new IndexView)
                         .search {
                             width: 100%;
                             height: 35px;
-            
+
                             .flex();
                             .flex-center-items();
-            
+
                             .icon-box {
                                 width: 20px;
                                 height: 20px;
                                 margin: 0 10px;
                             }
-                
+
                             .search-input {
                                 font-size: 14px;
                                 padding-right: 20px;
-                
+
                                 .flex-grow();
 
                                 @media (max-width: 700px) {
                                     display: none;
                                 }
-                
+
                                 input {
                                     width: 100%;
                                     font-size: 14px;
                                     color: #fff;
 
-                                    &::-webkit-input-placeholder{
+                                    &::-webkit-input-placeholder {
                                         color: #e3e3e3;
                                     }
                                 }
                             }
                         }
-            
+
                         .search-result {
                             width: 100%;
                             max-height: 300px;
                             border-top: 1px solid #e3e3e3;
-            
+
                             .scroll-y;
-            
+
                             .result-item {
                                 padding: 0 20px;
                                 height: 40px;
                                 border-bottom: 1px solid #e3e3e3;
-            
+
                                 .flex;
                                 .flex-center-items;
                                 .flex-content(space-between);
-            
+
                                 &:last-child {
                                     border-bottom: initial;
                                 }
-            
+
                                 &:hover {
                                     color: #000;
                                     background: #f3f3f3;
                                 }
-            
+
                                 p {
                                     color: #000;
                                     overflow: hidden;
@@ -898,7 +907,7 @@ export default Component.build(new IndexView)
 
                     .search-activity {
                         border-color: #b3b3b3;
-                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                         z-index: 20;
                     }
                 }
@@ -941,7 +950,7 @@ export default Component.build(new IndexView)
             }
         }
 
-        >.content-box {
+        > .content-box {
             margin: 10px 40px 20px 40px;
             background: #fff;
             overflow: hidden;
@@ -981,7 +990,7 @@ export default Component.build(new IndexView)
             cursor: pointer;
             width: 20px;
             height: 80px;
-            background: #00A2FF;
+            background: #00a2ff;
             margin-top: -40px;
 
             .shadow();
@@ -1024,8 +1033,8 @@ export default Component.build(new IndexView)
                     .flex-center-all();
 
                     &::after {
-                        content: '';
-                        background: #00A2FF;
+                        content: "";
+                        background: #00a2ff;
                         height: 2px;
                         width: 0;
 
@@ -1050,7 +1059,7 @@ export default Component.build(new IndexView)
                         letter-spacing: 2px;
                         text-indent: 2px;
                         font-weight: bold;
-                    
+
                         .transition(0.2s);
                     }
                 }
@@ -1077,7 +1086,7 @@ export default Component.build(new IndexView)
                     p {
                         font-size: 12px;
                         letter-spacing: 1px;
-                        color: #00A2FF;
+                        color: #00a2ff;
                         font-weight: bold;
                     }
                 }
@@ -1089,7 +1098,7 @@ export default Component.build(new IndexView)
                 .flex-grow();
                 .flex();
                 .flex-column();
-                
+
                 .user-fast {
                     margin: 20px 0;
                     width: 100%;
@@ -1111,19 +1120,19 @@ export default Component.build(new IndexView)
                         .flex-center-all();
 
                         &::after {
-                            content: '';
-                            
+                            content: "";
+
                             .radius(15px);
                             .absolute(-2px,-2px,-2px,-2px);
                         }
 
-                        &:nth-child(5n+0) {
+                        &:nth-child(5n + 0) {
                             margin-right: 0;
                         }
                     }
 
                     .user-item-activity::after {
-                        border: 2px solid #00A2FF;
+                        border: 2px solid #00a2ff;
                     }
                 }
 
@@ -1138,11 +1147,11 @@ export default Component.build(new IndexView)
                     .title {
                         padding: 20px 0;
                         height: 50px;
-        
+
                         .flex();
                         .flex-center-items();
                         .flex-shrink(0);
-        
+
                         p {
                             font-size: 25px;
                             letter-spacing: 3px;
@@ -1153,36 +1162,36 @@ export default Component.build(new IndexView)
                     .dialogue-box {
                         .flex-grow(1);
                         .scroll-y;
-        
+
                         .item {
                             padding: 10px 0;
-        
+
                             .flex-items(flex-start);
                             .flex-column();
                             .flex();
-        
+
                             .info {
                                 height: 40px;
-        
+
                                 .flex();
-        
+
                                 .avatar {
                                     width: 40px;
                                     height: 40px;
                                     background: #fff;
                                     overflow: hidden;
-        
+
                                     .radius(10px);
                                     .shadow(0 0 10px rgba(0, 0, 0, 0.1));
                                 }
-        
+
                                 .name-date {
                                     padding-left: 10px;
-        
+
                                     .flex();
                                     .flex-column();
                                     .flex-center-content();
-        
+
                                     .name {
                                         font-size: 16px;
                                         letter-spacing: 2px;
@@ -1190,7 +1199,7 @@ export default Component.build(new IndexView)
                                         padding-bottom: 2px;
                                         color: #232d40;
                                     }
-        
+
                                     .date {
                                         font-weight: bold;
                                         letter-spacing: 1px;
@@ -1199,7 +1208,7 @@ export default Component.build(new IndexView)
                                     }
                                 }
                             }
-        
+
                             .chat-con {
                                 float: left;
                                 padding: 15px 20px;
@@ -1207,75 +1216,75 @@ export default Component.build(new IndexView)
                                 background: #ecf3fa;
                                 color: #727e99;
                                 letter-spacing: 2px;
-        
+
                                 .radius(10px);
-        
+
                                 p {
                                     word-break: break-word;
                                 }
                             }
                         }
-        
+
                         .current {
                             .flex-items(flex-end);
-        
+
                             .info {
                                 flex-direction: row-reverse;
                             }
-        
+
                             .name-date {
                                 padding-left: 0;
                                 padding-right: 10px;
                                 text-align: right;
                             }
-        
+
                             .chat-con {
                                 float: right;
                                 margin: 10px 50px 0 0;
-                                background: #00A2FF;
+                                background: #00a2ff;
                                 color: #fff;
                             }
                         }
                     }
-        
+
                     .input-box {
                         height: 40px;
                         padding: 5px;
                         margin-top: 30px;
                         background: #edf3fb;
-                        
+
                         .radius(10px);
                         .flex-shrink(0);
-        
+
                         .input-form {
                             height: 100%;
 
                             .flex();
-        
+
                             .input {
                                 height: 100%;
                                 padding: 0 20px 0 10px;
-            
+
                                 .flex();
                                 .flex-center-items();
                                 .flex-grow(1);
-            
+
                                 input {
                                     width: 100%;
                                     font-size: 18px;
                                 }
                             }
-            
+
                             .submit {
                                 cursor: pointer;
                                 width: 40px;
                                 height: 40px;
-                                background: #00A2FF;
+                                background: #00a2ff;
                                 border: 0;
-                                
+
                                 .radius(10px);
                                 .flex-shrink(0);
-            
+
                                 img {
                                     width: 25px;
                                     height: 25px;
@@ -1290,7 +1299,7 @@ export default Component.build(new IndexView)
             .user-lists {
                 margin-top: 20px;
                 width: 100%;
-                
+
                 .flex-grow();
                 .scroll-y;
 
@@ -1323,7 +1332,7 @@ export default Component.build(new IndexView)
 
                         .username-time {
                             width: 100%;
-                            
+
                             .flex();
                             .flex-center-items();
                             .flex-content(space-between);
@@ -1382,7 +1391,7 @@ export default Component.build(new IndexView)
     .online-service-display {
         transform: translateX(-400px);
         border-left: 1px solid #e3e3e3;
-        
+
         @media (max-width: 1300px) {
             border-left: initial;
 
@@ -1399,7 +1408,7 @@ export default Component.build(new IndexView)
 
         .menu-child-box {
             background: #1e2329;
-            
+
             .menu-child-item .menu-child-item-box {
                 &::after {
                     border-color: #272938;

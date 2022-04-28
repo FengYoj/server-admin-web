@@ -1,24 +1,17 @@
 # server-admin
 
-## Project setup
-```
-yarn install
-```
+## 项目描述
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+此项目为Web管理端，需要配合 server 后端框架才能运行。
 
-### Compiles and minifies for production
-```
-yarn build
-```
+## 项目功能
 
-### Lints and fixes files
-```
-yarn lint
-```
+1.自动根据后台实体字段生成对应表格表单。\
+2.统一用户管理。\
+3.
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 使用 yarn 编译运行
+```
+yarn install  // 初始化
+yarn serve    // 运行服务
+```

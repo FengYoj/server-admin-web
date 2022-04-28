@@ -1,29 +1,87 @@
 <template>
     <div class="comp-form-item-box" :class="'item-' + data.type" v-if="getConditionValue()">
-        <p class="title">{{data.title}}{{getTypeName(data.type)}}</p>
+        <p class="title">{{ data.title }}{{ getTypeName(data.type) }}</p>
 
         <div v-if="data.type === 'Input'" class="input-box">
-            <component v-bind:is="getComponent('elem-input')" :title="data.title" :value="getValue(data.field, entity, index)" :field="data.field" type="text" :name="name" :placeholder="data.placeholder" :required="data.required" @change="onChangeData"></component>
+            <component
+                v-bind:is="getComponent('elem-input')"
+                :title="data.title"
+                :value="getValue(data.field, entity, index)"
+                :field="data.field"
+                type="text"
+                :name="name"
+                :placeholder="data.placeholder"
+                :required="data.required"
+                @change="onChangeData"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'Number'" class="input-box">
-            <component v-bind:is="getComponent('elem-input')" :title="data.title" :value="getValue(data.field, entity, index)" :field="data.field" type="number" :name="name" :placeholder="data.placeholder" :required="data.required" @change="onChangeData"></component>
+            <component
+                v-bind:is="getComponent('elem-input')"
+                :title="data.title"
+                :value="getValue(data.field, entity, index)"
+                :field="data.field"
+                type="number"
+                :name="name"
+                :placeholder="data.placeholder"
+                :required="data.required"
+                @change="onChangeData"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'Phone'" class="input-box">
-            <component v-bind:is="getComponent('elem-input')" :title="data.title" :value="getValue(data.field, entity, index)" :field="data.field" type="number" :name="name" :placeholder="data.placeholder" :required="data.required" @change="onChangeData" verify="phone"></component>
+            <component
+                v-bind:is="getComponent('elem-input')"
+                :title="data.title"
+                :value="getValue(data.field, entity, index)"
+                :field="data.field"
+                type="number"
+                :name="name"
+                :placeholder="data.placeholder"
+                :required="data.required"
+                @change="onChangeData"
+                verify="phone"
+            ></component>
         </div>
 
-         <div v-else-if="data.type === 'Price'" class="input-box">
-            <component v-bind:is="getComponent('elem-price')" :title="data.title" :value="getValue(data.field, entity, index)" :field="data.field" :name="name" :placeholder="data.placeholder" :required="data.required" @change="onChangeData"></component>
+        <div v-else-if="data.type === 'Price'" class="input-box">
+            <component
+                v-bind:is="getComponent('elem-price')"
+                :title="data.title"
+                :value="getValue(data.field, entity, index)"
+                :field="data.field"
+                :name="name"
+                :placeholder="data.placeholder"
+                :required="data.required"
+                @change="onChangeData"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'Password'" class="input-box">
-            <component v-bind:is="getComponent('elem-password')" :title="data.title" :value="getValue(data.field, entity, index)" :field="data.field" :config="data.passwordConfig" :name="name" :placeholder="data.placeholder" :required="data.required" @change="onChangeData"></component>
+            <component
+                v-bind:is="getComponent('elem-password')"
+                :title="data.title"
+                :value="getValue(data.field, entity, index)"
+                :field="data.field"
+                :config="data.passwordConfig"
+                :name="name"
+                :placeholder="data.placeholder"
+                :required="data.required"
+                @change="onChangeData"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'Textarea'" class="textarea-box">
-            <component v-bind:is="getComponent('elem-textarea')" :name="name" :title="data.title" :placeholder="data.placeholder" :required="data.required" @change="onChangeData" :value="getValue(data.field, entity, index)"></component>
+            <component
+                v-bind:is="getComponent('elem-textarea')"
+                :name="name"
+                :title="data.title"
+                :placeholder="data.placeholder"
+                :required="data.required"
+                @change="onChangeData"
+                :value="getValue(data.field, entity, index)"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'Switch'" class="switch-box">
@@ -31,15 +89,45 @@
         </div>
 
         <div v-else-if="data.type === 'Select'" class="select-box">
-            <component v-bind:is="getComponent('elem-select')" :name="name" @change="onChangeData" :data="data.selectConfig.data" :field="data.field" :multiple="data.selectConfig.multiple" :required="data.required" :title="data.title" :placeholder="data.placeholder" :value="getValue(data.field, entity, index, data.selectConfig.controller ? 'uuid' : '')"></component>
+            <component
+                v-bind:is="getComponent('elem-select')"
+                :name="name"
+                @change="onChangeData"
+                :data="data.selectConfig.data"
+                :field="data.field"
+                :multiple="data.selectConfig.multiple"
+                :required="data.required"
+                :title="data.title"
+                :placeholder="data.placeholder"
+                :value="getValue(data.field, entity, index, data.selectConfig.controller ? 'uuid' : '')"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'Upload'" class="upload-box">
-            <component v-bind:is="getComponent('elem-upload')" :name="name" :value="getValue(data.field, entity, index)" :field="data.field" :title="data.title" :required="data.required" :type="data.uploadConfig.type" :accept="data.uploadConfig.accept" :multi="data.uploadConfig.multi" @change="onChangeData"></component>
+            <component
+                v-bind:is="getComponent('elem-upload')"
+                :name="name"
+                :value="getValue(data.field, entity, index)"
+                :field="data.field"
+                :title="data.title"
+                :required="data.required"
+                :type="data.uploadConfig.type"
+                :accept="data.uploadConfig.accept"
+                :multi="data.uploadConfig.multi"
+                @change="onChangeData"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'Editor'" class="editor-box">
-            <component v-bind:is="getComponent('elem-editor')" :name="name" :required="data.required" :title="data.title" :field="data.field" :placeholder="data.placeholder" :value="getValue(data.field, entity, index)"></component>
+            <component
+                v-bind:is="getComponent('elem-editor')"
+                :name="name"
+                :required="data.required"
+                :title="data.title"
+                :field="data.field"
+                :placeholder="data.placeholder"
+                :value="getValue(data.field, entity, index)"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'Map'" class="map-box">
@@ -47,7 +135,16 @@
         </div>
 
         <div v-else-if="data.type === 'Label'" class="label-box">
-            <component v-bind:is="getComponent('elem-label')" :name="name" :type="data.labelConfig.type" :required="data.required" :field="data.field" :title="data.title" :placeholder="data.placeholder" :value="getValue(data.field, entity, index)"></component>
+            <component
+                v-bind:is="getComponent('elem-label')"
+                :name="name"
+                :type="data.labelConfig.type"
+                :required="data.required"
+                :field="data.field"
+                :title="data.title"
+                :placeholder="data.placeholder"
+                :value="getValue(data.field, entity, index)"
+            ></component>
         </div>
 
         <div v-else-if="data.type === 'RichText'" class="richtext-box">
@@ -61,14 +158,13 @@
 </template>
 
 <script lang="ts">
-import Utils from '@/module/utils/utils'
+import Utils from "@/module/utils/utils"
 
 export default {
-
     data() {
         return {
             form_value: null,
-            name: null
+            name: null,
         }
     },
 
@@ -78,23 +174,23 @@ export default {
         entity: String,
         isList: {
             type: Boolean,
-            default: false
+            default: false,
         },
         index: Number,
         value: {
             type: Object,
-            default: new Object
-        }
+            default: new Object(),
+        },
     },
 
     watch: {
         value: function (value) {
             this.form_value = value
-        }
+        },
     },
 
     created() {
-        const form_value = this.form_value = this.value || {}
+        const form_value = (this.form_value = this.value || {})
         this.initial_value = Utils.copy(form_value)
 
         this.name = this.entity ? `${this.entity}[${this.index}].${this.data.name}` : this.data.name
@@ -105,14 +201,14 @@ export default {
             const value = this.form_value
             value[evt.name] = evt.value
 
-            this.$emit('change-data', {
+            this.$emit("change-data", {
                 value: value,
-                type: "comp-form"
+                type: "comp-form",
             })
         },
 
         getTypeName(type) {
-            switch(type) {
+            switch (type) {
                 case "Select":
                     return "（选择）"
                 case "Upload":
@@ -125,12 +221,10 @@ export default {
         },
 
         getValue(field, name, idx, key) {
-            console.log(field, name, idx, key)
-            console.log(this.initial_value)
             try {
                 var value: any
 
-                if (!name || name === 'null') {
+                if (!name || name === "null") {
                     value = this.initial_value[field]
                 } else if (this.initial_value[name] && !Utils.isBlank(idx)) {
                     value = this.initial_value[name][idx][field]
@@ -163,9 +257,9 @@ export default {
                 return true
             }
 
-            return new Function(`return ${c.replace(/&{(\w*)}/g, 'this.$1')}`).call(this.form_value)
-        }
-    }
+            return new Function(`return ${c.replace(/&{(\w*)}/g, "this.$1")}`).call(this.form_value)
+        },
+    },
 }
 </script>
 
@@ -186,14 +280,16 @@ export default {
         width: 33.33%;
     }
 
-    >.title {
+    > .title {
         font-size: 16px;
         color: #8998ad;
         line-height: 40px;
     }
 }
 
-.item-Editor, .item-RichText, .item-Keyboard {
+.item-Editor,
+.item-RichText,
+.item-Keyboard {
     width: 100%;
 }
 
@@ -205,6 +301,4 @@ export default {
         height: auto;
     }
 }
-
-
 </style>
