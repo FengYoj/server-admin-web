@@ -1,8 +1,20 @@
 <template>
-	<div class="elem-price-box" dark-class="elem-price-box-dark">
-		<input ref="input" :maxlength="max" type="number" class="input" :title="title" :required="required" :name="name" :placeholder="place_holder" v-model="val" @change="onChange" @input="onInput">
+    <div class="elem-price-box" dark-class="elem-price-box-dark">
+        <input
+            ref="input"
+            :maxlength="max"
+            type="number"
+            class="input"
+            :title="title"
+            :required="required"
+            :name="name"
+            :placeholder="place_holder"
+            v-model="val"
+            @change="onChange"
+            @input="onInput"
+        />
         <div class="operating-box">
-            <p class="unit-box">{{type === 'yuan' ? '/元' : '/分'}}</p>
+            <p class="unit-box">{{ type === "yuan" ? "/元" : "/分" }}</p>
             <div class="check-box" v-show="check !== null">
                 <view class="icon-box" v-show="check !== null && check.isNormal()">
                     <elem-icon src="static/icon/components/elem-input/" name="correct"></elem-icon>
@@ -23,10 +35,10 @@
 <script lang="ts">
 import Utils from "../module/utils/utils"
 
-import elemIcon from './elem-icon.vue'
-import compMenu from './comp-menu.vue'
-import elemPrompt from './elem-prompt.vue'
-import Component, { ComponentMethods } from '@/module/component/component'
+import elemIcon from "./elem-icon.vue"
+import compMenu from "./comp-menu.vue"
+import elemPrompt from "./elem-prompt.vue"
+import Component, { ComponentMethods } from "@/module/component/component"
 import Status from "@/module/status/status"
 
 class ElemPasswordComponent extends ComponentMethods implements ComponentEntity {
@@ -35,62 +47,70 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
     private place_holder: string = null
     private hidden: boolean = true
     private change: boolean = false
-    private type: 'yuan' | 'penny' = "yuan"
+    private type: "yuan" | "penny" = "yuan"
 
     public language = {
         enter: "输入",
-        optional: "可选"
+        optional: "可选",
     }
 
-    private operatings = [{
-        title: "价格单位",
-        prompt: "单位为“分”时不可使用小数点",
-        sub: [{
-            id: "UnitYuan",
-            icon: "price",
-            name: "元"
-        }, {
-            id: "UnitPenny",
-            icon: "price",
-            name: "分"
-        }]
-    }, {
-        title: "关于",
-        sub: [{
-            icon: "version",
-            name: "组件版本",
-            value: "1.0.0"
-        }]
-    }]
+    private operatings = [
+        {
+            title: "价格单位",
+            prompt: "单位为“分”时不可使用小数点",
+            sub: [
+                {
+                    id: "UnitYuan",
+                    icon: "price",
+                    name: "元",
+                },
+                {
+                    id: "UnitPenny",
+                    icon: "price",
+                    name: "分",
+                },
+            ],
+        },
+        {
+            title: "关于",
+            sub: [
+                {
+                    icon: "version",
+                    name: "组件版本",
+                    value: "1.0.0",
+                },
+            ],
+        },
+    ]
 
     props = {
         config: {
             type: Object,
             default: {
-                encryption: true
-            }
+                encryption: true,
+            },
         },
         max: {
             type: Number,
-            default: 255
+            default: 255,
         },
         name: String,
         title: String,
         required: {
             type: Boolean,
-            default: true
+            default: true,
         },
         placeholder: {
             type: String,
-            default: ""
+            default: "",
         },
-        value: null
+        value: null,
     }
 
     components = {
         elemIcon,
         compMenu,
-        elemPrompt
+        elemPrompt,
     }
 
     watch = {
@@ -99,7 +119,7 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
         },
         type() {
             this.onCheck(this.val)
-        }
+        },
     }
 
     mounted() {
@@ -107,30 +127,30 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
             this.val = String(this.value / 100)
         }
 
-        this.place_holder = this.placeholder || `${this.language.enter}${this.title || this.name}${this.required ? '' : ('(' + this.language.optional + ')')}`
+        this.place_holder = this.placeholder || `${this.language.enter}${this.title || this.name}${this.required ? "" : "(" + this.language.optional + ")"}`
 
         this.$refs.input.getValue = this.getValue.bind(this)
     }
 
     onChange(evt: obj) {
-        this.$emit('change', {
+        this.$emit("change", {
             value: evt.target.value,
             type: "elem-input",
             name: this.name,
             set: (value: string) => {
                 this.val = value
-            }
+            },
         })
     }
 
     onInput(evt: obj) {
-        this.$emit('input-event', {
+        this.$emit("input-event", {
             value: evt.target.value,
             type: "elem-input",
             name: this.name,
             set: (value: string) => {
                 this.val = value
-            }
+            },
         })
     }
 
@@ -158,19 +178,17 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
     onCheck(value: string): Status<any> {
         var check: Status<any>
 
+        if (typeof value === "number") {
+            value = String(value)
+        }
+
         if (Utils.isBlank(value)) {
             check = this.check = null
-        }
-
-        else if (this.type === 'penny' && value.indexOf(".") > -1) {
+        } else if (this.type === "penny" && value.indexOf(".") > -1) {
             check = this.check = Status.of(400).setMessage("单位为“分”时不可使用小数点")
-        }
-
-        else if (this.type === 'yuan' && value.indexOf(".") > -1 && value.indexOf(".") + 3 < value.length) {
+        } else if (this.type === "yuan" && value.indexOf(".") > -1 && value.indexOf(".") + 3 < value.length) {
             check = this.check = Status.of(400).setMessage("单位为“元”时小数不能超过2位")
-        }
-
-        else {
+        } else {
             check = this.check = Status.of(200)
         }
 
@@ -179,17 +197,17 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
 
     onSelectOperating(evt: obj) {
         switch (evt.value) {
-            case 'UnitYuan':
-                this.type = 'yuan'
+            case "UnitYuan":
+                this.type = "yuan"
                 break
-            case 'UnitPenny':
-                this.type = 'penny'
+            case "UnitPenny":
+                this.type = "penny"
                 break
         }
     }
 }
 
-export default Component.build(new ElemPasswordComponent)
+export default Component.build(new ElemPasswordComponent())
 </script>
 
 <style lang="less">
@@ -197,7 +215,7 @@ export default Component.build(new ElemPasswordComponent)
 @import (reference) "/src/style/color.less";
 
 .elem-price-box {
-	position: relative;
+    position: relative;
     width: 100%;
     height: 45px;
 
@@ -217,7 +235,7 @@ export default Component.build(new ElemPasswordComponent)
         &:hover,
         &:focus {
             border-color: #b3b3b3;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     }
 
@@ -237,13 +255,13 @@ export default Component.build(new ElemPasswordComponent)
             align-items: center;
             z-index: 15;
 
-            >.icon-box {
+            > .icon-box {
                 width: 25px;
                 height: 25px;
             }
         }
 
-        >.unit-box {
+        > .unit-box {
             margin: 0 10px;
             z-index: 15;
             font-size: 14px;
@@ -251,7 +269,7 @@ export default Component.build(new ElemPasswordComponent)
             color: #888;
         }
 
-        >.menu-box {
+        > .menu-box {
             margin: 0 10px;
             width: 25px;
             display: flex;
@@ -259,7 +277,7 @@ export default Component.build(new ElemPasswordComponent)
             align-items: center;
             z-index: 15;
 
-            >.icon {
+            > .icon {
                 width: 25px;
                 height: 25px;
             }
@@ -278,7 +296,7 @@ export default Component.build(new ElemPasswordComponent)
         }
     }
 
-    .operating-box >.unit-box {
+    .operating-box > .unit-box {
         color: #eee;
     }
 }
