@@ -7,8 +7,8 @@
                 </div>
                 <p class="name">今日总访问量</p>
                 <div class="value-box">
-                    <p class="value">{{info.visitsToday}}</p>
-                    <p class="compare">{{getCompare(info.visitsCompare)}}</p>
+                    <p class="value">{{ info.visitsToday }}</p>
+                    <p class="compare">{{ getCompare(info.visitsCompare) }}</p>
                 </div>
             </div>
             <div class="preview-item">
@@ -17,8 +17,8 @@
                 </div>
                 <p class="name">今日新增用户量</p>
                 <div class="value-box">
-                    <p class="value">{{info.usersToday}}</p>
-                    <p class="compare">{{getCompare(info.usersCompare)}}</p>
+                    <p class="value">{{ info.usersToday }}</p>
+                    <p class="compare">{{ getCompare(info.usersCompare) }}</p>
                 </div>
             </div>
             <div class="preview-item preview-yellow">
@@ -27,8 +27,8 @@
                 </div>
                 <p class="name">本月订单总额</p>
                 <div class="value-box">
-                    <p class="value">{{info.orderToday}}</p>
-                    <p class="compare">{{getCompare(info.orderCompare)}}</p>
+                    <p class="value">{{ info.orderToday }}</p>
+                    <p class="compare">{{ getCompare(info.orderCompare) }}</p>
                 </div>
             </div>
             <div class="preview-item preview-red">
@@ -37,8 +37,8 @@
                 </div>
                 <p class="name">程序异常警告</p>
                 <div class="value-box">
-                    <p class="value">{{info.exceptionsToday}}</p>
-                    <p class="compare">{{getCompare(info.exceptionsCompare)}}</p>
+                    <p class="value">{{ info.exceptionsToday }}</p>
+                    <p class="compare">{{ getCompare(info.exceptionsCompare) }}</p>
                 </div>
             </div>
         </div>
@@ -66,8 +66,8 @@
                             <elem-icon width="25px" height="25px" src="static/interactive/icon/" :name="getMessageIcon(item.type)" :dark="getMessageIcon(item.type, true)"></elem-icon>
                         </div>
                         <div class="info-box">
-                            <div class="name">{{item.source.title}}</div>
-                            <div class="info">{{item.message}}</div>
+                            <div class="name">{{ item.source.title }}</div>
+                            <div class="info">{{ item.message }}</div>
                         </div>
                         <div class="more" @click.stop="onDeleteMessage(item.uuid)">
                             <elem-icon name="close" dark="close_white"></elem-icon>
@@ -87,17 +87,16 @@
 </template>
 
 <script lang="ts">
-import Request from '@/module/request/request'
-import Utils from '@/module/utils/utils'
-import Highcharts from 'highcharts'
-import Message from '@/module/interactive/message'
-import Component, { ComponentMethods } from '../module/component/component'
+import Request from "@/module/request/request"
+import Utils from "@/module/utils/utils"
+import Highcharts from "highcharts"
+import Message from "@/module/interactive/message"
+import Component, { ComponentMethods } from "../module/component/component"
 
-import elemIcon from '@/components/elem-icon.vue'
+import elemIcon from "@/components/elem-icon.vue"
 // import Cache from '@/module/cache/cache'
 
 class HomeView extends ComponentMethods implements ComponentEntity {
-
     public title: string = "首页"
 
     public icon: string = "home"
@@ -109,7 +108,7 @@ class HomeView extends ComponentMethods implements ComponentEntity {
     private info = null
 
     components = {
-        elemIcon
+        elemIcon,
     }
 
     created() {
@@ -122,7 +121,7 @@ class HomeView extends ComponentMethods implements ComponentEntity {
         this.initMessageSocket()
     }
 
-    activated () {
+    activated() {
         this.getOrderChartData()
         this.getAccessChartData()
 
@@ -131,30 +130,30 @@ class HomeView extends ComponentMethods implements ComponentEntity {
 
     public initMessageSocket() {
         // 判断当前浏览器是否支持 WebSocket
-        if (!('WebSocket' in window)) {
+        if (!("WebSocket" in window)) {
             return
         }
 
-        const socket = new WebSocket(`${window.location.protocol.indexOf('https') > -1 ? 'wss' : 'ws'}://${window.location.hostname}/WebSocket/Chat`)
+        const socket = new WebSocket(`${window.location.protocol.indexOf("https") > -1 ? "wss" : "ws"}://${window.location.hostname}/WebSocket/Chat`)
 
         const audio = new Audio("static/audio/message.mp3")
 
         //连接发生错误的回调方法
-        socket.onerror = function(evt) {
+        socket.onerror = function (evt) {
             console.error(evt)
         }
 
         //接收到消息的回调方法
-        socket.onmessage = (event) => {
+        socket.onmessage = event => {
             this.messages.push(JSON.parse(event.data))
 
             // if (Cache.get<obj>("system", {}).audio) {
-                audio.play()
+            audio.play()
             // }
         }
 
         // 监听窗口关闭事件
-        window.onbeforeunload = function() {
+        window.onbeforeunload = function () {
             socket.close()
         }
     }
@@ -214,7 +213,7 @@ class HomeView extends ComponentMethods implements ComponentEntity {
             if (res.length <= 0) return
 
             this.ordersChartData = res
-            
+
             if (this.ordersChart) {
                 // 销毁订单数据图表
                 this.ordersChart.destroy()
@@ -229,42 +228,41 @@ class HomeView extends ComponentMethods implements ComponentEntity {
      * 监听主题变化事件
      */
     onChangeTheme(theme) {
-        this.setDarkTheme(theme === 'dark')
+        this.setDarkTheme(theme === "dark")
     }
 
     getCompare(num: number): string {
-        return num >= 0 ? ("⬆" + num) : ("⬇" + Math.abs(num))
+        return num >= 0 ? "⬆" + num : "⬇" + Math.abs(num)
     }
 
     setDarkTheme(dark: boolean) {
         Highcharts.theme = {
-            colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', 
-                    '#FF9655', '#FFF263', '#6AF9C4'],
+            colors: ["#058DC7", "#50B432", "#ED561B", "#DDDF00", "#24CBE5", "#64E572", "#FF9655", "#FFF263", "#6AF9C4"],
             chart: {
                 backgroundColor: "transparent",
             },
             xAxis: {
-                lineColor: dark ? '#555' : "#333",
+                lineColor: dark ? "#555" : "#333",
                 labels: {
                     style: {
-                        color: dark ? '#fff' : "#333"
-                    }
-                }
+                        color: dark ? "#fff" : "#333",
+                    },
+                },
             },
             yAxis: {
-                gridLineColor: dark ? '#555' : "#e3e3e3",
+                gridLineColor: dark ? "#555" : "#e3e3e3",
                 title: {
-                    style:{ "color": dark ? '#fff' : "#333" }
-                }
+                    style: { color: dark ? "#fff" : "#333" },
+                },
             },
             legend: {
                 itemStyle: {
-                    color: dark ? '#fff' : "#333"
+                    color: dark ? "#fff" : "#333",
                 },
                 itemHoverStyle: {
-                    color: dark ? '#fff' : "#333"
-                }
-            }
+                    color: dark ? "#fff" : "#333",
+                },
+            },
         }
 
         // 使主题配置生效
@@ -289,53 +287,53 @@ class HomeView extends ComponentMethods implements ComponentEntity {
         this.ordersChart = Highcharts.chart({
             chart: {
                 renderTo: "OrdersChart",
-                type: 'spline'
+                type: "spline",
             },
             title: {
-                text: null
+                text: null,
             },
             credits: {
-                enabled: false
+                enabled: false,
             },
             xAxis: {
-                categories: (function() {
-                    const date = new Date
+                categories: (function () {
+                    const date = new Date()
                     const dates = []
-        
+
                     date.setDate(date.getDate() - 30)
-        
+
                     for (let i = 0; i < 30; i++) {
                         date.setDate(date.getDate() + 1)
 
                         let day = date.getDate()
-        
-                        dates.push(`${date.getMonth() + 1}.${day < 10 ? ('0' + day) : day}`)
+
+                        dates.push(`${date.getMonth() + 1}.${day < 10 ? "0" + day : day}`)
                     }
-                    
+
                     return dates
-                })()
+                })(),
             },
             yAxis: {
                 min: 0,
                 gridLineDashStyle: "Dash",
                 title: {
-                    text: '订单金额（元）'
-                }
+                    text: "订单金额（元）",
+                },
             },
             tooltip: {
-                shared: true
+                shared: true,
             },
             plotOptions: {
                 spline: {
                     marker: {
                         radius: 0,
-                        lineWidth: 0
-                    }
-                }
+                        lineWidth: 0,
+                    },
+                },
             },
             series: Utils.each(this.ordersChartData, v => {
                 v.type = "spline"
-            })
+            }),
         })
     }
 
@@ -347,45 +345,44 @@ class HomeView extends ComponentMethods implements ComponentEntity {
         this.visitsChart = Highcharts.chart({
             chart: {
                 renderTo: "VisitsChart",
-                type: 'area'
+                type: "area",
             },
             title: {
-                text: null
+                text: null,
             },
             credits: {
-                enabled: false
+                enabled: false,
             },
             xAxis: {
-                categories: (function() {
-                    const date = new Date
+                categories: (function () {
+                    const date = new Date()
                     const dates = []
-        
+
                     date.setDate(date.getDate() - 14)
-        
+
                     for (let i = 0; i < 14; i++) {
                         date.setDate(date.getDate() + 1)
-        
+
                         dates.push(`${Utils.paddingZero(date.getMonth() + 1)}/${Utils.paddingZero(date.getDate())}`)
                     }
-                    
+
                     return dates
                 })(),
-                crosshair: true
+                crosshair: true,
             },
             yAxis: {
                 min: 0,
                 gridLineDashStyle: "Dash",
                 title: {
-                    text: '访问量 (次)'
-                }
+                    text: "访问量 (次)",
+                },
             },
             tooltip: {
                 headerFormat: '<span style="font-size:10px;color:#333">{point.key}</span><table>',
-                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                '<td style="padding:0"><b style="color:#333">{point.y} 次</b></td></tr>',
-                footerFormat: '</table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b style="color:#333">{point.y} 次</b></td></tr>',
+                footerFormat: "</table>",
                 shared: true,
-                useHTML: true
+                useHTML: true,
             },
             plotOptions: {
                 areaspline: {
@@ -394,23 +391,25 @@ class HomeView extends ComponentMethods implements ComponentEntity {
                             x1: 0,
                             y1: 0,
                             x2: 0,
-                            y2: 1
+                            y2: 1,
                         },
                         stops: [
-                            [0, 'rgba(20,116,223,0.42)'],
-                            [1, 'rgba(20,116,223,0.00)']
-                        ]
+                            [0, "rgba(20,116,223,0.42)"],
+                            [1, "rgba(20,116,223,0.00)"],
+                        ],
                     },
                     marker: {
                         radius: 0,
-                        lineWidth: 0
-                    }
+                        lineWidth: 0,
+                    },
                 },
                 column: {
-                    borderWidth: 0
-                }
+                    borderWidth: 0,
+                },
             },
-            series: Utils.each(this.accessChartData, v => { v.type = "areaspline" })
+            series: Utils.each(this.accessChartData, v => {
+                v.type = "areaspline"
+            }),
         })
     }
 
@@ -437,7 +436,7 @@ class HomeView extends ComponentMethods implements ComponentEntity {
     }
 }
 
-export default Component.build(new HomeView)
+export default Component.build(new HomeView())
 </script>
 
 <style lang="less">
@@ -446,7 +445,7 @@ export default Component.build(new HomeView)
 
 // Color
 .color-android {
-    background: #00A2FF;
+    background: #00a2ff;
 }
 
 .color-ios {
@@ -477,7 +476,7 @@ export default Component.build(new HomeView)
 
             .border-box;
             .radius(10px);
-            .shadow(0 0 10px rgba(0, 0, 0, .2));
+            .shadow(0 0 10px rgba(0, 0, 0, 0.2));
             .flex;
             .flex-column;
             .flex-content(space-evenly);
@@ -489,7 +488,7 @@ export default Component.build(new HomeView)
             &:last-child {
                 margin-right: 0;
             }
-            
+
             .icon-box {
                 width: 40px;
                 height: 40px;
@@ -523,7 +522,7 @@ export default Component.build(new HomeView)
             @media (max-width: 1000px) {
                 & {
                     width: ~"calc(100% / 2 - 20px / 2)";
-                    
+
                     &:nth-child(2n) {
                         margin-right: 0;
                     }
@@ -532,7 +531,7 @@ export default Component.build(new HomeView)
         }
 
         .preview-red {
-            background-image: linear-gradient(-225deg, #A445B2 0%, #D41872 52%, #FF0066 100%);
+            background-image: linear-gradient(-225deg, #a445b2 0%, #d41872 52%, #ff0066 100%);
         }
 
         .preview-yellow {
@@ -544,7 +543,7 @@ export default Component.build(new HomeView)
         position: relative;
         width: 100%;
         margin: 40px 0 30px 0;
-        
+
         .border-box;
         .flex;
         .flex-wrap;
@@ -556,7 +555,7 @@ export default Component.build(new HomeView)
         }
 
         .compare-upgrade {
-            color: #00A2FF;
+            color: #00a2ff;
         }
 
         .compare-decline {
@@ -580,7 +579,7 @@ export default Component.build(new HomeView)
     .module-half {
         width: 100%;
         margin: 30px 0;
-        
+
         .border-box;
         .radius(10px);
         .flex;
@@ -600,18 +599,18 @@ export default Component.build(new HomeView)
             height: 300px;
             background: #fff;
             overflow: hidden;
-            
+
             .shadow(0 0 10px rgba(0,0,0,0.05));
             .radius(10px);
             .flex;
             .flex-column;
             .border-box;
             .transition;
-            
+
             &:hover {
                 z-index: 10;
                 transform: scale(1.01);
-    
+
                 .shadow(0 20px 50px rgba(0,0,0,0.2));
             }
 
@@ -647,13 +646,13 @@ export default Component.build(new HomeView)
                             .flex-shrink;
                             .flex;
                             .flex-items(flex-start);
-    
+
                             .value {
                                 font-size: 40px;
                                 line-height: 33px;
                                 font-weight: 300;
                             }
-    
+
                             .percentage {
                                 font-size: 15px;
                             }
@@ -703,12 +702,12 @@ export default Component.build(new HomeView)
                 .flex-grow;
                 .scroll-y(4px);
 
-                >.message-item {
+                > .message-item {
                     width: 100%;
                     height: 45px;
                     margin-bottom: 15px;
                     cursor: pointer;
-                    
+
                     .flex;
                     .flex-center-items;
 
@@ -721,7 +720,7 @@ export default Component.build(new HomeView)
                             content: "";
                             width: 3px;
                             background: #2faaf7;
-                            
+
                             .radius(3px);
                             .absolute(0, initial, 0, 0);
                         }
@@ -767,7 +766,7 @@ export default Component.build(new HomeView)
                 .bar-ratio {
                     width: 100%;
                     height: 20px;
-                    
+
                     .flex;
 
                     .item {
@@ -797,29 +796,29 @@ export default Component.build(new HomeView)
                                 height: 25px;
                                 background: #fff;
                                 border-radius: 10px;
-                                
+
                                 .shadow;
                                 .flex;
                                 .flex-center-all;
                                 .absolute(initial, initial, 0, initial);
-    
+
                                 &::after {
-                                    content: '';
+                                    content: "";
                                     width: 8px;
                                     height: 8px;
                                     margin-left: -4px;
                                     margin-top: -4px;
                                     background: #fff;
                                     transform: rotate(-45deg);
-    
+
                                     .shadow(-2.5px 5px 5px rgba(0,0,0,0.1));
                                     .absolute(100%, initial, initial, 50%);
                                 }
-    
+
                                 p {
                                     color: #888;
                                 }
-    
+
                                 .percentage {
                                     color: #333;
                                     margin-right: 3px;

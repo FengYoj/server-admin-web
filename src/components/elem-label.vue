@@ -146,6 +146,8 @@ export default {
 	align-items: center;
 	justify-content: space-between;
 	transition: all 0.3s ease;
+	max-width: 100%;
+    word-break: break-word;
 
 	.value {
 		font-size: 14px;

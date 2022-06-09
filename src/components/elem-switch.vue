@@ -9,7 +9,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import elemInputObject from './elem-input-object.vue'
 import Theme from '../module/theme/theme'
 
@@ -85,7 +85,7 @@ export default {
     },
     
 	methods: {
-        onChangeSwitch(val) {
+        onChangeSwitch(val: boolean) {
             if (val != this.val) {
                 this.val = val
 
@@ -93,7 +93,7 @@ export default {
             }
         },
 
-        onChange(val) {
+        onChange(val: boolean) {
             this.$emit('change', {
                 value: val,
                 type: "elem-switch",

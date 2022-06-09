@@ -23,6 +23,7 @@
                                 class="input"
                                 title="用户名"
                                 required
+                                @click="onChangeFocusInput('username', true)"
                                 @focus="onChangeFocusInput('username', true)"
                                 @blur="onChangeFocusInput('username', false)"
                                 @input="onChangeInput('username_error')"

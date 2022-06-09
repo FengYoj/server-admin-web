@@ -138,7 +138,7 @@
             <component
                 v-bind:is="getComponent('elem-label')"
                 :name="name"
-                :type="data.labelConfig.type"
+                :type="data.labelConfig ? data.labelConfig.type : 'input'"
                 :required="data.required"
                 :field="data.field"
                 :title="data.title"
@@ -184,7 +184,7 @@ export default {
     },
 
     watch: {
-        value: function (value) {
+        value: function (value: any) {
             this.form_value = value
         },
     },
@@ -207,7 +207,7 @@ export default {
             })
         },
 
-        getTypeName(type) {
+        getTypeName(type: string) {
             switch (type) {
                 case "Select":
                     return "（选择）"
@@ -220,7 +220,7 @@ export default {
             }
         },
 
-        getValue(field, name, idx, key) {
+        getValue(field: string, name: string, idx: number, key?: string) {
             try {
                 var value: any
 

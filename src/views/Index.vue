@@ -965,6 +965,14 @@ export default Component.build(new IndexView())
 
                 .scroll-y(5px);
             }
+
+            @media (max-width: 700px) {
+                margin: 10px 20px 20px 20px;
+            }
+
+            @media (max-width: 400px) {
+                margin: 10px 10px 10px 10px;
+            }
         }
     }
 

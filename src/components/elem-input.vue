@@ -62,7 +62,7 @@ export default {
     },
 
     watch: {
-        val(value) {
+        val(value: any) {
             if (value) {
                 this.check = Utils.verify(this.verify, value)
             } else {
@@ -102,7 +102,7 @@ export default {
 
 	methods: {
 
-		onChange(evt) {
+		onChange(evt: any) {
             this.$emit('change', {
                 value: evt.target.value,
                 type: "elem-input",
@@ -113,7 +113,7 @@ export default {
             })
         },
 
-        onInput(evt) {
+        onInput(evt: any) {
             this.$emit('input-event', {
                 value: evt.target.value,
                 type: "elem-input",

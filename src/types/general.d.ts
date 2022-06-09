@@ -17,6 +17,8 @@ interface CompEvent<T extends any> {
 }
 
 interface ElemEvent<T extends any> {
+    tag: string
+
     value: T
     // 组件类型
     type: string
@@ -42,8 +44,7 @@ interface ElemOptionValue {
     value: number
 }
 
-interface ElemOptionEvent extends ElemEvent<ElemOptionValue> {
-}
+interface ElemOptionEvent extends ElemEvent<ElemOptionValue> {}
 
 declare interface obj {
     [key: string]: any
@@ -69,8 +70,8 @@ declare module "*.json" {
 }
 
 declare module "*.vue" {
-    const value: obj;
-    export default value;
+    const value: obj
+    export default value
 }
 
 declare module "vue-property-decorator" {
@@ -96,6 +97,4 @@ declare interface StatusInf<T> {
 
 type Crop = any
 
-declare interface Crop {
-    
-}
+declare interface Crop {}
