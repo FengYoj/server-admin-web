@@ -24,6 +24,8 @@ interface ElemEvent<T extends any> {
     type: string
     // 名称
     name?: string
+
+    [key: string]: any
 }
 
 interface ElemSwitchEvent extends ElemEvent<boolean> {

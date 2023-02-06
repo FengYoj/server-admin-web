@@ -1,27 +1,28 @@
 import Status from "../status/status"
 
 function staticImplements<T>() {
-    return <U extends T>(constructor: U) => {constructor};
+    return <U extends T>(constructor: U) => {
+        constructor
+    }
 }
 
 @staticImplements<UtilsInterface>()
 export default class Utils {
-
     public static versionToNumber(version: string): number {
-        var c = version.split('.')
-        var num_place = ["","0","00","000","0000"],
+        var c = version.split(".")
+        var num_place = ["", "0", "00", "000", "0000"],
             r = num_place.reverse()
-            
-        for (var i = 0; i < c.length; i++){ 
+
+        for (var i = 0; i < c.length; i++) {
             var len = c[i].length
-                    c[i]=r[len]+c[i]
+            c[i] = r[len] + c[i]
         }
-        
-        return parseInt(c.join(''))
+
+        return parseInt(c.join(""))
     }
 
     public static paddingZero(num: number): string {
-        return (num >= 10 ? "" : "0") + num;
+        return (num >= 10 ? "" : "0") + num
     }
 
     public static wait(cb: () => void, ms?: number): void {
@@ -33,7 +34,7 @@ export default class Utils {
      * @param text 文本
      */
     public static copyText(text: string): void {
-        var e = document.createElement('input')
+        var e = document.createElement("input")
 
         // 添加组件到文档流
         document.body.appendChild(e)
@@ -47,7 +48,7 @@ export default class Utils {
 
         // 执行拷贝命令
         document.execCommand("copy")
-        
+
         // 移除组件
         document.body.removeChild(e)
     }
@@ -61,7 +62,7 @@ export default class Utils {
             return json
         }
 
-        const formData = new FormData
+        const formData = new FormData()
 
         this.each(Object.keys(json), v => {
             formData.append(v, json[v])
@@ -72,9 +73,9 @@ export default class Utils {
 
     public static getUuid(): string {
         function S4() {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
         }
-        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+        return S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4()
     }
 
     public static getStringId(len: number = 8): string {
@@ -193,7 +194,7 @@ export default class Utils {
                     data[n] && e.setAttribute("checked", "")
                     break
                 case "select-one":
-                    var o = e.querySelector("option[value=\"" + data[n] + "\"]")
+                    var o = e.querySelector('option[value="' + data[n] + '"]')
                     o && o.setAttribute("selected", "")
                     break
                 default:
@@ -208,7 +209,7 @@ export default class Utils {
      * 获取表单组件数据
      * @param form 表单
      */
-    public static getFormData(form: HTMLFormElement | string): Promise<Status<{[key: string]: any}>> {
+    public static getFormData(form: HTMLFormElement | string): Promise<Status<{ [key: string]: any }>> {
         return new Promise(resolve => {
             var fe: any
 
@@ -222,20 +223,20 @@ export default class Utils {
 
             const data = {}
 
-            const getData = async(resolve: (res: Status<{[key: string]: any}>) => void) => {
+            const getData = async (resolve: (res: Status<{ [key: string]: any }>) => void) => {
                 for (let i = 0; i < es.length; i++) {
                     const e: any = es[i]
-    
+
                     if (!e.name) {
                         continue
                     }
-    
+
                     var val: any
-    
+
                     // 判断是否存在自定 getValue 方法
                     if (e.getValue) {
                         var cb_value = e.getValue()
-    
+
                         // 判断是否为 Promise 方法
                         if (cb_value instanceof Promise) {
                             cb_value = await cb_value
@@ -253,28 +254,28 @@ export default class Utils {
                     } else {
                         val = e.value
                     }
-    
+
                     if (val && e.type === "number") {
                         val = Number(val)
                     }
-    
+
                     // 是否为必选项
                     if (e.hasAttribute("required") && e.getAttribute("required") !== "false" && this.isBlank(val)) {
                         let str = e.getAttribute("message")
-                        let msg = this.isExist(str) ? str : ((e.title || e.name) + " 不能为空")
+                        let msg = this.isExist(str) ? str : (e.title || e.name) + " 不能为空"
                         return resolve(new Status(400).setMessage(msg).setData(e))
                     }
-    
+
                     if (e.hasAttribute("verify") && val) {
                         let verify: any = e.getAttribute("verify")
-    
+
                         // 判断是否为正则表达式
                         if (/^\/+[\\/g]$/.test(verify) ? new RegExp(verify).test(val) : this.verify(verify, val)) {
-                            return resolve(new Status(400).setMessage(e.getAttribute("verify-message") || ((e.title || e.name) + " 格式不正确")))
+                            return resolve(new Status(400).setMessage(e.getAttribute("verify-message") || (e.title || e.name) + " 格式不正确"))
                         }
                     }
-    
-                    switch(e.type) {
+
+                    switch (e.type) {
                         case "checkbox":
                             data[e.name] = e.checked
                             break
@@ -293,8 +294,8 @@ export default class Utils {
     public static verify(type: string, value: any): boolean {
         var verify: RegExp | null = null
 
-        switch(type) {
-            case "english": 
+        switch (type) {
+            case "english":
                 verify = /^[^\u4e00-\u9fa5]+$/g
                 break
             case "phone":
@@ -327,42 +328,38 @@ export default class Utils {
         if (str.indexOf(".") <= -1) {
             o[str] = val
         } else {
-
             var strs = str.split(".")
 
             for (let i = 0, l = strs.length; i < l; i++) {
-
                 var s = strs[i]
 
                 if (i === l - 1) {
                     if (/.*\[\d+\]$/.test(strs[i - 1])) {
                         let idx = strs[i - 1].replace(/.*\[(\d+)\]$/, "$1")
 
-                        o[idx] ? o[idx][s] = val : o[idx] = {
-                            [s]: val
-                        }
+                        o[idx]
+                            ? (o[idx][s] = val)
+                            : (o[idx] = {
+                                  [s]: val,
+                              })
                     } else {
                         o[s] = val
                     }
                 } else {
                     if (/.*\[\d+\]$/.test(s)) {
-
                         s = s.replace(/\[\d+\]$/, "")
 
                         if (!o[s]) {
                             o[s] = []
                         }
-    
+
                         o = o[s]
-    
                     } else {
-    
                         if (!o[s]) {
                             o[s] = {}
                         }
-        
+
                         o = o[s]
-    
                     }
                 }
             }
@@ -381,7 +378,6 @@ export default class Utils {
             var strs = str.split(".")
 
             for (let i = 0, l = strs.length; i < l; i++) {
-
                 var s = strs[i]
 
                 if (i === l - 1) {
@@ -394,23 +390,19 @@ export default class Utils {
                     }
                 } else {
                     if (/.*\[\d+\]$/.test(s)) {
-
                         s = s.replace(/\[\d+\]$/, "")
 
                         if (!o[s]) {
                             return null
                         }
-    
+
                         o = o[s]
-    
                     } else {
-    
                         if (!o[s]) {
                             return null
                         }
-        
+
                         o = o[s]
-    
                     }
                 }
             }
@@ -440,7 +432,7 @@ export default class Utils {
     public static shortElement<K extends keyof HTMLElementTagNameMap>(n: K, cb: (e: HTMLElementTagNameMap[K]) => void): void {
         const e = document.createElement(n)
         // 临时组件应当隐藏
-        e.style.display = 'none'
+        e.style.display = "none"
         // 添加至 body
         this.appendChild(e)
         // 处理事务
@@ -456,9 +448,7 @@ export default class Utils {
      * @param condition 条件
      */
     public static each<T>(a: T[], cb: (v: T, i: number, e: boolean) => void | "break" | "delete" | "move-after" | "move-before" | T | null | undefined, condition?: (v: T) => boolean): T[] {
-
         for (let i = 0, len = a.length; i < len; i++) {
-
             if (condition ? !condition(a[i]) : false) {
                 continue
             }
@@ -472,7 +462,7 @@ export default class Utils {
             } else if (_cb === "break") {
                 break
             } else if (_cb === "move-after") {
-                i < (len - 1) && (a[i] = a.splice(i + 1, 1, a[i])[0])
+                i < len - 1 && (a[i] = a.splice(i + 1, 1, a[i])[0])
                 break
             } else if (_cb === "move-before") {
                 i > 0 && (a[i] = a.splice(i - 1, 1, a[i])[0])
@@ -492,9 +482,7 @@ export default class Utils {
      * @param condition 条件
      */
     public static eachObj<T>(obj: Obj<T>, cb: (k: string, v: T, i: number, e: boolean) => void | "break" | "delete" | T, condition?: (v: T) => boolean): Obj<T> {
-
         for (let i = 0, keys = Object.keys(obj), len = keys.length; i < len; i++) {
-
             let key: string = keys[i]
 
             if (condition ? !condition(obj[key]) : false) {
@@ -518,7 +506,6 @@ export default class Utils {
 
     public static eachNode<T extends Element>(a: NodeListOf<T>, cb: (v: T, i: number, e: boolean) => void | "break"): NodeListOf<T> {
         for (let i = 0, l = a.length; i < l; i++) {
-
             let _cb = cb(a[i], i, i === l - 1)
 
             if (_cb === "break") {
@@ -534,7 +521,7 @@ export default class Utils {
      * @param d 数组
      * @param cb 回调函数
      */
-    public static find<T>(d: T[], condition: (d: T) => boolean, cb?: (p: { i: number, data: T }) => void): { i: number, data: T | null } {
+    public static find<T>(d: T[], condition: (d: T) => boolean, cb?: (p: { i: number; data: T }) => void): { i: number; data: T | null } {
         for (let i = 0, l = d.length; i < l; i++) {
             const _cb = condition(d[i])
 
@@ -598,19 +585,19 @@ export default class Utils {
         return msg
     }
 
-    private static untie(fun: string): { name: string, param: string[] | null } {
+    private static untie(fun: string): { name: string; param: string[] | null } {
         fun.match(/^(\w+)\((.*)\)$/)
-        const name = RegExp.$1
-            , param = RegExp.$2
+        const name = RegExp.$1,
+            param = RegExp.$2
 
         return { name: name, param: param ? param.split(",") : null }
     }
 
-    public static getFunByStr(obj: any, str: string): { fun: (...param: any[]) => void | any, params: string[] | null } {
-        var fun: ((...param: any[]) => void) | any = null
-            , params: string[] | null = null
+    public static getFunByStr(obj: any, str: string): { fun: (...param: any[]) => void | any; params: string[] | null } {
+        var fun: ((...param: any[]) => void) | any = null,
+            params: string[] | null = null
 
-        this.each(str.split('.'), (v, i, e) => {
+        this.each(str.split("."), (v, i, e) => {
             if (e) {
                 let { name, param } = this.untie(v)
                 fun = fun ? fun[name] : obj[name]
@@ -620,14 +607,14 @@ export default class Utils {
             } else if (fun && fun[v]) {
                 fun = fun[v]
             } else {
-                return 'break'
+                return "break"
             }
         })
 
         return { fun, params }
     }
 
-    public static appendChild(element: HTMLElement | HTMLStyleElement | HTMLScriptElement, place: 'body' | 'head' = 'body'): void {
+    public static appendChild(element: HTMLElement | HTMLStyleElement | HTMLScriptElement, place: "body" | "head" = "body"): void {
         if (document[place]) {
             document[place].appendChild(element)
         } else {
@@ -674,7 +661,7 @@ export default class Utils {
             let v: string | number = json[n]
 
             if ("undefined" !== typeof v) {
-                s += `${s.length === 0 && !p ? '?' : '&'}${n}=${v}`
+                s += `${s.length === 0 && !p ? "?" : "&"}${n}=${v}`
             }
         })
 
@@ -688,7 +675,7 @@ export default class Utils {
         }
 
         var parames: obj = {}
-        
+
         url = decodeURI(url)
 
         var vars = url.substr(url.indexOf("?") + 1).split("&")
@@ -698,7 +685,7 @@ export default class Utils {
             parames[pair[0]] = pair[1]
         }
 
-        return parames;
+        return parames
     }
 
     /**
@@ -729,7 +716,17 @@ export default class Utils {
      * @param tagName 标签名称
      * @param attribute 属性
      */
-    public static createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, a: { id?: string, class?: string | string[], attribute?: { [key: string]: string }, style?: CSSStyleDeclaration | { [key: string]: string }, event?: GlobalEventHandlers | { [key: string]: any } , [key: string]: any }): HTMLElementTagNameMap[K] {
+    public static createElement<K extends keyof HTMLElementTagNameMap>(
+        tagName: K,
+        a: {
+            id?: string
+            class?: string | string[]
+            attribute?: { [key: string]: string }
+            style?: CSSStyleDeclaration | { [key: string]: string }
+            event?: GlobalEventHandlers | { [key: string]: any }
+            [key: string]: any
+        }
+    ): HTMLElementTagNameMap[K] {
         const e = document.createElement(tagName)
 
         for (let i = 0, keys = Object.keys(a); i < keys.length; i++) {
@@ -740,11 +737,12 @@ export default class Utils {
                     a.id && (e.id = a.id)
                     break
                 case "class":
-                    typeof a.class === 'string' ?
-                        e.classList.add(a.class) :
-                        a.class && Utils.each(a.class, v => {
-                            e.classList.add(v)
-                        })
+                    typeof a.class === "string"
+                        ? e.classList.add(a.class)
+                        : a.class &&
+                          Utils.each(a.class, v => {
+                              e.classList.add(v)
+                          })
                     break
                 case "attribute":
                     a.attribute && this.setAttribute(e, a.attribute)
@@ -757,109 +755,111 @@ export default class Utils {
                     break
                 default:
                     e[key] = a[key]
-            }   
+            }
         }
 
         return e
     }
 
     public static isPlainObject(obj: obj) {
-        var proto, Ctor;
+        var proto, Ctor
 
         // Detect obvious negatives
         // Use toString instead of jQuery.type to catch host objects
         if (!obj || Object.toString.call(obj) !== "[object Object]") {
-            return false;
+            return false
         }
 
-        proto = Object.getPrototypeOf(obj);
+        proto = Object.getPrototypeOf(obj)
 
         // Objects with no prototype (e.g., `Object.create( null )`) are plain
         if (!proto) {
-            return true;
+            return true
         }
 
         const hasOwnProperty = Object.hasOwnProperty
         const toString = hasOwnProperty.toString
 
         // Objects with prototype are plain iff they were constructed by a global Object function
-        Ctor = hasOwnProperty.call(proto, "constructor") && proto.constructor;
-        return typeof Ctor === "function" && toString.call(Ctor) === toString.call(Object);
+        Ctor = hasOwnProperty.call(proto, "constructor") && proto.constructor
+        return typeof Ctor === "function" && toString.call(Ctor) === toString.call(Object)
     }
 
     public static isFunction(obj: any): boolean {
-        return typeof obj === "function" && typeof obj.nodeType !== "number";
+        return typeof obj === "function" && typeof obj.nodeType !== "number"
     }
 
     public static extend(target: obj, ...targets: Object[]) {
-        var options, name, src, copy, copyIsArray, clone,
+        var options,
+            name,
+            src,
+            copy,
+            copyIsArray,
+            clone,
             i = 1,
             length = arguments.length,
-            deep = false;
+            deep = false
 
         // Handle a deep copy situation
         if (typeof target === "boolean") {
-            deep = target;
+            deep = target
 
             // Skip the boolean and the target
-            target = arguments[i] || {};
-            i++;
+            target = arguments[i] || {}
+            i++
         }
 
         // Handle case when target is a string or something (possible in deep copy)
         if (typeof target !== "object" && !this.isFunction(target)) {
-            target = {};
+            target = {}
         }
 
         // Extend jQuery itself if only one argument is passed
         if (i === length) {
-            target = this;
-            i--;
+            target = this
+            i--
         }
 
         for (; i < length; i++) {
-
             // Only deal with non-null/undefined values
             if ((options = arguments[i]) != null) {
-
                 // Extend the base object
                 for (name in options) {
-                    copy = options[name];
+                    copy = options[name]
 
                     // Prevent Object.prototype pollution
                     // Prevent never-ending loop
                     if (name === "__proto__" || target === copy) {
-                        continue;
+                        continue
                     }
 
                     // Recurse if we're merging plain objects or arrays
-                    if (deep && copy && (this.isPlainObject(copy) ||
-                        (copyIsArray = Array.isArray(copy)))) {
-                        src = target[name];
+                    if (deep && copy && (this.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+                        src = target[name]
 
                         // Ensure proper type for the source value
                         if (copyIsArray && !Array.isArray(src)) {
-                            clone = [];
+                            clone = []
                         } else if (!copyIsArray && !this.isPlainObject(src)) {
-                            clone = {};
+                            clone = {}
                         } else {
-                            clone = src;
+                            clone = src
                         }
-                        copyIsArray = false;
+                        copyIsArray = false
 
                         // Never move original objects, clone them
-                        target[name] = this.extend(deep, clone, copy);
+                        target[name] = this.extend(deep, clone, copy)
 
                         // Don't bring in undefined values
                     } else if (copy !== undefined) {
-                        target[name] = copy;
+                        target[name] = copy
                     }
                 }
             }
         }
 
         // Return the modified object
-        return target;
+        return target
     }
 
     public static extendPrototype<T>(target: any): T {
@@ -892,12 +892,12 @@ export default class Utils {
     }
 
     private static escapeMap = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        '`': '&#x60;'
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#x27;",
+        "`": "&#x60;",
     }
 
     private static createEscaper(map: obj) {
@@ -906,12 +906,12 @@ export default class Utils {
             return map[match]
         }
         // Regexes for identifying a key that needs to be escaped.
-        var source = '(?:' + Object.keys(map).join('|') + ')'
+        var source = "(?:" + Object.keys(map).join("|") + ")"
         var testRegexp = RegExp(source)
-        var replaceRegexp = RegExp(source, 'g')
+        var replaceRegexp = RegExp(source, "g")
 
         return function (string: string) {
-            string = string == null ? '' : '' + string
+            string = string == null ? "" : "" + string
             return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string
         }
     }
@@ -932,8 +932,23 @@ export default class Utils {
             return true
         }
 
-        if ("number" === typeof target || "boolean" === typeof target) {
+        if (("number" === typeof target && !isNaN(target)) || "boolean" === typeof target) {
             return false
+        }
+
+        // 是否为字符串值，且全部为空格
+        if ("string" === typeof target && /^[ ]+$/.test(target)) {
+            return true
+        }
+
+        // 数组类型判断内容是否为空
+        if (target instanceof Array && target.length <= 0) {
+            return true
+        }
+
+        // 对象值判断是否存在
+        if (typeof target === "object" && Object.keys(target).length <= 0) {
+            return true
         }
 
         return !target
@@ -999,7 +1014,6 @@ class LoadFile {
      * @param url 路径
      */
     private static isExist(url: string): boolean {
-
         // 不支持检测将跳过检测
         if (!XMLHttpRequest) {
             console.log("当前浏览器不支持XMLHttpRequest")
@@ -1013,7 +1027,7 @@ class LoadFile {
         try {
             xmlhttp.send()
 
-            return (xmlhttp.readyState == 4) && (xmlhttp.status == 0)
+            return xmlhttp.readyState == 4 && xmlhttp.status == 0
         } catch (e) {
             return false
         }
@@ -1027,7 +1041,7 @@ class LoadFile {
         try {
             xmlhttp.send()
 
-            return new Status<string>(xmlhttp.status).setMessage(xmlhttp.statusText).setData(xmlhttp.responseText);
+            return new Status<string>(xmlhttp.status).setMessage(xmlhttp.statusText).setData(xmlhttp.responseText)
         } catch (e) {
             return Status.of(500)
         }
@@ -1146,7 +1160,6 @@ class LoadFile {
 }
 
 interface UtilsInterface {
-
     /**
      * 拷贝文本到剪切板
      * @param text 文本
@@ -1184,7 +1197,7 @@ interface UtilsInterface {
      * 获取表单组件数据
      * @param form 表单
      */
-    getFormData(form: HTMLFormElement | string): Promise<Status<{[key: string]: any}>>
+    getFormData(form: HTMLFormElement | string): Promise<Status<{ [key: string]: any }>>
 
     /**
      * 写入对象值
@@ -1230,7 +1243,7 @@ interface UtilsInterface {
      * @param d 数组
      * @param cb 回调函数
      */
-    find<T>(d: T[], cb: (d: T) => boolean): { i: number, data: T | null }
+    find<T>(d: T[], cb: (d: T) => boolean): { i: number; data: T | null }
 
     /**
      * 查找数组所有指定元素
@@ -1244,9 +1257,9 @@ interface UtilsInterface {
      */
     verifyIsEmpty(d: { [key: string]: any }, j: { [key: string]: string }): string | null
 
-    getFunByStr(obj: any, str: string): { fun: (...param: any[]) => void | any, params: string[] | null }
+    getFunByStr(obj: any, str: string): { fun: (...param: any[]) => void | any; params: string[] | null }
 
-    appendChild(element: HTMLElement | HTMLStyleElement | HTMLScriptElement, place?: 'body' | 'head'): void
+    appendChild(element: HTMLElement | HTMLStyleElement | HTMLScriptElement, place?: "body" | "head"): void
 
     removeChild(el: string | HTMLElement): void
 
@@ -1284,7 +1297,16 @@ interface UtilsInterface {
      * @param tagName 标签名称
      * @param attribute 属性
      */
-    createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, a: { id?: string, class?: string | string[], attribute?: { [key: string]: string }, style?: CSSStyleDeclaration | { [key: string]: string }, event?: GlobalEventHandlers | { [key: string]: any } }): HTMLElementTagNameMap[K]
+    createElement<K extends keyof HTMLElementTagNameMap>(
+        tagName: K,
+        a: {
+            id?: string
+            class?: string | string[]
+            attribute?: { [key: string]: string }
+            style?: CSSStyleDeclaration | { [key: string]: string }
+            event?: GlobalEventHandlers | { [key: string]: any }
+        }
+    ): HTMLElementTagNameMap[K]
 
     isPlainObject(obj: any): any
 

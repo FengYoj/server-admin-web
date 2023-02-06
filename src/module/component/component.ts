@@ -9,27 +9,30 @@ import Href from "../config/href"
 const internal = {}
 
 class ComponentsUtil {
-    private static _excludeMethods: string[] = ['data', 'created', 'beforeMount', 'mounted', 'components', 'beforeDestroy']
-    private static _excludeData: string[] = ['data', 'name', 'methods', 'internal']
+    private static _excludeMethods: string[] = ["data", "created", "beforeMount", "mounted", "components", "beforeDestroy"]
+    private static _excludeData: string[] = ["data", "name", "methods", "internal"]
 
     /**
      * 获取所有方法
-     * @param opt 
+     * @param opt
      */
     public static getMethods(opt: any) {
         const methods: obj = opt.methods || {}
         const exclude = this._excludeMethods
 
-        Utils.each<string>([]
-            .concat(Object.getOwnPropertyNames(opt))
-            // 获取 Component 类所有方法
-            .concat(Object.getOwnPropertyNames(opt.__proto__))
-            // 获取  Component 类继承的所有方法
-            .concat(Object.getOwnPropertyNames(opt.__proto__.__proto__)), k => {
-            if (exclude.indexOf(k) <= -1 && "function" === typeof opt[k]) {
-                methods[k] = opt[k]
+        Utils.each<string>(
+            []
+                .concat(Object.getOwnPropertyNames(opt))
+                // 获取 Component 类所有方法
+                .concat(Object.getOwnPropertyNames(opt.__proto__))
+                // 获取  Component 类继承的所有方法
+                .concat(Object.getOwnPropertyNames(opt.__proto__.__proto__)),
+            k => {
+                if (exclude.indexOf(k) <= -1 && "function" === typeof opt[k]) {
+                    methods[k] = opt[k]
+                }
             }
-        })
+        )
 
         return methods
     }
@@ -43,7 +46,7 @@ class ComponentsUtil {
             // 监听窗口大小变化事件
             opt.onResize && (window.onresize = opt.onResize.bind(this))
             // 监听主题变化
-            Theme.onChange((theme) => {
+            Theme.onChange(theme => {
                 this.theme = theme
                 // 回调监听主题变化事件
                 this.onChangeTheme && this.onChangeTheme(theme)
@@ -55,7 +58,7 @@ class ComponentsUtil {
 
     public static processMounted(opt: ComponentEntity) {
         let fun = opt.mounted
-        
+
         opt.mounted = function () {
             // 处理主题数据
             this.$el && Theme.processPage(this.$el)
@@ -76,7 +79,7 @@ class ComponentsUtil {
      * 处理生命周期事件
      * @param opt 实体
      */
-     public static processEvent(opt: ComponentEntity) {
+    public static processEvent(opt: ComponentEntity) {
         opt.onShow && (opt.activated = opt.onShow)
         opt.onHide && (opt.deactivated = opt.onHide)
     }
@@ -97,7 +100,7 @@ class ComponentsUtil {
             }
         })
 
-        return function() {
+        return function () {
             // 如果为 function 则调用获取返回值
             if ("function" === typeof data) {
                 _data = Utils.extend(_data, data())
@@ -210,7 +213,7 @@ export class ComponentMethods implements ComponentMethods {
 
         this.$router.push({
             path: path,
-            query: query
+            query: query,
         })
     }
 
@@ -242,20 +245,20 @@ export class ComponentMethods implements ComponentMethods {
         return text
     }
 
-    public getLanguageStyle()  {
+    public getLanguageStyle() {
         let sign = Cache.get<string>("language_sign")
 
         switch (sign) {
             case "wn":
                 return {
-                    direction: 'rtl'
+                    direction: "rtl",
                 }
         }
     }
 
     /**
      * 获取参数
-     * @param key 参数名 
+     * @param key 参数名
      */
     public getParam<T>(key: string): T {
         return this.$route.query[key]
@@ -296,10 +299,10 @@ export default class Component {
         ComponentsUtil.processInternal(e, id)
         // 获取 data 属性
         e.data = ComponentsUtil.getData(e, {
-            platform: Cache.get("platform") || 'win32',
+            platform: Cache.get("platform") || "win32",
             theme: Theme.getTheme(),
             language_sign: Cache.get<string>("language_sign"),
-            component_id: id
+            component_id: id,
         })
         // 处理 watch 属性
         ComponentsUtil.processWatch(e)

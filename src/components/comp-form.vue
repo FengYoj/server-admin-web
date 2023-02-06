@@ -93,7 +93,7 @@
                 v-bind:is="getComponent('elem-select')"
                 :name="name"
                 @change="onChangeData"
-                :data="data.selectConfig.data"
+                :datas="data.selectConfig.data"
                 :field="data.field"
                 :multiple="data.selectConfig.multiple"
                 :required="data.required"
@@ -163,7 +163,7 @@ import Utils from "@/module/utils/utils"
 export default {
     data() {
         return {
-            form_value: null,
+            form_value: {},
             name: null,
         }
     },
@@ -257,7 +257,7 @@ export default {
                 return true
             }
 
-            return new Function(`return ${c.replace(/&{(\w*)}/g, "this.$1")}`).call(this.form_value)
+            return new Function(`return ${c.replace(/&{(\w*)}/g, "this?.$1")}`).call(this.form_value)
         },
     },
 }

@@ -1,23 +1,22 @@
-import Utils from '../utils/utils'
+import Utils from "../utils/utils"
 
 const Cache: Cache = class {
-
     private static __default = {
         answer_setting: {
             font_size: 1,
             auto_next: true,
-            auto_audio: true
+            auto_audio: true,
         },
         setting: {
             theme: "auto",
             close: "minimize",
-            checkUpdates: true
+            checkUpdates: true,
         },
-        language_sign: "cn"
+        language_sign: "cn",
     }
 
     // 全局缓存
-    private static __data: Obj<CacheData> = (function() {
+    private static __data: Obj<CacheData> = (function () {
         const cache = localStorage.getItem("cache")
         const session = sessionStorage.getItem("cache")
         let data: obj = cache ? JSON.parse(cache) : {}
@@ -26,7 +25,7 @@ const Cache: Cache = class {
         if (session) {
             Utils.extend(data, JSON.parse(session))
         }
-        
+
         Utils.each(document.cookie.split(";"), v => {
             let strs = v.replace(/\s/g, "").split("=")
             data[strs[0]] = { value: Utils.isJson(strs[1]) ? JSON.parse(strs[1]) : strs[1] }
@@ -43,7 +42,7 @@ const Cache: Cache = class {
             value: value,
             storage: config.storage,
             expires: config.expires,
-            date: config.expires ? new Date : null
+            date: config.expires ? new Date() : null,
         }
 
         this.__data[key] = obj
@@ -66,12 +65,12 @@ const Cache: Cache = class {
         var value = this.__data[key]
 
         // 判断数据是否存在有效期参数，如有则判断是否过期
-        if (value && value.expires && value.date.getTime() + value.expires < Date.now()) {
+        if (value && value.expires && value.date && new Date(value.date).getTime() + value.expires < Date.now()) {
             value = null
         }
 
         // 当 value 为 null 时返回默认值（如有）
-        return Utils.isExist(value) ? value.value : (defaults || this.__default[key])
+        return Utils.isExist(value) ? value.value : defaults || this.__default[key]
     }
 
     /**
@@ -105,19 +104,20 @@ const Cache: Cache = class {
     private static _onChange(key: string, value: any): void {
         const o = this.__on[key]
 
-        o && Utils.each(o, (v) => {
-            v && v(value)
-        })
+        o &&
+            Utils.each(o, v => {
+                v && v(value)
+            })
     }
 
     public static clear(): void {
         // 置空对象
         this.__data = {}
-        
+
         // 获取所有 Cookie
         Utils.each(document.cookie.split(";"), v => {
             let strs = v.replace(/\s/g, "").split("=")
-            document.cookie = strs[0]+'=0;expires=' + new Date(0).toUTCString()
+            document.cookie = strs[0] + "=0;expires=" + new Date(0).toUTCString()
         })
 
         // 清除本地缓存
@@ -159,7 +159,7 @@ const Cache: Cache = class {
             let strs = v.replace(/\s/g, "").split("=")
             // 移除指定 Key Cookie
             if (strs[0] === key) {
-                document.cookie = strs[0]+'=0;expires=' + new Date(0).toUTCString()
+                document.cookie = strs[0] + "=0;expires=" + new Date(0).toUTCString()
             }
         })
     }
@@ -179,13 +179,14 @@ const Cache: Cache = class {
         const data = this.__data
 
         for (let keys = Object.keys(data), i = 0, l = keys.length; i < l; i++) {
-            let k = keys[i], d = data[k]
+            let k = keys[i],
+                d = data[k]
 
             if (Utils.isBlank(d.storage)) {
                 continue
             }
 
-            if (d.expires && (d.date.getTime() + d.expires < new Date().getTime())) {
+            if (d.expires && d.date.getTime() + d.expires < new Date().getTime()) {
                 continue
             }
 
@@ -196,9 +197,9 @@ const Cache: Cache = class {
             }
         }
 
-        localStorage.setItem("cache",  JSON.stringify(local))
+        localStorage.setItem("cache", JSON.stringify(local))
         // 缓存到 sessionStorage，刷新时不丢失缓存
-        sessionStorage.setItem("cache",  JSON.stringify(this.__data))
+        sessionStorage.setItem("cache", JSON.stringify(this.__data))
     }
 }
 
@@ -236,7 +237,7 @@ interface Cache {
      * @param cb 回调函数
      * @param page 对应页面
      */
-    onGet<T extends Object>(key: string, cb: (res: T) => void): void 
+    onGet<T extends Object>(key: string, cb: (res: T) => void): void
 
     /**
      * 监听数据变化

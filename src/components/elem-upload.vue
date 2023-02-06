@@ -440,20 +440,7 @@ export default {
                         console.log(e)
                     }
                 }).then(res => {
-                    var data
-
-                    Utils.each(path, function(v) {
-                        // Specified position insertion
-                        res.splice(v.idx, 0, v)
-                    })
-
-                    if (!this.multi) {
-                        data = res[0]
-                    } else {
-                        data = res
-                    }
-
-                    resolve(data)
+                    resolve(res)
                 })
             })
         }

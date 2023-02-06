@@ -923,7 +923,6 @@ export default Component.build(new IndexView())
                         position: relative;
                         width: 30px;
                         height: 30px;
-                        padding-right: 8px;
 
                         .avatar {
                             .radius(50%);

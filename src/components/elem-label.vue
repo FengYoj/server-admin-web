@@ -165,6 +165,7 @@ export default {
 	width: 10px;
 	height: 10px;
 	display: flex;
+	box-sizing: content-box;
 }
 
 .elem-label-box .input-box {

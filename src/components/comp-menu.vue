@@ -1,37 +1,36 @@
-/** version: 1.0.1 */
+/** version: 1.0.2 */
 
 <template>
-    <div class="comp-menu" :class="{ 'comp-menu-dark': isDark(), 'comp-menu-display': display }">
+    <div class="comp-menu" :class="{ 'comp-menu-dark': isDark(), 'comp-menu-display': display }" :style="{ 'max-width': maxWidth }">
         <div class="item-box" v-for="(item, idx) in menus" :key="idx">
-            <div class="title" v-if="item.title">{{item.title}}</div>
-            <div v-if="item.prompt" class="prompt">{{item.prompt}}</div>
+            <div class="title" v-if="item.title">{{ item.title }}</div>
+            <div v-if="item.prompt" class="prompt">{{ item.prompt }}</div>
             <div class="sub-item-box" v-for="(sub, sub_idx) in item.sub" :class="{ disable: sub.disable }" :key="sub_idx" @click.stop="onSelectMenu(sub)">
                 <div class="info-box">
                     <div class="icon-box" v-if="sub.icon">
                         <elem-icon :name="sub.icon" :key="sub.id + sub.icon"></elem-icon>
                     </div>
-                    <p class="name">{{sub.name}}</p>
+                    <p class="name">{{ sub.name }}</p>
                 </div>
-                <p class="value" v-if="sub.value">{{sub.value}}</p>
+                <p class="value" v-if="sub.value">{{ sub.value }}</p>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import Component, { ComponentMethods } from '../module/component/component'
-import Utils from '../module/utils/utils'
+import Component, { ComponentMethods } from "../module/component/component"
+import Utils from "../module/utils/utils"
 
-import elemIcon from './elem-icon.vue'
+import elemIcon from "./elem-icon.vue"
 
 class CompMenuComponent extends ComponentMethods implements ComponentEntity {
-
     private parent: HTMLElement
 
     data() {
         return {
             display: false,
-            menus: null
+            menus: null,
         }
     }
 
@@ -39,34 +38,38 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
         value: Array,
         cursor: {
             type: String,
-            default: "pointer"
+            default: "pointer",
         },
         clickType: {
             type: String,
-            default: "left"
+            default: "left",
         },
         position: {
             type: String,
-            default: "fixed"
+            default: "fixed",
         },
         direction: {
             type: String,
-            default: "bottom"
+            default: "bottom",
         },
         absolute: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
+        maxWidth: {
+            type: String,
+            default: "auto",
+        },
     }
 
     components = {
-        elemIcon
+        elemIcon,
     }
 
     mounted() {
         const dom: HTMLDivElement = this.$el
 
-        const parent = this.parent = dom.parentElement
+        const parent = (this.parent = dom.parentElement)
 
         if (!this.absolute && this.position !== "follow") {
             parent.style.position = "relative"
@@ -80,6 +83,9 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
 
         if (this.position === "follow") {
             dom.style.position = "fixed"
+
+            // 移动到 body 层级，不受父组件样式影响
+            document.body.appendChild(this.$el)
         }
 
         dom.style.userSelect = "none"
@@ -91,7 +97,7 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
 
             this.evt = evt
             this.display = false
-            
+
             const menu: obj[] = this.getMenu(evt)
 
             if (menu) {
@@ -105,7 +111,7 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
                 // 添加组件菜单
                 menus.push({
                     title: "组件菜单",
-                    sub: menu
+                    sub: menu,
                 })
                 this.menus = menus
             } else {
@@ -130,7 +136,6 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
                         dom.style.top = "100%"
                     }
                 } else {
-
                     var x, y
 
                     if (evt.type.indexOf("touch") > -1) {
@@ -159,7 +164,12 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
         }
 
         const hide = () => {
-            this.display = false
+            setTimeout(
+                () => {
+                    this.display = false
+                },
+                this.position === "follow" ? 200 : 0
+            )
         }
 
         if (this.clickType === "left") {
@@ -172,11 +182,11 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
             var duration: Date
 
             parent.addEventListener("touchstart", () => {
-                duration = new Date
+                duration = new Date()
                 return false
             })
 
-            parent.addEventListener("touchend", (evt) => {
+            parent.addEventListener("touchend", evt => {
                 evt.preventDefault()
                 if (new Date().getTime() - duration.getTime() > 300) {
                     display(evt)
@@ -187,11 +197,15 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
             })
         }
 
-        window.addEventListener('mousewheel', (evt) => {
-            if (this.display) {
-                evt.preventDefault()
-            }
-        }, { passive: false })
+        window.addEventListener(
+            "mousewheel",
+            evt => {
+                if (this.display) {
+                    evt.preventDefault()
+                }
+            },
+            { passive: false }
+        )
     }
 
     getMenu(evt: obj) {
@@ -209,12 +223,16 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
     }
 
     onSelectMenu(e: obj) {
+        console.log(e)
+
         e.onClick && e.onClick(this.evt, e.id)
 
-        !e.display && this.$emit('select', {
-            value: e.id,
-            type: "comp-menu"
-        })
+        !e.display &&
+            this.$emit("select", {
+                value: e.id,
+                data: e,
+                type: "comp-menu",
+            })
 
         // 触发失焦事件
         this.parent.blur()
@@ -225,14 +243,18 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
      */
     onChangeDisable(id: string, disable: boolean) {
         Utils.each<obj>(this.value, v => {
-            Utils.each<obj>(v.sub, s => {
-                s.disable = disable
-            }, c => c.id === id)
+            Utils.each<obj>(
+                v.sub,
+                s => {
+                    s.disable = disable
+                },
+                c => c.id === id
+            )
         })
     }
 }
 
-export default Component.build(new CompMenuComponent)
+export default Component.build(new CompMenuComponent())
 </script>
 
 <style lang="less">
@@ -256,7 +278,7 @@ export default Component.build(new CompMenuComponent)
     .border;
     .shadow(0 0 30px rgba(0, 0, 0, 0.1));
 
-    >.item-box {
+    > .item-box {
         padding: 5px 0;
 
         .title {
@@ -360,7 +382,7 @@ export default Component.build(new CompMenuComponent)
 
     .shadow;
 
-    >.item-box {
+    > .item-box {
         .title {
             color: #fff;
         }
@@ -382,5 +404,4 @@ export default Component.build(new CompMenuComponent)
         }
     }
 }
-
 </style>

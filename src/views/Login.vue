@@ -287,6 +287,7 @@ import compMenu from "@/components/comp-menu.vue"
 
 import md5 from "js-md5"
 import Modal from "@/module/interactive/modal"
+import Path from "@/module/config/path"
 
 class LoginPage extends ComponentMethods implements ComponentEntity {
     private input_focus: obj = {}
@@ -482,33 +483,49 @@ class LoginPage extends ComponentMethods implements ComponentEntity {
             }
         }
 
-        Version.get().then(res => {
-            this.setting_menu = [
+        const version = {
+            title: "版本管理",
+            prompt: "版本展示用于判断管理端与主程序之间是否兼容。",
+            sub: [
                 {
-                    title: "版本管理",
-                    prompt: "版本展示用于判断管理端与主程序之间是否兼容。",
-                    sub: [
-                        {
-                            id: "admin_version",
-                            icon: "admin",
-                            name: "管理端版本",
-                            value: res.admin,
-                        },
-                        {
-                            id: "framework_version",
-                            icon: "framework",
-                            name: "主程序版本",
-                            value: res.framework,
-                        },
-                        {
-                            id: "compare_version",
-                            icon: "compare",
-                            name: "兼容主程序版本",
-                            value: ">=" + res.min_framework,
-                        },
-                    ],
+                    id: "admin_version",
+                    icon: "admin",
+                    name: "管理端版本",
+                    value: Package.version,
                 },
-            ]
+            ],
+        }
+
+        this.setting_menu = [
+            version,
+            {
+                title: "调试",
+                prompt: "用于调试程序异常",
+                sub: [
+                    {
+                        id: "debug_mode",
+                        icon: "compare",
+                        name: "调试模式",
+                    },
+                ],
+            },
+        ]
+
+        Version.get().then(res => {
+            version.sub.push(
+                {
+                    id: "framework_version",
+                    icon: "framework",
+                    name: "主程序版本",
+                    value: res.framework,
+                },
+                {
+                    id: "compare_version",
+                    icon: "compare",
+                    name: "兼容主程序版本",
+                    value: ">=" + res.min_framework,
+                }
+            )
 
             var match = Utils.versionToNumber(res.framework) >= Utils.versionToNumber(res.min_framework)
 
@@ -911,6 +928,25 @@ class LoginPage extends ComponentMethods implements ComponentEntity {
     }
 
     onSelectSettingMenu(evt: ElemEvent<string>) {
+        if (evt.value === "debug_mode") {
+            var getQueryString = function (name) {
+                let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i")
+                let r = window.location.search.substr(1).match(reg)
+                if (r != null) {
+                    return unescape(r[2])
+                }
+                return null
+            }
+
+            Path.DOMAIN = getQueryString("url")
+
+            console.log(this.getParam<string>("url"))
+
+            console.log(Path.DOMAIN)
+
+            return
+        }
+
         Version.get().then(res => {
             switch (evt.value) {
                 case "admin_version":
@@ -928,6 +964,7 @@ class LoginPage extends ComponentMethods implements ComponentEntity {
                     } else {
                         Message.error("当前主程序不符合最低版本要求，请联系技术支持！")
                     }
+                    break
             }
         })
     }

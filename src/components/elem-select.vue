@@ -6,13 +6,13 @@
                 <div class="first-box">
                     <div class="label-box" v-if="multiple">
                         <div class="label-item-box" v-for="(item, idx) in label" :key="idx">
-                            <p>{{item}}</p>
+                            <p>{{ item }}</p>
                             <div class="delete-btn" @click.stop="onDeleteLabel(idx)">
                                 <elem-icon src="static/icon/components/elem-select/" name="close"></elem-icon>
                             </div>
                         </div>
                     </div>
-                    <input v-model="val_text" class="input" type="text" :placeholder="ph" @focus="onInputFocus" @blur="onInputBlur" @input="onSearchSelect">
+                    <input v-model="val_text" class="input" type="text" :placeholder="ph" @focus="onInputFocus" @blur="onInputBlur" @input="onSearchSelect" />
                 </div>
                 <div class="drop-icon">
                     <elem-icon v-show="val == null && !val_text" src="static/icon/components/elem-select/" name="arrow_bottom" width="50%" height="50%"></elem-icon>
@@ -20,7 +20,17 @@
                     <elem-icon v-show="val == null && val_text" src="static/icon/components/elem-select/" name="error" width="60%" height="60%"></elem-icon>
                 </div>
                 <div class="item-base" :class="{ unfold: unfold }">
-                    <div class="item-box" v-for="(item, idx) in data_list" :key="idx" :value="item.id" :selected="item.id == value" @click="onSelect(item.id, item.value)" v-show="!search || item.value.indexOf(search) > -1">{{item.value}}</div>
+                    <div
+                        class="item-box"
+                        v-for="(item, idx) in data_list"
+                        :key="idx"
+                        :value="item.id"
+                        :selected="item.id == value"
+                        @click="onSelect(item.id, item.value)"
+                        v-show="!search || item.value.indexOf(search) > -1"
+                    >
+                        {{ item.value }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -29,9 +39,10 @@
 
 <script lang="ts">
 import Utils from "../module/utils/utils"
-import elemIcon from './elem-icon.vue'
-import elemInputObject from './elem-input-object.vue'
-import Theme from '../module/theme/theme'
+import elemIcon from "./elem-icon.vue"
+import elemInputObject from "./elem-input-object.vue"
+import Theme from "../module/theme/theme"
+import Request from "@/module/request/request"
 
 export default {
     name: "elem-select",
@@ -44,65 +55,78 @@ export default {
             val_text: null,
             search: null,
             ph: "",
-            label: []
+            label: [],
         }
     },
 
     props: {
-        data: {
+        datas: {
             type: Array,
-            default: new Array
+            default: false,
+        },
+        // 远程搜索接口配置
+        remotely: {
+            type: Object,
+            required: false,
         },
         required: {
             type: Boolean,
-            default: true
+            default: true,
         },
         title: String,
         placeholder: {
             type: String,
-            default: ""
+            default: "",
         },
-		name: {
-			type: String,
-            default: "switch"
+        name: {
+            type: String,
+            default: "switch",
         },
         multiple: {
             type: Boolean,
-            default: false
+            default: false,
         },
-        value: null
+        config: {
+            type: Object,
+            default: new Object(),
+        },
+        value: null,
     },
 
     watch: {
-        'val': function(value, oldValue) {
+        val: function (value, oldValue) {
             this.onChangeData(value, oldValue)
-        }
+        },
     },
 
     components: {
         elemIcon,
-        elemInputObject
+        elemInputObject,
     },
 
     created() {
-        if (this.data) {
-            const data_list = Utils.copy(this.data)
+        if (this.datas) {
+            const data_list = Utils.copy(this.datas)
 
-            Utils.each(data_list, (v, i) => {
-                return { id: i, value: v }
-            }, c => "string" === typeof c)
+            Utils.each(
+                data_list,
+                (v, i) => {
+                    return { id: i, value: v }
+                },
+                c => "string" === typeof c
+            )
 
             this.data_list = data_list
         }
     },
-    
+
     mounted() {
         Theme.processPage(this.$el)
 
-        this.ph = this.placeholder ? this.placeholder : `选择${this.title || this.name}${this.required ? '' : '（可选）'}`
+        this.ph = this.placeholder ? this.placeholder : `选择${this.title || this.name}${this.required ? "" : "（可选）"}`
 
         const value = this.value
-        
+
         if (Utils.isExist(value)) {
             if (this.multiple) {
                 Utils.each(value, v => {
@@ -111,32 +135,39 @@ export default {
                         return
                     }
 
-                    this.val ? this.val.push(v) : this.val = [v]
+                    this.val ? this.val.push(v) : (this.val = [v])
 
-                    Utils.each<obj>(this.data, v => {
-                        this.label.push(v.value)
-                    }, c => c.id == v)
+                    Utils.each<obj>(
+                        this.datas,
+                        v => {
+                            this.label.push(v.value)
+                        },
+                        c => c.id == v
+                    )
                 })
             } else {
                 this.val = value
 
-                Utils.each<obj>(this.data, v => {
-                    this.val_text = v.value
-                }, c => c.id == value)
+                Utils.each<obj>(
+                    this.datas,
+                    v => {
+                        this.val_text = v.value
+                    },
+                    c => c.id == value
+                )
             }
         }
     },
 
     methods: {
-
         onChangeData(value, oldValue) {
-            this.$emit('change', {
+            this.$emit("change", {
                 value: value,
                 type: "elem-select",
                 name: this.name,
                 restore: () => {
                     this.val = oldValue
-                }
+                },
             })
         },
 
@@ -157,7 +188,7 @@ export default {
                     return
                 }
 
-                this.val ? this.val.push(id) : this.val = [id]
+                this.val ? this.val.push(id) : (this.val = [id])
                 this.label.push(val)
                 this.val_text = ""
             } else {
@@ -171,9 +202,14 @@ export default {
         },
 
         onSearchSelect(evt) {
-            this.val = null
+            const val = (evt.target || evt.srcElement).value
 
-            this.search = (evt.target || evt.srcElement).value
+            if (this.config.remotely) {
+                this.onSearch(val)
+            } else {
+                this.val = null
+                this.search = val
+            }
         },
 
         onDeleteLabel(idx) {
@@ -184,8 +220,39 @@ export default {
             }
 
             this.label.splice(idx, 1)
-        }
-    }
+        },
+
+        onSearch(val) {
+            if (!val) return (this.data_list = null)
+
+            clearTimeout(this.sst)
+
+            this.sst = setTimeout(() => {
+                this.showLoadingSign = true
+
+                Request.get<obj[]>(this.config.remotely.api, {
+                    [this.remotely.search]: val,
+                })
+                    .then(res => {
+                        const arr = []
+
+                        for (let i = 0, d = res; i < d.length; i++) {
+                            const e = d[i]
+
+                            arr.push({
+                                id: e[this.remotely.id],
+                                value: e[this.remotely.value],
+                            })
+                        }
+
+                        this.data_list = arr
+                    })
+                    .finally(() => {
+                        this.showLoadingSign = false
+                    })
+            }, 300)
+        },
+    },
 }
 </script>
 
@@ -217,7 +284,7 @@ export default {
 
             &:hover {
                 border-color: #b3b3b3;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                 z-index: 20;
             }
 
@@ -242,14 +309,14 @@ export default {
                         align-items: center;
                         background: #2faaf7;
                         border-radius: 4px;
-                        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
                         transition: all 0.3s ease;
 
                         &:hover {
-                            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
                         }
 
                         p {
@@ -330,9 +397,9 @@ export default {
             }
         }
 
-        >.unfold {
+        > .unfold {
             border-color: #b3b3b3;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             z-index: 20;
         }
     }

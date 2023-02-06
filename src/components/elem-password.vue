@@ -173,7 +173,7 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
         // 是否加密
         if (this.config.encryption) {
             // 非初始值
-            if (this.isEdit || this.change) {
+            if (this.change) {
                 let md5 = require("js-md5")
                 // MD5 加密
                 value = md5(value)

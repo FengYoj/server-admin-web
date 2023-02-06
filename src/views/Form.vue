@@ -6,9 +6,17 @@
             </div>
             <div class="step-box">
                 <div class="step-base">
-                    <div class="item-box" v-for="(conf, idx) in formConfig.create" :key="idx" :class="{ activity: idx === 0 }" :id="'StepItemBox-' + conf.name" @click="onScrollToStepBox('FromItemBox-' + conf.name)" v-show="conf.where || true">
-                        <p class="serial-number">{{idx + 1}}.</p>
-                        <p class="name">{{conf.title}}</p>
+                    <div
+                        class="item-box"
+                        v-for="(conf, idx) in formConfig.create"
+                        :key="idx"
+                        :class="{ activity: idx === 0 }"
+                        :id="'StepItemBox-' + conf.name"
+                        @click="onScrollToStepBox('FromItemBox-' + conf.name)"
+                        v-show="conf.where || true"
+                    >
+                        <p class="serial-number">{{ idx + 1 }}.</p>
+                        <p class="name">{{ conf.title }}</p>
                     </div>
                 </div>
             </div>
@@ -22,8 +30,8 @@
                 <div class="item-box step-item" v-for="(conf, idx) in formConfig.create" :key="idx" :id="'FromItemBox-' + conf.name" :data-step-id="'StepItemBox-' + conf.name">
                     <div class="item-base step-base" :class="'step-item-' + idx" v-if="getConditionValue(conf.where)">
                         <div class="title-box">
-                            <p class="serial-number">{{getStepNumber(idx)}}</p>
-                            <p class="name">{{conf.title}}</p>
+                            <p class="serial-number">{{ getStepNumber(idx) }}</p>
+                            <p class="name">{{ conf.title }}</p>
                         </div>
                         <div class="step-content" v-if="conf.type === 'PASSWORD'">
                             <div class="prompt">密码必须包含 1 个字母和 1 个数字，密码长度至少为 8 个字符，如需修改密码时输入任意字符或删除任意字符即可</div>
@@ -32,13 +40,22 @@
                             </div>
                         </div>
                         <div class="step-content" v-else>
-                            <div class="prompt" v-if="conf.prompt">{{conf.prompt}}</div>
+                            <div class="prompt" v-if="conf.prompt">{{ conf.prompt }}</div>
                             <div class="form-box" v-if="!conf.list">
                                 <comp-form v-for="(item, idx) in conf.data" :index="idx" :key="idx" :data="item" :config="conf" :value="value" @change-data="onChangeValue"></comp-form>
                             </div>
                             <div class="form-box" v-else>
                                 <div class="list-box" v-for="(sub, sub_idx) in getStepMap(conf.name)" :key="sub.key_id">
-                                    <comp-form v-for="(item, idx) in conf.data" :entity="conf.name" :index="sub_idx" :key="sub.key_id + idx" :data="item" :config="conf" :value="value" @change-data="onChangeValue"></comp-form>
+                                    <comp-form
+                                        v-for="(item, idx) in conf.data"
+                                        :entity="conf.name"
+                                        :index="sub_idx"
+                                        :key="sub.key_id + idx"
+                                        :data="item"
+                                        :config="conf"
+                                        :value="value"
+                                        @change-data="onChangeValue"
+                                    ></comp-form>
                                     <div class="operating-box">
                                         <button type="button" class="clear-button" @click="onChangeList('clear', conf.name, sub_idx)">
                                             <elem-icon class="icon-box" name="clear_red"></elem-icon>
@@ -58,37 +75,36 @@
 </template>
 
 <script lang="ts">
-import Component, { ComponentMethods } from '@/module/component/component'
-import Request from '@/module/request/request'
-import Utils from '@/module/utils/utils'
-import Message from '@/module/interactive/message'
+import Component, { ComponentMethods } from "@/module/component/component"
+import Request from "@/module/request/request"
+import Utils from "@/module/utils/utils"
+import Message from "@/module/interactive/message"
 
-import elemIcon from '@/components/elem-icon.vue'
-import compForm from '@/components/comp-form.vue'
-import Href from '@/module/config/href'
+import elemIcon from "@/components/elem-icon.vue"
+import compForm from "@/components/comp-form.vue"
+import Href from "@/module/config/href"
 
 class FormView extends ComponentMethods implements ComponentEntity {
-
     private formConfig: obj = {}
 
     private value: obj = null
 
-    private type: 'create' | 'edit' | 'config' = "create"
+    private type: "create" | "edit" | "config" = "create"
 
     private step_map: obj = {}
 
     public components = {
         elemIcon,
-        compForm
+        compForm,
     }
 
     async onLoad(param: obj): Promise<void> {
         this.formConfig = {}
         this.value = null
 
-        const name = this.entity_name = param.name
-        const type = this.type = param.type
-        const config = this.pageConfig = await Href.getPage(name)
+        const name = (this.entity_name = param.name)
+        const type = (this.type = param.type)
+        const config = (this.pageConfig = await Href.getPage(name))
 
         if (config.type === "config") {
             this.configName = name
@@ -132,7 +148,7 @@ class FormView extends ComponentMethods implements ComponentEntity {
             b.scrollTo({
                 top: i.offsetTop - 80,
                 left: 0,
-                behavior: 'smooth'
+                behavior: "smooth",
             })
         })
     }
@@ -140,7 +156,7 @@ class FormView extends ComponentMethods implements ComponentEntity {
     /**
      * 获取序号
      */
-    getStepNumber(idx) {
+    getStepNumber(idx: number) {
         const es = Utils.getElementAll(".step-base")
 
         for (let i = 0, leng = es.length; i < leng; i++) {
@@ -159,7 +175,10 @@ class FormView extends ComponentMethods implements ComponentEntity {
             return Message.error(status.getMessage())
         }
 
-        const data = status.getData()
+        const data = {
+            ...this.getParams(),
+            ...status.getData()
+        }
 
         let url: string
 
@@ -202,12 +221,12 @@ class FormView extends ComponentMethods implements ComponentEntity {
 
     private getStepMap(name: string): obj[] {
         if (!this.step_map[name]) {
-            let size = (this.value && this.value[name] && this.value[name].length > 0) ? this.value[name].length : 1
+            let size = this.value && this.value[name] && this.value[name].length > 0 ? this.value[name].length : 1
             var arr = []
 
             for (let i = 0; i < size; i++) {
                 arr.push({
-                    key_id: Utils.getUuid()
+                    key_id: Utils.getUuid(),
                 })
             }
 
@@ -217,12 +236,12 @@ class FormView extends ComponentMethods implements ComponentEntity {
         return this.step_map[name]
     }
 
-    private onChangeList(type: 'append' | 'clear', name: string, idx?: number) {
+    private onChangeList(type: "append" | "clear", name: string, idx?: number) {
         const step: obj[] = this.step_map[name]
 
-        if (type === 'append') {
+        if (type === "append") {
             step.push({
-                key_id: Utils.getUuid()
+                key_id: Utils.getUuid(),
             })
         } else {
             step.splice(idx, 1)
@@ -231,11 +250,11 @@ class FormView extends ComponentMethods implements ComponentEntity {
 
     getConditionValue(where: string) {
         if (!where) return true
-        return new Function(`return ${where.replace(/&{(\w*)}/g, 'this.$1')}`).call(this.value)
+        return new Function(`return ${where.replace(/&{(\w*)}/g, "this.$1")}`).call(this.value)
     }
 }
 
-export default Component.build(new FormView)
+export default Component.build(new FormView())
 </script>
 
 <style lang="less">
@@ -265,7 +284,7 @@ export default Component.build(new FormView)
         .flex-shrink;
         .flex-content(space-between);
 
-        >.back-btn {
+        > .back-btn {
             position: relative;
             height: 100%;
             cursor: pointer;
@@ -288,72 +307,79 @@ export default Component.build(new FormView)
             }
         }
 
-        >.step-box {
+        > .step-box {
             height: 100%;
             margin: 0 10%;
 
-            >.step-base {
+            > .step-base {
                 width: 100%;
                 height: 100%;
 
                 .flex;
                 .scroll-x(1px);
 
-                >.item-box {
+                > .item-box {
                     cursor: pointer;
                     position: relative;
                     margin-right: 60px;
                     height: 100%;
-                    flex:none;
-    
+                    flex: none;
+
                     .flex-shrink;
                     .flex;
                     .flex-center-items;
-    
+
                     &::after {
                         content: "";
                         background: #365d9b;
                         height: 3px;
                         opacity: 0;
-        
+
                         .transition;
                         .radius(3px);
                         .absolute(initial, 30%, 0, 30%);
                     }
-    
-                    .serial-number,.name {
+
+                    &:last-child {
+                        margin-right: 0;
+                    }
+
+                    .serial-number,
+                    .name {
                         font-size: 16px;
                         line-height: 25px;
                         color: #c3c3c3;
-    
+
                         .transition;
                     }
-    
+
                     .name {
                         margin-left: 5px;
                     }
-    
+
                     &:hover {
-                        .serial-number,.name {
+                        .serial-number,
+                        .name {
                             color: #36414e;
                         }
-    
+
                         &::after {
                             opacity: 1;
-    
+
                             .absolute(initial, 0, 0, 0);
                         }
                     }
                 }
-    
-                >.activity {
-                    .serial-number,.name {
+
+                > .activity {
+                    .serial-number,
+                    .name {
                         color: #36414e;
                     }
-    
+
                     &::after {
                         opacity: 1;
-    
+
                         .absolute(initial, 0, 0, 0);
                     }
                 }
@@ -367,7 +393,7 @@ export default Component.build(new FormView)
             padding: 0 20px;
             background: #00b3d9;
             border: 1px solid #00b3d9;
-            
+
             .transition;
             .flex-shrink;
             .radius(5px);
@@ -391,17 +417,17 @@ export default Component.build(new FormView)
         }
     }
 
-    >.step-box {
+    > .step-box {
         width: 100%;
         height: 100%;
 
         .flex-grow;
         .scroll-y;
 
-        >.form-box {
+        > .form-box {
             width: 100%;
 
-            >.item-box {
+            > .item-box {
                 padding: 30px;
 
                 .border-position(bottom);
@@ -410,26 +436,26 @@ export default Component.build(new FormView)
                     border-bottom: initial;
                 }
 
-                >.item-base {
-                    >.title-box {
+                > .item-base {
+                    > .title-box {
                         margin: 0 20px;
                         width: 100%;
-                        
+
                         .flex;
                         .flex-center-items;
-        
+
                         .serial-number {
                             width: 50px;
                             height: 50px;
                             font-size: 25px;
                             color: #36414e;
-        
+
                             .border;
                             .radius(50%);
                             .flex;
                             .flex-center-all;
                         }
-        
+
                         .name {
                             font-size: 25px;
                             margin-left: 20px;
@@ -437,10 +463,10 @@ export default Component.build(new FormView)
                         }
                     }
 
-                    >.step-content {
+                    > .step-content {
                         width: 100%;
 
-                        >.prompt {
+                        > .prompt {
                             margin: 30px 20px 0 20px;
                             font-size: 14px;
                             max-width: 350px;
@@ -457,14 +483,14 @@ export default Component.build(new FormView)
                             }
                         }
 
-                        >.form-box {
+                        > .form-box {
                             width: 100%;
                             margin-top: 20px;
 
                             .flex;
                             .flex-wrap;
 
-                            >.list-box {
+                            > .list-box {
                                 position: relative;
                                 width: 100%;
                                 padding: 20px;
@@ -479,7 +505,7 @@ export default Component.build(new FormView)
                                     margin-bottom: 0;
                                 }
 
-                                >.operating-box {
+                                > .operating-box {
                                     width: 26px;
 
                                     .flex;
@@ -557,36 +583,40 @@ export default Component.build(new FormView)
     .head-controller-box {
         border-color: #373a4e;
 
-        >.back-btn::after {
+        > .back-btn::after {
             background: @dark_border;
         }
 
-        >.step-box >.step-base {
-            >.item-box {
-                .serial-number,.name {
+        > .step-box > .step-base {
+            > .item-box {
+                .serial-number,
+                .name {
                     color: #737373;
                 }
 
                 &:hover {
-                    .serial-number,.name {
+                    .serial-number,
+                    .name {
                         color: #fff;
                     }
                 }
             }
 
-            >.activity {
-                .serial-number,.name {
+            > .activity {
+                .serial-number,
+                .name {
                     color: #fff;
                 }
             }
         }
     }
 
-    .step-box >.form-box >.item-box {
+    .step-box > .form-box > .item-box {
         border-color: #26282b;
 
         .title-box {
-            .serial-number, .name {
+            .serial-number,
+            .name {
                 color: #fff;
             }
 

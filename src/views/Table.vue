@@ -10,6 +10,13 @@
                     </div>
                     <elem-options :el="'#filter_item_' + idx" :data="conf.data" @select="onFilter(conf.name, 'filter_item_' + idx, $event)"></elem-options>
                 </div>
+
+                <div class="item-box">
+                    <p class="name">时间范围</p>
+                    <div class="value">
+                        <DatePicker type="daterange" split-panels placeholder="Select date" style="width: 200px"></DatePicker>
+                    </div>
+                </div>
             </div>
             <div class="operating-box">
                 <div class="search-box">
@@ -89,6 +96,7 @@
                                     <p v-else class="text-box">{{ item[conf.field] }}</p>
                                 </div>
 
+                                <!-- 字段值为空 -->
                                 <div class="column-box column-box-null" v-else>-</div>
                             </div>
                         </div>
@@ -100,39 +108,42 @@
                     <div class="operating-title">操作</div>
 
                     <div class="operating-item" v-for="(item, idx) in table" :key="idx">
-                        <div class="button-box" v-for="(conf, idx) in tableConfig.operatings" :key="idx">
-                            <span v-if="conf.type === 'EDIT' ? tableConfig.pages.indexOf('create') > -1 : true">
-                                <a v-if="conf.type === 'EDIT'" class="edit" @click="jumpForm({ type: 'edit', name: name, i: item.uuid })">编辑</a>
+                        <div class="button-box" v-for="(conf, idx) in tableConfig.operatings" :key="idx" v-show="conf.type === 'EDIT' ? tableConfig.pages.indexOf('create') > -1 : true && getConditionValue(conf.filter, item)">
+                            <!-- 修改 -->
+                            <a v-if="conf.type === 'EDIT'" class="edit" @click="jumpForm({ type: 'edit', name: name, i: item.uuid })">编辑</a>
 
-                                <button v-else-if="conf.type === 'DELETE'" class="delete" @click="onDelete(item.uuid)">删除</button>
+                            <!-- 删除 -->
+                            <button v-else-if="conf.type === 'DELETE'" class="delete" @click="onDelete(item.uuid)">删除</button>
 
-                                <button v-else-if="conf.type === 'POPUP'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingPopup(item, conf.url, conf.msg, conf.config)">
-                                    {{ conf.title }}
-                                </button>
+                            <button v-else-if="conf.type === 'POPUP'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingPopup(item, conf.url, conf.msg, conf.config)">
+                                {{ conf.title }}
+                            </button>
 
-                                <button v-else-if="conf.type === 'FILE'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingFile(item, conf.url, conf.msg, conf.config)">
-                                    {{ conf.title }}
-                                </button>
+                            <!-- 上传文件 -->
+                            <button v-else-if="conf.type === 'FILE'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingFile(item, conf.url, conf.msg, conf.config)">
+                                {{ conf.title }}
+                            </button>
 
-                                <button v-else-if="conf.type === 'JUMP'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingJump(item, conf.url, conf.msg)">
-                                    {{ conf.title }}
-                                </button>
+                            <!-- 跳转页面 -->
+                            <button v-else-if="conf.type === 'JUMP'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingJump(item, conf.url, conf.msg)">
+                                {{ conf.title }}
+                            </button>
 
-                                <button
-                                    v-else-if="conf.type === 'REQUEST'"
-                                    :style="{ background: conf.background, color: conf.color }"
-                                    @click="onOperatingRequest(conf.method, item, conf.url, conf.msg)"
-                                >
-                                    {{ conf.title }}
-                                </button>
+                            <!-- 发起请求 -->
+                            <button
+                                v-else-if="conf.type === 'REQUEST'"
+                                :style="{ background: conf.background, color: conf.color }"
+                                @click="onOperatingRequest(conf.method, item, conf.url, conf.msg)"
+                            >
+                                {{ conf.title }}
+                            </button>
 
-                                <button v-else-if="conf.type === 'ENTITY'" class="entity" @click="openEntity(item)">{{ conf.title }}</button>
-                            </span>
+                            <!-- 显示实体 -->
+                            <button v-else-if="conf.type === 'ENTITY'" class="entity" @click="openEntity(item)">{{ conf.title }}</button>
                         </div>
                     </div>
                 </div>
             </div>
-
             <comp-entity ref="comp_entity"></comp-entity>
         </div>
         <div class="pagination-box">
@@ -195,7 +206,7 @@ class TableView extends ComponentMethods implements ComponentEntity {
     private pageName = "Table"
 
     /** 表格配置 */
-    private tableConfig: obj = {
+    public tableConfig: obj = {
         pages: [],
     }
 
@@ -203,7 +214,10 @@ class TableView extends ComponentMethods implements ComponentEntity {
 
     private filter: obj = null
 
-    private moreMenu = [
+    // 是否开启时间检索功能
+    public isOpenTimeRetrieval: boolean = false
+
+    public moreMenu = [
         {
             title: "导出数据",
             prompt: "将以 Excel 表格格式导出数据文件",
@@ -260,7 +274,7 @@ class TableView extends ComponentMethods implements ComponentEntity {
         this.loading = new PageLoading(this.$el)
     }
 
-    async onLoad() {
+    async onLoad(param: obj) {
         this.loading && this.loading.show()
 
         const name = (this.name = this.getParam<string>("name"))
@@ -277,6 +291,7 @@ class TableView extends ComponentMethods implements ComponentEntity {
 
         this.api = res.api
         this.tableConfig = res
+        this.isOpenTimeRetrieval = res.time
 
         for (let i = 0, o = res.operatings, l = o.length; i < l; i++) {
             if (o[i].type === "ENTITY") {
@@ -287,6 +302,17 @@ class TableView extends ComponentMethods implements ComponentEntity {
             }
         }
 
+        // 判断是否存在参数
+        if (Utils.isExist(param)) {
+            let obj = Utils.copy(param)
+            // 删除 name 的属性
+            delete obj.name
+            // 在判断是否存在，存在就写入条件
+            if (Utils.isExist(obj)) this.filter = obj
+            else this.filter = null
+        } else this.filter = null
+
+        // 获取数据
         this.getData()
 
         Utils.wait(() => {
@@ -449,8 +475,12 @@ class TableView extends ComponentMethods implements ComponentEntity {
      */
     async onOperatingRequest(method, item, url, msg) {
         this.onOperatingMsg(msg, () => {
-            Request.method(method, this.getUrl(item, url), () => {
+            Request.method(method, this.getUrl(item, url)).then(() => {
                 Message.success("成功")
+                // 刷新数据
+                setTimeout(() => {
+                    this.getData()
+                }, 1000)
             })
         })
     }
@@ -556,8 +586,13 @@ class TableView extends ComponentMethods implements ComponentEntity {
                 path: Utils.jsonToParams(param, this.pageConfig.formUrl),
             })
         } else {
-            this.jump("/form", param)
+            this.jump("/form", { ...param, ...this.getParams() })
         }
+    }
+
+    getConditionValue(where: string, value: obj) {
+        if (!where) return true
+        return new Function(`return ${where.replace(/&{(\w*)}/g, "this.$1")}`).call(value)
     }
 }
 
@@ -796,7 +831,6 @@ export default Component.build(new TableView())
 
                                 .text-box {
                                     font-size: 13px;
-                                    max-width: 80%;
                                     white-space: nowrap;
                                     overflow: hidden;
                                     text-overflow: ellipsis;

@@ -1,6 +1,5 @@
 <template>
     <div class="user-page" dark-class="user-page-dark">
-
         <!-- <div class="menu-box">
             
         </div> -->
@@ -8,9 +7,9 @@
         <div class="tool-bar-box">
             <div class="item-bar filter-box">
                 <div class="item-box" v-for="(item, idx) in filters" :key="idx" :id="'filter_item_' + idx">
-                    <p class="name">{{item.title}}</p>
+                    <p class="name">{{ item.title }}</p>
                     <div class="value">
-                        <p>{{filter_title['filter_item_' + idx] || '所有'}}</p>
+                        <p>{{ filter_title["filter_item_" + idx] || "所有" }}</p>
                         <elem-icon class="icon" name="select"></elem-icon>
                     </div>
                     <elem-options :el="'#filter_item_' + idx" :data="item.data" @select="onFilter(item.name, 'filter_item_' + idx, $event)"></elem-options>
@@ -28,7 +27,7 @@
                     <div class="icon-base">
                         <elem-icon class="icon-box" name="search"></elem-icon>
                     </div>
-                    <input class="input" type="text" placeholder="输入搜索内容" v-model="search" @keyup.enter="onSubmitSearch">
+                    <input class="input" type="text" placeholder="输入搜索内容" v-model="search" @keyup.enter="onSubmitSearch" />
                 </div>
                 <a class="add-btn" @click="jump('/form', { type: 'create', name: 'User' })">
                     <elem-icon class="icon" name="add_white"></elem-icon>
@@ -43,20 +42,19 @@
 
         <div class="user-box" dark-class="user-box-dark">
             <div class="item-box" v-for="(item, idx) in users" :key="idx">
-
                 <div class="operating-btn">
                     <elem-icon name="operating"></elem-icon>
-                    <comp-menu :absolute="true" :value="getMenu(item.status === 3)" @select="onSelectMenu(item, $event)"></comp-menu>
+                    <comp-menu :absolute="true" position="follow" maxWidth="200px" :value="getMenu(item.status === 3)" @select="onSelectMenu(item, $event)"></comp-menu>
                 </div>
 
                 <div class="floor-box contact-box">
                     <div class="item-box">
                         <p class="name">手机号码</p>
-                        <p class="value">{{item.phone || '-'}}</p>
+                        <p class="value">{{ item.phone || "-" }}</p>
                     </div>
                     <div class="item-box" v-if="mode === 'basis'">
                         <p class="name">住址</p>
-                        <p class="value">{{getAddress(item)}}</p>
+                        <p class="value">{{ getAddress(item) }}</p>
                     </div>
                 </div>
 
@@ -67,40 +65,40 @@
                     <div class="event-item-box">
                         <div class="item-box">
                             <p class="name">加入日期</p>
-                            <p class="value">{{item.createdDate}}</p>
+                            <p class="value">{{ item.createdDate }}</p>
                         </div>
                         <div class="item-box">
                             <p class="name">最后访问日期</p>
-                            <p class="value">{{item.lastAccess || item.createdDate}}</p>
+                            <p class="value">{{ item.lastAccess || item.createdDate }}</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="floor-box data-box">
                     <div class="item-box">
-                        <p class="name">注册方式</p>
-                        <p class="value">{{getProvider(item.provider)}}</p>
+                        <p class="name">推广收益</p>
+                        <p class="value">￥{{ centsToYuan(item.totalCommission) }}</p>
                     </div>
                     <div class="item-box">
                         <p class="name">访问次数</p>
-                        <p class="value">{{item.accessFrequency || 0}}</p>
+                        <p class="value">{{ item.accessFrequency || 0 }}</p>
                     </div>
                     <div class="item-box">
                         <p class="name">消费金额</p>
-                        <p class="value">￥{{item.orderTotal || '0.00'}}</p>
+                        <p class="value">￥{{ item.orderTotal || "0.00" }}</p>
                     </div>
                 </div>
 
                 <div class="floor-box info-box">
                     <div class="avatar-box">
-                        <img class="img" :src="item.avatar ? item.avatar.url : 'static/icon/user.svg'">
+                        <img class="img" :src="item.avatar ? item.avatar.url : 'static/icon/user.svg'" />
                     </div>
                     <div class="basic-box">
                         <div class="username-box">
-                            <p class="username">{{item.username || 'User'}}</p>
+                            <p class="username">{{ item.username || "User" }}</p>
                             <elem-icon v-if="item.gender != null && item.gender <= 1" class="icon-box" :name="['gender_male', 'gender_female'][item.gender]"></elem-icon>
                         </div>
-                        <p class="uid">{{item.uid || '-'}}</p>
+                        <p class="uid">{{ item.uid || "-" }}</p>
                     </div>
                     <div class="status-box">
                         <div class="item-box" v-if="item.status === 3">
@@ -111,24 +109,30 @@
                 </div>
             </div>
         </div>
+
+        <comp-model ref="comp_model" :title="model_title" :scroll="false">
+            <iframe ref="iframe" v-if="model_url" :src="model_url" frameborder="0" @load="onLoadIframe" width="100%" height="100%"></iframe>
+        </comp-model>
     </div>
 </template>
 
 <script lang="ts">
-import Component, { ComponentMethods } from '@/module/component/component'
+import Component, { ComponentMethods } from "@/module/component/component"
 
-import elemIcon from '@/components/elem-icon.vue'
-import elemPrompt from '@/components/elem-prompt.vue'
-import elemOptions from '@/components/elem-options.vue'
-import compMenu from '@/components/comp-menu.vue'
+import elemIcon from "@/components/elem-icon.vue"
+import elemPrompt from "@/components/elem-prompt.vue"
+import elemOptions from "@/components/elem-options.vue"
+import compMenu from "@/components/comp-menu.vue"
+import CompModel from "@/components/comp-model.vue"
 
-import Message from '@/module/interactive/message'
-import Request, { RequestPage } from '@/module/request/request'
-import Utils from '@/module/utils/utils'
-import Cache from '@/module/cache/cache'
- 
+import Message from "@/module/interactive/message"
+import Request, { RequestPage } from "@/module/request/request"
+import Utils from "@/module/utils/utils"
+import Cache from "@/module/cache/cache"
+import Headway from "@/module/utils/headway"
+import Loading from "@/module/loading/loading"
+
 class ToolView extends ComponentMethods implements ComponentEntity {
-
     public title: string = "用户管理"
 
     private users: obj[] = null
@@ -141,6 +145,12 @@ class ToolView extends ComponentMethods implements ComponentEntity {
 
     private mode: string = Cache.get("UserPageMode", "basis")
 
+    private menu_config: obj[] = null
+
+    private model_title: string = "数据"
+    // 模块链接
+    private model_url: string = null
+
     private filters = [
         {
             name: "status",
@@ -148,54 +158,100 @@ class ToolView extends ComponentMethods implements ComponentEntity {
             data: [
                 {
                     title: "未知",
-                    value: "0"
+                    value: "0",
                 },
                 {
                     title: "正常",
-                    value: "1"
+                    value: "1",
                 },
                 {
                     title: "禁用",
-                    value: "3"
+                    value: "3",
                 },
                 {
                     title: "已删除",
-                    value: "4"
-                }
-            ]
-        }
+                    value: "4",
+                },
+            ],
+        },
     ]
 
     components = {
         elemIcon,
         elemPrompt,
         elemOptions,
-        compMenu
+        compMenu,
+        CompModel,
     }
 
-    created() {
+    async created() {
+        // 获取菜单配置
+        await this.getMenuConfig()
+        // 分页实体
         this.requestPage = new RequestPage("ADMIN://User/FindAllToPage", {
             method: "POST",
-            load: false,
             size: 20,
-            onChange: (res) => {
+            onChange: res => {
                 this.users = res
+            },
+        })
+
+        window.addEventListener("message", evt => {
+            if (evt.data?.type === "CloseModel") {
+                this.$refs.comp_model.onClose()
             }
         })
+
+        // setTimeout(() => {
+        //     this.onOpenModel(
+        //         {
+        //             name: "开通科目",
+        //             url: "http://127.0.0.1/admin/test.html",
+        //         },
+        //         { uuid: "123" }
+        //     )
+        // }, 3000)
     }
 
     activated() {
-        this.requestPage.reset()
+        this.requestPage?.reset()
     }
 
     onReachBottom() {
-        this.requestPage.load()
+        this.requestPage?.load()
     }
 
     onSubmitSearch() {
         this.requestPage.setData({
-            search: this.search
+            search: this.search,
         })
+    }
+
+    /**
+     * 获取菜单配置
+     */
+    async getMenuConfig(): Promise<void> {
+        return new Promise(resolve => {
+            Request.get<obj[]>("ADMIN://User/GetMenu", null, {
+                onFail: () => false,
+            })
+                .then(res => {
+                    this.menu_config = res
+                })
+                .finally(resolve)
+        })
+    }
+
+    /**
+     * 价格单位 分 转 元，保留两位小数
+     * @param amount 金额，单位：分
+     */
+    centsToYuan(amount: number): string {
+        if (!amount) {
+            return "0.00"
+        }
+
+        return (amount / 100).toFixed(2)
     }
 
     /**
@@ -204,45 +260,52 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     getAddress(e: obj): string {
         var res = []
 
-        Utils.each(['country', 'province', 'city'], v => {
+        Utils.each(["country", "province", "city"], v => {
             e[v] && res.push(e[v])
         })
 
-        return res.length > 0 ? res.join("-") : '-'
-    }
-
-    getProvider(provider: string): string {
-        return {
-            weixin: "微信小程序",
-            toutiao: "头条小程序"
-        }[provider] || provider || '-'
+        return res.length > 0 ? res.join("-") : "-"
     }
 
     /**
      * 随机生成十六进制颜色
      */
     getRandomHexColor() {
-        return '#' + ('00000' + (Math.random() * 0x1000000 << 0).toString(16)).substr(-6);
+        return "#" + ("00000" + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
     }
 
     getMenu(disable: boolean): obj[] {
-        return [{
-            title: "操作",
-            prompt: "删除用户成功后将无法恢复，请谨慎操作！",
-            sub: [{
-                id: disable ? "CancelDisable" : "Disable",
-                icon: "disable",
-                name: disable ? "取消禁用" : "禁用"
-            }, {
-                id: "Delete",
-                icon: "delete",
-                name: "删除用户"
-            }]
-        }]
+        let arr: obj[] = [
+            {
+                title: "操作",
+                prompt: "删除用户成功后将无法恢复，请谨慎操作！",
+                sub: [
+                    {
+                        id: disable ? "CancelDisable" : "Disable",
+                        icon: "disable",
+                        name: disable ? "取消禁用" : "禁用",
+                    },
+                    {
+                        id: "Delete",
+                        icon: "delete",
+                        name: "删除用户",
+                    },
+                ],
+            },
+        ]
+
+        if (this.menu_config && this.menu_config.length > 0) {
+            arr.push({
+                title: "管理",
+                sub: this.menu_config,
+            })
+        }
+
+        return arr
     }
 
     onSelectMenu(user: obj, evt: ElemEvent<string>) {
-        switch(evt.value) {
+        switch (evt.value) {
             case "Disable":
                 this.onDisableUser(user)
                 break
@@ -251,7 +314,51 @@ class ToolView extends ComponentMethods implements ComponentEntity {
                 break
             case "Delete":
                 this.onDeleteUser(user)
+                break
+            case "Href":
+                evt.data.href && this.jump(this.getUrl(user, evt.data.href))
+                break
+            case "Model":
+                this.onOpenModel(evt.data, user)
         }
+    }
+
+    /**
+     * 打开窗口
+     */
+    onOpenModel(data: obj, user: obj) {
+        Loading.show()
+
+        this.model_title = data.name
+        this.model_url = data.url
+        this.current_user = user
+
+        this.$nextTick(() => {
+            new Headway(this, "isLoadedIframe").on().then(() => {
+                this.$refs.comp_model.onDisplay()
+
+                this.$refs.iframe.contentWindow.postMessage(
+                    {
+                        type: "OpenMembership",
+                        user_id: this.current_user.uuid,
+                        authorization_token: Cache.get("admin_token", ""),
+                        authorization_user: Cache.get("admin_id", ""),
+                    },
+                    "*"
+                )
+
+                Loading.hide()
+            })
+        })
+    }
+
+    /**
+     * 解析 url
+     */
+    getUrl(data: obj, url: string): string {
+        return new Function(`return \`${url.replace(/&{(\w*)}/g, "${this.data.$1}")}\``).call({
+            data: data,
+        })
     }
 
     onDisableUser(user: obj) {
@@ -264,7 +371,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
 
     onChangeDisableUser(user: obj, disable: boolean) {
         Request.post("ADMIN://User/ChangeDisable", { user: user.uuid, disable }).then(() => {
-            Message.success(disable ? '禁用成功' : '取消禁用成功')
+            Message.success(disable ? "禁用成功" : "取消禁用成功")
             user.status = disable ? 3 : 1
         })
     }
@@ -273,7 +380,11 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         Message.info("确认删除当前用户？", true)
             .onConfirm(() => {
                 Request.delete("ADMIN://User/Delete", { user: user.uuid }).then(() => {
-                    Utils.each(this.users, () => "delete", c => c.uuid === user.uuid)
+                    Utils.each(
+                        this.users,
+                        () => "delete",
+                        c => c.uuid === user.uuid
+                    )
                     Message.success("删除成功")
                 })
             })
@@ -283,15 +394,19 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     onChangeMode(mode: string) {
         this.mode = mode
 
-        if (mode === 'basis' || mode === 'concise') {
+        if (mode === "basis" || mode === "concise") {
             Cache.set("UserPageMode", mode, {
-                storage: "local"
+                storage: "local",
             })
         }
     }
+
+    onLoadIframe() {
+        this.isLoadedIframe = true
+    }
 }
 
-export default Component.build(new ToolView)
+export default Component.build(new ToolView())
 </script>
 
 <style lang="less">
@@ -360,7 +475,7 @@ export default Component.build(new ToolView)
                 .border;
                 .radius(20px);
 
-                >.item-box {
+                > .item-box {
                     cursor: pointer;
                     padding: 0 30px;
                     height: 100%;
@@ -376,7 +491,7 @@ export default Component.build(new ToolView)
                     }
                 }
 
-                >.activity {
+                > .activity {
                     background: #00acdb;
                     color: #fff;
                 }
@@ -479,7 +594,7 @@ export default Component.build(new ToolView)
         .flex-wrap;
         .flex-grow;
 
-        >.item-box {
+        > .item-box {
             position: relative;
             width: ~"calc(100% / 6 - 20px)";
             margin: 10px;
@@ -524,7 +639,7 @@ export default Component.build(new ToolView)
 
             .floor-box {
                 padding: 15px 20px;
-                
+
                 .border-position(bottom);
                 .flex;
                 .flex-center-items;
@@ -538,10 +653,10 @@ export default Component.build(new ToolView)
                 .flex-items(flex-start);
                 .flex-column;
 
-                >.item-box {
+                > .item-box {
                     height: 40px;
                     margin-bottom: 10px;
-                
+
                     .flex;
                     .flex-column;
                     .flex-content(space-between);
@@ -601,7 +716,7 @@ export default Component.build(new ToolView)
                         top: 18px;
                         left: 6px;
                         bottom: 18px;
-                        
+
                         border: 1px dashed #888;
                     }
                 }
@@ -609,10 +724,10 @@ export default Component.build(new ToolView)
                 .event-item-box {
                     .flex-column;
 
-                    >.item-box {
+                    > .item-box {
                         min-height: 40px;
                         margin-bottom: 10px;
-                    
+
                         .flex;
                         .flex-column;
                         .flex-content(space-between);
@@ -637,9 +752,9 @@ export default Component.build(new ToolView)
             .data-box {
                 .flex-content(space-between);
 
-                >.item-box {
+                > .item-box {
                     height: 40px;
-                    
+
                     .flex;
                     .flex-column;
                     .flex-content(space-between);
@@ -662,9 +777,9 @@ export default Component.build(new ToolView)
                     height: 45px;
                     padding: 1px;
                     border: 2px solid #2faaf7;
-                    
+
                     .flex-shrink;
-                    .shadow(0 0 10px rgb(0 0 0 / 20%)); 
+                    .shadow(0 0 10px rgb(0 0 0 / 20%));
                     .border-box;
                     .radius(50%);
 
@@ -712,7 +827,7 @@ export default Component.build(new ToolView)
                     .flex-center-items;
                     .flex-shrink;
 
-                    >.item-box {
+                    > .item-box {
                         margin-right: 5px;
                         width: 40px;
                         height: 40px;
@@ -736,10 +851,10 @@ export default Component.build(new ToolView)
         }
     }
 
-    .user-box-dark >.item-box {
+    .user-box-dark > .item-box {
         background: @dark_box;
 
-        .child-box >.item-box {
+        .child-box > .item-box {
             background: #2f3042;
         }
     }
@@ -747,11 +862,11 @@ export default Component.build(new ToolView)
 
 .user-page-dark {
     .tool-bar-box {
-        .mode-base .mode-box >.item-box:not(.activity) {
+        .mode-base .mode-box > .item-box:not(.activity) {
             background: @dark_box;
         }
 
-        .operating-box .search-box .input{
+        .operating-box .search-box .input {
             background: @dark_box;
         }
     }

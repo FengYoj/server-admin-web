@@ -6,35 +6,42 @@ import Queue from "../queue/queue"
 import Loading from "../loading/loading"
 
 export default class Request {
-
     /**
      * 网络状态
      */
-    public static online: boolean = (function() {
-        window.addEventListener("online", () => {
-            Request.online = true
-        }, false)
+    public static online: boolean = (function () {
+        window.addEventListener(
+            "online",
+            () => {
+                Request.online = true
+            },
+            false
+        )
 
-        window.addEventListener("offline", () => {
-            Request.online = false
-        }, false)
+        window.addEventListener(
+            "offline",
+            () => {
+                Request.online = false
+            },
+            false
+        )
 
         return window.navigator.onLine
     })()
 
-    public static get<T extends Object>(url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T>  {
+    public static get<T extends Object>(url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T> {
         return this.request<T>("GET", url, data, config)
     }
 
-    public static post<T extends Object>(url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T>  {
+    public static post<T extends Object>(url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T> {
         return this.request<T>("POST", url, data, config)
     }
 
-    public static delete<T extends Object>(url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T>  {
+    public static delete<T extends Object>(url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T> {
         return this.request<T>("DELETE", url, data, config)
     }
 
-    public static method<T extends Object>(method: RequestType, url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T>  {
+    public static method<T extends Object>(method: RequestType, url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T> {
         return this.request<T>(method, url, data, config)
     }
 
@@ -51,20 +58,22 @@ export default class Request {
             data.page = page.getPage()
             data.size = page.getSize()
 
-            this.request<ResponsePage<T>>(page.getMethod(), page.getUrl(), data, page.getConfig()).then(cb => {
-                var content = page.getContent().concat(cb.content)
+            this.request<ResponsePage<T>>(page.getMethod(), page.getUrl(), data, page.getConfig())
+                .then(cb => {
+                    var content = page.getContent().concat(cb.content)
 
-                page.__onChange(content)
+                    page.__onChange(content)
 
-                page.setContent(content)
+                    page.setContent(content)
 
-                if (cb.last) {
-                    page.__onLoaded()
-                }
+                    if (cb.last) {
+                        page.__onLoaded()
+                    }
 
-                // 返回 Page 实体
-                resolve(cb)
-            }).catch(reject)
+                    // 返回 Page 实体
+                    resolve(cb)
+                })
+                .catch(reject)
         })
     }
 
@@ -78,7 +87,7 @@ export default class Request {
     private static request<T extends Object>(method: RequestType, url: string, data?: obj | FormData | string, config: RequestConfig = {}): Promise<T> {
         return new Promise((resolve, reject) => {
             // 请求队列
-            Queue.line("Request", (next) => {
+            Queue.line("Request", next => {
                 this.send<T>(method, url, data, config).then(resolve).catch(reject)
                 Utils.wait(() => {
                     next()
@@ -96,10 +105,10 @@ export default class Request {
      */
     private static send<T extends Object>(method: RequestType, url: string, data: obj | FormData | string, config: RequestConfig): Promise<T> {
         return new Promise((resolve, reject) => {
-                // 显示加载框
+            // 显示加载框
             !config.hideLoading && Loading.show()
 
-            const request = new XMLHttpRequest
+            const request = new XMLHttpRequest()
 
             var formData: FormData | string
 
@@ -128,13 +137,13 @@ export default class Request {
             if (config.responseType) {
                 request.responseType = config.responseType
             }
-            
+
             // Set language sign
             request.setRequestHeader("Language-Sign", Cache.get("language_sign"))
             request.setRequestHeader("Authorization-Token", Cache.get("admin_token", ""))
             request.setRequestHeader("Authorization-Id", Cache.get("admin_id", ""))
 
-            const onerror = request.onerror = () => {
+            const onerror = (request.onerror = () => {
                 // 403 权限异常
                 if (request.status === 403) {
                     return this.authority(method, url, data, config, resolve, reject)
@@ -142,13 +151,12 @@ export default class Request {
 
                 let cb: boolean | void = config.onFail ? config.onFail(request) : null
 
-                if (cb !== false && !config.hideMessage)
-                    Message.error(config.message || "Request error, go to console for details")
+                if (cb !== false && !config.hideMessage) Message.error(config.message || "Request error, go to console for details")
 
                 console.error(request)
 
                 reject()
-            }
+            })
 
             request.onload = () => {
                 // 403 权限异常
@@ -178,7 +186,6 @@ export default class Request {
 
                     reject()
                 }
-
             }
 
             request.onprogress = config.onProgress
@@ -197,7 +204,7 @@ export default class Request {
      * 访问权限异常
      */
     private static authority(method: RequestType, url: string, data: obj | FormData | string, config: RequestConfig, resolve, reject) {
-        Queue.single("RequesttTimeOut", (next) => {
+        Queue.single("RequesttTimeOut", next => {
             Message.error("登录超时，是否重新登录？", true)
                 .onConfirm(() => {
                     Login.do(() => {
@@ -234,7 +241,7 @@ export default class Request {
             this.get(Path.DOMAIN, null, {
                 onFail() {
                     resolve(false)
-                }
+                },
             }).then(() => {
                 resolve(true)
             })
@@ -258,7 +265,6 @@ export default class Request {
 }
 
 export class RequestPage<T> {
-    
     // 页码
     private page: number = 0
 
@@ -349,7 +355,7 @@ export class RequestPage<T> {
 
     public setUrl(url: string, load: boolean = true) {
         this.url = url
-        
+
         // 更改 url 后重置
         this.reset(load)
     }
