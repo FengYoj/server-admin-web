@@ -62,7 +62,7 @@ export default {
     props: {
         datas: {
             type: Array,
-            default: false,
+            required: false,
         },
         // 远程搜索接口配置
         remotely: {
@@ -330,6 +330,7 @@ export default {
                             width: 10px;
                             height: 10px;
                             display: flex;
+                            box-sizing: initial;
                         }
                     }
                 }

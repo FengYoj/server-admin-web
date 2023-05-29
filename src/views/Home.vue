@@ -473,6 +473,7 @@ export default Component.build(new HomeView())
             margin: 5px 20px 5px 0;
             background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
             overflow: hidden;
+            opacity: 0.8;
 
             .border-box;
             .radius(10px);
@@ -542,8 +543,10 @@ export default Component.build(new HomeView())
     .visits-box {
         position: relative;
         width: 100%;
-        margin: 40px 0 30px 0;
+        margin: 20px 0 20px 0;
+        padding: 20px 0 10px 0;
 
+        .radius(10px);
         .border-box;
         .flex;
         .flex-wrap;
@@ -571,6 +574,7 @@ export default Component.build(new HomeView())
             font-size: 13px;
             letter-spacing: 2px;
             margin-bottom: 15px;
+            margin-left: 20px;
 
             .flex-shrink;
         }
@@ -578,7 +582,7 @@ export default Component.build(new HomeView())
 
     .module-half {
         width: 100%;
-        margin: 30px 0;
+        margin-top: 30px;
 
         .border-box;
         .radius(10px);
@@ -876,6 +880,10 @@ export default Component.build(new HomeView())
 }
 
 .home-page-dark {
+    .visits-box {
+        background: @dark_box;
+    }
+
     .module {
         background: @dark_box;
     }

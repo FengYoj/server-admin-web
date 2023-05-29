@@ -133,12 +133,7 @@ class FormView extends ComponentMethods implements ComponentEntity {
         }
     }
 
-    // onShow() {
-    //     console.log("onShow")
-    // }
-
     onChangeValue(evt: ElemEvent<obj>) {
-        console.log(evt)
         this.value = Utils.copy(evt.value)
     }
 
@@ -177,7 +172,7 @@ class FormView extends ComponentMethods implements ComponentEntity {
 
         const data = {
             ...this.getParams(),
-            ...status.getData()
+            ...status.getData(),
         }
 
         let url: string
@@ -195,7 +190,7 @@ class FormView extends ComponentMethods implements ComponentEntity {
         }
 
         Request.post(url, data, {
-            json: true
+            json: true,
         }).then(() => {
             Message.success(this.getTypeName(), true)
                 .onTimeout(() => {
@@ -614,7 +609,7 @@ export default Component.build(new FormView())
     .step-box > .form-box > .item-box {
         border-color: #26282b;
 
-        .title-box {
+        .item-base .title-box {
             .serial-number,
             .name {
                 color: #fff;

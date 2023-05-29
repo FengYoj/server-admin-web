@@ -1,6 +1,19 @@
 <template>
-	<div class="elem-password-box" dark-class="elem-password-box-dark">
-		<input ref="input" :maxlength="max" :type="hidden ? 'password' : 'text'" class="input" verify="password" :title="title" :required="required" :name="name" :placeholder="place_holder" v-model="val" @change="onChange" @input="onInput">
+    <div class="elem-password-box" dark-class="elem-password-box-dark">
+        <input
+            ref="input"
+            :maxlength="max"
+            :type="hidden ? 'password' : 'text'"
+            class="input"
+            verify="password"
+            :title="title"
+            :required="required"
+            :name="name"
+            :placeholder="place_holder"
+            v-model="val"
+            @change="onChange"
+            @input="onInput"
+        />
         <div class="operating-box">
             <div class="check-box">
                 <elem-icon class="icon" v-show="check === true" src="static/icon/components/elem-input/" name="correct"></elem-icon>
@@ -17,9 +30,9 @@
 <script lang="ts">
 import Utils from "../module/utils/utils"
 
-import elemIcon from './elem-icon.vue'
-import compMenu from './comp-menu.vue'
-import Component, { ComponentMethods } from '@/module/component/component'
+import elemIcon from "./elem-icon.vue"
+import compMenu from "./comp-menu.vue"
+import Component, { ComponentMethods } from "@/module/component/component"
 import Status from "@/module/status/status"
 import StringUtils from "@/module/utils/string_utils"
 
@@ -32,59 +45,67 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
 
     public language = {
         enter: "输入",
-        optional: "可选"
+        optional: "可选",
     }
 
-    private operatings = [{
-        title: "状态设置",
-        prompt: "仅限显示输入的新密码",
-        sub: [{
-            id: "Display",
-            icon: "display",
-            name: "显示密码"
-        }, {
-            id: "Hide",
-            icon: "hide",
-            name: "隐藏密码"
-        }]
-    }, {
-        title: "恢复",
-        prompt: "恢复至变更密码前，仅限修改状态恢复",
-        sub: [{
-            id: "Restore",
-            icon: "restore",
-            disable: true,
-            name: "恢复密码"
-        }]
-    }]
+    private operatings = [
+        {
+            title: "状态设置",
+            prompt: "仅限显示输入的新密码",
+            sub: [
+                {
+                    id: "Display",
+                    icon: "display",
+                    name: "显示密码",
+                },
+                {
+                    id: "Hide",
+                    icon: "hide",
+                    name: "隐藏密码",
+                },
+            ],
+        },
+        {
+            title: "恢复",
+            prompt: "恢复至变更密码前，仅限修改状态恢复",
+            sub: [
+                {
+                    id: "Restore",
+                    icon: "restore",
+                    disable: true,
+                    name: "恢复密码",
+                },
+            ],
+        },
+    ]
 
     props = {
         config: {
             type: Object,
             default: {
-                encryption: true
-            }
+                encryption: true,
+            },
         },
         max: {
             type: Number,
-            default: 255
+            default: 255,
         },
         name: String,
         title: String,
         required: {
             type: Boolean,
-            default: true
+            default: true,
         },
         placeholder: {
             type: String,
-            default: ""
+            default: "",
         },
-        value: null
+        value: null,
     }
 
     components = {
         elemIcon,
-        compMenu
+        compMenu,
     }
 
     watch = {
@@ -93,7 +114,10 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
                 this.check = true
                 this.initial = true
                 this.$refs.operatings_menu.onChangeDisable("Display", true)
-            } else if (!this.change && this.original === oldValue) {
+                return
+            }
+
+            if (!this.change && this.original === oldValue) {
                 if (oldValue.length < value.length) {
                     const d = StringUtils.different(oldValue, value)
                     this.val = d.value
@@ -102,7 +126,6 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
                     this.check = null
                 }
 
-                this.change = true
                 this.$refs.operatings_menu.onChangeDisable("Display", false)
             } else {
                 if (value) {
@@ -111,14 +134,16 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
                     this.check = null
                 }
             }
-        }
+
+            this.change = true
+        },
     }
 
     mounted() {
         if (Utils.isExist(this.value)) {
             this.isEdit = true
             // 赋值初始值
-            if (typeof this.value === 'string') {
+            if (typeof this.value === "string") {
                 this.original = this.val = this.value
             } else {
                 this.original = this.val = this.value.value
@@ -127,30 +152,30 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
             this.$refs.operatings_menu.onChangeDisable("Restore", false)
         }
 
-        this.place_holder = this.placeholder || `${this.language.enter}${this.title || this.name}${this.required ? '' : ('(' + this.language.optional + ')')}`
+        this.place_holder = this.placeholder || `${this.language.enter}${this.title || this.name}${this.required ? "" : "(" + this.language.optional + ")"}`
 
         this.$refs.input.getValue = this.getValue.bind(this)
     }
 
     onChange(evt: obj) {
-        this.$emit('change', {
+        this.$emit("change", {
             value: evt.target.value,
             type: "elem-input",
             name: this.name,
             set: (value: string) => {
                 this.val = value
-            }
+            },
         })
     }
 
     onInput(evt: obj) {
-        this.$emit('input-event', {
+        this.$emit("input-event", {
             value: evt.target.value,
             type: "elem-input",
             name: this.name,
             set: (value: string) => {
                 this.val = value
-            }
+            },
         })
     }
 
@@ -191,16 +216,16 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
 
     onSelectOperating(evt: obj) {
         switch (evt.value) {
-            case 'Hide':
+            case "Hide":
                 this.hidden = true
                 break
-            case 'Display':
+            case "Display":
                 if (this.original && this.original === this.val && !this.change) {
                     return
                 }
                 this.hidden = false
                 break
-            case 'Restore':
+            case "Restore":
                 this.change = this.initial = false
                 this.hidden = true
                 this.val = this.original
@@ -208,7 +233,7 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
     }
 }
 
-export default Component.build(new ElemPasswordComponent)
+export default Component.build(new ElemPasswordComponent())
 </script>
 
 <style lang="less">
@@ -216,7 +241,7 @@ export default Component.build(new ElemPasswordComponent)
 @import (reference) "/src/style/color.less";
 
 .elem-password-box {
-	position: relative;
+    position: relative;
     width: 100%;
     height: 45px;
 
@@ -236,7 +261,7 @@ export default Component.build(new ElemPasswordComponent)
         &:hover,
         &:focus {
             border-color: #b3b3b3;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     }
 
@@ -256,13 +281,13 @@ export default Component.build(new ElemPasswordComponent)
             align-items: center;
             z-index: 15;
 
-            >.icon {
+            > .icon {
                 width: 25px;
                 height: 25px;
             }
         }
 
-        >.menu-box {
+        > .menu-box {
             margin: 0 10px;
             width: 25px;
             display: flex;
@@ -270,7 +295,7 @@ export default Component.build(new ElemPasswordComponent)
             align-items: center;
             z-index: 15;
 
-            >.icon {
+            > .icon {
                 width: 25px;
                 height: 25px;
             }

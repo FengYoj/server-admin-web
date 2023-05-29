@@ -291,7 +291,7 @@ export class ComponentMethods implements ComponentMethods {
 }
 
 export default class Component {
-    public static build(e: ComponentEntity): any {
+    public static build<D extends ComponentEntity>(e: D): D {
         const id = Utils.getUuid()
         // 获取方法列表
         e.methods = ComponentsUtil.getMethods(e)

@@ -269,7 +269,7 @@ export default Component.build(new CompMenuComponent())
     border-radius: 6px;
     color: #000;
     cursor: initial;
-    z-index: 120;
+    z-index: 300;
     top: 0;
     margin: 10px 0;
     visibility: hidden;
@@ -378,7 +378,7 @@ export default Component.build(new CompMenuComponent())
 }
 
 .comp-menu-dark {
-    background: @dark_box;
+    background: @dark_elem;
 
     .shadow;
 

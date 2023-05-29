@@ -615,7 +615,7 @@ export default Component.build(new TableView())
     .flex-column;
 
     .head-menu-box {
-        padding: 20px;
+        padding: 10px 20px;
 
         .flex;
         .flex-center-items;
@@ -624,10 +624,11 @@ export default Component.build(new TableView())
         .filter-box {
             .flex-grow;
             .flex;
+            .flex-wrap;
 
             .item-box {
                 position: relative;
-                margin-right: 40px;
+                margin: 5px 40px 5px 0;
 
                 .name {
                     font-size: 14px;
@@ -653,6 +654,8 @@ export default Component.build(new TableView())
         }
 
         .operating-box {
+            padding: 5px 0;
+            
             .flex-shrink;
             .flex;
             .flex-center-items;

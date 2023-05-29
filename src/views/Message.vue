@@ -1,9 +1,7 @@
 <template>
     <div class="message-page" dark-class="message-page-dark">
         <div class="head-box">
-            <div class="title-box">
-                消息
-            </div>
+            <div class="title-box">消息</div>
             <!-- <div class="number-box">
                 <div class="info-box">
                     当前第 {{page}} 页，共 {{totalPages}} 页
@@ -30,28 +28,28 @@
                 <div class="menu-box">
                     <div class="item-box" :class="{ activity: this.menuActivity === 'ALL' }" @click="onChangeMenuActivity('ALL')">
                         <p class="title">所有</p>
-                        <div class="count">{{allCount}}</div>
+                        <div class="count">{{ allCount }}</div>
                     </div>
                     <div class="item-box" :class="{ activity: this.menuActivity === 'UNREAD' }" @click="onChangeMenuActivity('UNREAD')">
                         <p class="title">未读消息</p>
-                        <div class="count unread">{{unreadCount}}</div>
+                        <div class="count unread">{{ unreadCount }}</div>
                     </div>
                     <div class="item-box" v-for="(item, idx) in menu" :key="idx" :class="{ activity: this.menuActivity === item.source.name }" @click="onChangeMenuActivity(item.source.name)">
-                        <p class="title">{{item.source.title}}</p>
-                        <div class="count">{{item.count}}</div>
+                        <p class="title">{{ item.source.title }}</p>
+                        <div class="count">{{ item.count }}</div>
                     </div>
                 </div>
             </div>
             <div class="message-box" @scroll="onScroll" ref="message_box">
-                <div class="message-item" v-for="item in messages" :key="item.uuid" :uuid="item.uuid" @click="onOpenEntity(item.uuid)" :class="{ 'message-unread' : item.readStatus === 0 }">
+                <div class="message-item" v-for="item in messages" :key="item.uuid" :uuid="item.uuid" @click="onOpenEntity(item.uuid)" :class="{ 'message-unread': item.readStatus === 0 }">
                     <div class="type-box">
                         <elem-icon width="25px" height="25px" src="static/interactive/icon/" :name="getMessageIcon(item.type)" :dark="getMessageIcon(item.type, true)"></elem-icon>
                     </div>
                     <div class="info-box">
-                        <div class="name">{{item.source.title}}</div>
-                        <div class="info">{{item.message}}</div>
+                        <div class="name">{{ item.source.title }}</div>
+                        <div class="info">{{ item.message }}</div>
                     </div>
-                    <div class="date-box">{{dateToString(item.createdDate)}}</div>
+                    <div class="date-box">{{ dateToString(item.createdDate) }}</div>
                     <div class="operating-box">
                         <div class="icon" @click.stop="onDelete(item.uuid)">
                             <elem-icon name="close" dark="close_white"></elem-icon>
@@ -75,17 +73,15 @@
 <script lang="ts">
 import Component, { ComponentMethods } from "@/module/component/component"
 import Request, { RequestPage } from "@/module/request/request"
-import DateUtils from '@/module/utils/date'
-import Message from '@/module/interactive/message'
+import DateUtils from "@/module/utils/date"
+import Message from "@/module/interactive/message"
 import Utils from "@/module/utils/utils"
 
-import elemIcon from '@/components/elem-icon.vue'
-import elemOptions from '@/components/elem-options.vue'
-import compEntity from '@/components/comp-entity.vue'
-
+import elemIcon from "@/components/elem-icon.vue"
+import elemOptions from "@/components/elem-options.vue"
+import compEntity from "@/components/comp-entity.vue"
 
 class MessageView extends ComponentMethods implements ComponentEntity {
-
     public title: string = "消息管理"
 
     private messages = null
@@ -107,14 +103,14 @@ class MessageView extends ComponentMethods implements ComponentEntity {
     components = {
         elemIcon,
         elemOptions,
-        compEntity
+        compEntity,
     }
 
     private dateToString = DateUtils.toString.bind(DateUtils)
 
     onScroll(evt: Event) {
         const e = Utils.getTarget<HTMLDivElement>(evt)
-        
+
         if (e.clientHeight + e.scrollTop === e.scrollHeight) {
             this.requestPage.load()
         }
@@ -125,62 +121,78 @@ class MessageView extends ComponentMethods implements ComponentEntity {
 
         this.requestPage = new RequestPage("ADMIN://Message/FindAllToPage", {
             load: false,
-            onChange: (res) => {
+            onChange: res => {
                 this.messages = res
-            }
+            },
         })
     }
 
     mounted() {
-        this.$refs.message_box.menu = [{
-            id: "read",
-            icon: "have_read",
-            name: "标记已读",
-            onCreate: (evt: obj, menu: obj) => {
-                Utils.find<HTMLDivElement>(evt.path, c => c.classList.contains('message-item'), v => {
-                    let e = v.data
-                    let i = e.getAttribute("uuid")
+        this.$refs.message_box.menu = [
+            {
+                id: "read",
+                icon: "have_read",
+                name: "标记已读",
+                onCreate: (evt: obj, menu: obj) => {
+                    Utils.find<HTMLDivElement>(
+                        evt.path,
+                        c => c.classList.contains("message-item"),
+                        v => {
+                            let e = v.data
+                            let i = e.getAttribute("uuid")
 
-                    if (Utils.isExist(i)) {
-                        Utils.find<obj>(this.messages, c => c.uuid === i, v => {
-                            if (v.data.readStatus === 0) {
-                                menu.id = 'read'
-                                menu.icon = "have_read"
-                                menu.name = '标记已读'
-                            } else {
-                                menu.id = 'unread'
-                                menu.icon = "unread"
-                                menu.name = '标记未读'
+                            if (Utils.isExist(i)) {
+                                Utils.find<obj>(
+                                    this.messages,
+                                    c => c.uuid === i,
+                                    v => {
+                                        if (v.data.readStatus === 0) {
+                                            menu.id = "read"
+                                            menu.icon = "have_read"
+                                            menu.name = "标记已读"
+                                        } else {
+                                            menu.id = "unread"
+                                            menu.icon = "unread"
+                                            menu.name = "标记未读"
+                                        }
+                                    }
+                                )
                             }
-                        })
-                    }
-                })
-            },
-            onClick: (evt: obj, id: string) => {
-                Utils.find<HTMLDivElement>(evt.path, c => c.classList.contains('message-item'), v => {
-                    let e = v.data
-                    let i = e.getAttribute("uuid")
+                        }
+                    )
+                },
+                onClick: (evt: obj, id: string) => {
+                    Utils.find<HTMLDivElement>(
+                        evt.path,
+                        c => c.classList.contains("message-item"),
+                        v => {
+                            let e = v.data
+                            let i = e.getAttribute("uuid")
 
-                    if (Utils.isExist(i)) {
-                        this.markReadStatus(i, id === 'read')
-                    }
-                })
-            }
-        }, {
-            id: "read_all",
-            icon: "have_read",
-            name: "标记所有已读",
-            onClick: () => {
-                this.markReadStatusAll(true)
-            }
-        }, {
-            id: "unread_all",
-            icon: "unread",
-            name: "标记所有未读",
-            onClick: () => {
-                this.markReadStatusAll(false)
-            }
-        }]
+                            if (Utils.isExist(i)) {
+                                this.markReadStatus(i, id === "read")
+                            }
+                        }
+                    )
+                },
+            },
+            {
+                id: "read_all",
+                icon: "have_read",
+                name: "标记所有已读",
+                onClick: () => {
+                    this.markReadStatusAll(true)
+                },
+            },
+            {
+                id: "unread_all",
+                icon: "unread",
+                name: "标记所有未读",
+                onClick: () => {
+                    this.markReadStatusAll(false)
+                },
+            },
+        ]
     }
 
     onLoad(param: obj) {
@@ -197,7 +209,6 @@ class MessageView extends ComponentMethods implements ComponentEntity {
 
     private markReadStatusAll(read: boolean): void {
         Request.post("ADMIN://Message/MarkReadStatusAll", { status: read ? 1 : 0 }).then(() => {
-            
             Utils.each<obj>(this.messages, v => {
                 v.readStatus = read ? 1 : 0
             })
@@ -215,10 +226,13 @@ class MessageView extends ComponentMethods implements ComponentEntity {
 
     private markReadStatus(i: string, read: boolean): void {
         Request.post("ADMIN://Message/MarkReadStatus", { message: i, status: read ? 1 : 0 }).then(() => {
-            
-            Utils.find<obj>(this.messages, c => c.uuid === i, v => {
-                v.data.readStatus = read ? 1 : 0
-            })
+            Utils.find<obj>(
+                this.messages,
+                c => c.uuid === i,
+                v => {
+                    v.data.readStatus = read ? 1 : 0
+                }
+            )
 
             if (read) {
                 this.unreadCount--
@@ -291,7 +305,11 @@ class MessageView extends ComponentMethods implements ComponentEntity {
         Message.info("确认删除该消息？", true)
             .onConfirm(() => {
                 Request.delete("ADMIN://Message/Delete", { i }).then(() => {
-                    Utils.each<obj>(this.messages, () => "delete", c => c.uuid === i)
+                    Utils.each<obj>(
+                        this.messages,
+                        () => "delete",
+                        c => c.uuid === i
+                    )
                     Message.success("删除成功")
                 })
             })
@@ -300,20 +318,24 @@ class MessageView extends ComponentMethods implements ComponentEntity {
 
     public onOpenEntity(i: string): void {
         // 标记为已读
-        Utils.find<obj>(this.messages, c => c.uuid === i, v => {
-            let data = v.data
+        Utils.find<obj>(
+            this.messages,
+            c => c.uuid === i,
+            v => {
+                let data = v.data
 
-            if (data.readStatus === 0) {
-                data.readStatus = 1
-                // 未读数量自减
-                this.unreadCount--
+                if (data.readStatus === 0) {
+                    data.readStatus = 1
+                    // 未读数量自减
+                    this.unreadCount--
+                }
             }
-        })
+        )
         this.$refs.comp_entity.open(i)
     }
 }
 
-export default Component.build(new MessageView)
+export default Component.build(new MessageView())
 </script>
 
 <style lang="less">
@@ -331,7 +353,7 @@ export default Component.build(new MessageView)
     .flex-column;
     .shadow(0 0 30px rgb(0 0 0 / 8%));
 
-    >.head-box {
+    > .head-box {
         width: 100%;
         padding: 0 30px;
         height: 70px;
@@ -394,7 +416,8 @@ export default Component.build(new MessageView)
                     }
                 }
 
-                .previous-box,.next-box {
+                .previous-box,
+                .next-box {
                     cursor: no-drop;
                     width: 30px;
                     height: 30px;
@@ -407,7 +430,7 @@ export default Component.build(new MessageView)
                         width: 15px;
                         height: 15px;
                         -webkit-filter: contrast(0.5);
-                                filter: contrast(0.5);
+                        filter: contrast(0.5);
                     }
                 }
 
@@ -425,7 +448,7 @@ export default Component.build(new MessageView)
 
                     .icon {
                         -webkit-filter: initial;
-                                filter: initial;
+                        filter: initial;
                     }
                 }
             }
@@ -450,7 +473,7 @@ export default Component.build(new MessageView)
             .menu-box {
                 padding: 15px 30px;
 
-                >.item-box {
+                > .item-box {
                     cursor: pointer;
                     width: 100%;
                     margin: 15px 0;
@@ -491,7 +514,7 @@ export default Component.build(new MessageView)
                     }
                 }
 
-                >.activity {
+                > .activity {
                     filter: grayscale(0);
                 }
             }
@@ -503,13 +526,12 @@ export default Component.build(new MessageView)
             .flex-grow;
             .scroll-y(4px);
 
-            >.message-item {
+            > .message-item {
                 position: relative;
                 width: 100%;
-                height: 45px;
-                padding: 15px 0;
+                padding: 10px 0;
                 cursor: pointer;
-                
+
                 .border-position(bottom);
                 .flex;
                 .flex-center-items;
@@ -578,12 +600,12 @@ export default Component.build(new MessageView)
                 }
             }
 
-            >.message-unread .type-box {
+            > .message-unread .type-box {
                 &::after {
                     content: "";
                     width: 3px;
                     background: #2faaf7;
-                    
+
                     .radius(3px);
                     .absolute(0, initial, 0, 0);
                 }

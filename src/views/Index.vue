@@ -387,6 +387,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
                     <a class="menu-child-item-box" ${v.href ? 'href="' + v.href + '" @click="hideMenuChild()"' : ""}>
                         <img class="menu-child-icon" src="static/icon/menu_icon/${v.icon}" />
                         <p class="menu-child-name">${v.name}</p>
+                        ${v.child ? '<img class="arrow-icon" src="static/icon/arrow_right_blue.svg" />' : ""}
                     </a>
                     ${v.child ? this.getMenuChild(v.child, true) : ""}
                 </div>
@@ -595,6 +596,9 @@ export default Component.build(new IndexView())
                                     .menu-child-name {
                                         color: #00a2ff;
                                     }
+                                    .arrow-icon {
+                                        filter: initial;
+                                    }
                                 }
                             }
 
@@ -602,13 +606,23 @@ export default Component.build(new IndexView())
                                 position: relative;
                                 height: 100%;
                                 padding: 0 30px;
+                                text-decoration: none;
+                                outline: none;
 
                                 .flex();
                                 .flex-center-items();
 
+                                &:focus {
+                                    outline: none;
+                                }
+
+                                &:visited {
+                                    text_decoration: none;
+                                }
+
                                 &::after {
                                     content: "";
-                                    border-color: #f3f3f3;
+                                    outline: none;
 
                                     .border-position(bottom);
                                     .absolute(initial, 20px, 0, 20px);
@@ -632,6 +646,14 @@ export default Component.build(new IndexView())
                                     text-overflow: ellipsis;
 
                                     .flex-grow();
+                                }
+
+                                .arrow-icon {
+                                    filter: grayscale(1);
+                                    width: 10px;
+                                    height: 10px;
+
+                                    .flex-shrink();
                                 }
                             }
                         }
@@ -957,6 +979,10 @@ export default Component.build(new IndexView())
             .shadow(5px 5px 10px rgba(0,0,0,0.2));
             .radius(8px);
             .flex-grow;
+
+            &.content-dark {
+                background: @dark_background;
+            }
 
             .content-scroll {
                 width: 100%;

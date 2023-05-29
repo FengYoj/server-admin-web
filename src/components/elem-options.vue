@@ -1,8 +1,8 @@
 <template>
-    <div class="elem-options-box" :class="{ 'elem-options-activity' : focus,  'elem-options-box-bottom': direction === 'bottom', 'elem-options-box-top': direction !== 'bottom'}">
+    <div class="elem-options-box" :class="{ 'elem-options-activity': focus, 'elem-options-box-bottom': direction === 'bottom', 'elem-options-box-top': direction !== 'bottom' }">
         <div class="options-base">
             <p v-if="all" class="item" @click="onSelect()">所有</p>
-            <p class="item" v-for="(item,idx) in data" :key="idx" @click="onSelect(item, idx)">{{item.title || item}}</p>
+            <p class="item" v-for="(item, idx) in data" :key="idx" @click="onSelect(item, idx)">{{ item.title || item }}</p>
         </div>
         <div class="arrow-box" :style="{ left: arrow_left }"></div>
     </div>
@@ -13,27 +13,27 @@ import Utils from "../module/utils/utils"
 
 export default {
     data() {
-		return {
+        return {
             focus: false,
-            arrow_left: "15px"
-		}
+            arrow_left: "15px",
+        }
     },
-    
+
     props: {
         el: null,
         data: Array,
         all: {
             type: Boolean,
-            default: true
+            default: true,
         },
         direction: {
             type: String,
-            default: "bottom"
-        }
+            default: "bottom",
+        },
     },
 
     mounted() {
-        var child
+        var child: HTMLElement
 
         if ("string" === typeof this.el) {
             child = Utils.getElement(this.el)
@@ -42,7 +42,7 @@ export default {
         }
 
         // 箭头左侧定位
-        this.arrow_left = (child.offsetWidth / 2) + "px"
+        this.arrow_left = child.offsetWidth / 2 + "px"
 
         child.tabIndex = 0
         child.style.cursor = "pointer"
@@ -62,39 +62,37 @@ export default {
         this.child = child
     },
     methods: {
-        onSelect(data, idx) {
-
+        onSelect(data: any, idx: number) {
             // 默认为 “所有” 选项
             if (Utils.isBlank(data)) {
                 data = {
                     title: "所有",
-                    value: null
+                    value: null,
                 }
             }
 
             if (!(data instanceof Object)) {
                 data = {
-                    value: data
+                    value: data,
                 }
             }
 
             data.index = idx
 
-            this.$emit('select', {
+            this.$emit("select", {
                 value: data,
                 type: "elem-options",
-                name: this.name
+                name: this.name,
             })
 
             // 触发失焦事件
             this.child.blur()
-        }
-    }
+        },
+    },
 }
 </script>
 
 <style lang="less">
-
 .elem-options-box-bottom {
     top: calc(100% + 15px);
     bottom: initial;

@@ -5,20 +5,19 @@
 </template>
 
 <script lang="ts">
-import Component, { ComponentMethods } from "@/module/component/component";
+import Component, { ComponentMethods } from "@/module/component/component"
 
 class LinkView extends ComponentMethods implements ComponentEntity {
-
     public title: string = "链接"
 
-    private src = null
+    public src: string = null
 
     onLoad(param: obj) {
         this.src = param.path
     }
 }
 
-export default Component.build(new LinkView)
+export default Component.build(new LinkView())
 </script>
 
 <style lang="less">
