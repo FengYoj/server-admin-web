@@ -1,23 +1,7 @@
 <template>
     <div class="table-page loading-page" id="TablePage" dark-class="table-page-dark">
         <div class="head-menu-box">
-            <div class="filter-box">
-                <div class="item-box" v-for="(conf, idx) in tableConfig.group" :key="idx" :id="'filter_item_' + idx">
-                    <p class="name">{{ conf.title }}</p>
-                    <div class="value">
-                        <p>{{ filter_title["filter_item_" + idx] || "所有" }}</p>
-                        <elem-icon class="icon" name="select"></elem-icon>
-                    </div>
-                    <elem-options :el="'#filter_item_' + idx" :data="conf.data" @select="onFilter(conf.name, 'filter_item_' + idx, $event)"></elem-options>
-                </div>
-
-                <div class="item-box">
-                    <p class="name">时间范围</p>
-                    <div class="value">
-                        <DatePicker type="daterange" split-panels placeholder="Select date" style="width: 200px"></DatePicker>
-                    </div>
-                </div>
-            </div>
+            <elem-filter :filters="tableConfig.group" @on-change="onChangeFilter"></elem-filter>
             <div class="operating-box">
                 <div class="search-box">
                     <div class="icon-box">
@@ -100,7 +84,6 @@
                                 <div class="column-box column-box-null" v-else>-</div>
                             </div>
                         </div>
-                        <p class="empty" v-if="!table || 0 >= table.length">当前数据为空</p>
                     </div>
                 </div>
 
@@ -108,7 +91,12 @@
                     <div class="operating-title">操作</div>
 
                     <div class="operating-item" v-for="(item, idx) in table" :key="idx">
-                        <div class="button-box" v-for="(conf, idx) in tableConfig.operatings" :key="idx" v-show="conf.type === 'EDIT' ? tableConfig.pages.indexOf('create') > -1 : true && getConditionValue(conf.filter, item)">
+                        <div
+                            class="button-box"
+                            v-for="(conf, idx) in tableConfig.operatings"
+                            :key="idx"
+                            v-show="conf.type === 'EDIT' ? tableConfig.pages.indexOf('create') > -1 : true && getConditionValue(conf.filter, item)"
+                        >
                             <!-- 修改 -->
                             <a v-if="conf.type === 'EDIT'" class="edit" @click="jumpForm({ type: 'edit', name: name, i: item.uuid })">编辑</a>
 
@@ -130,11 +118,7 @@
                             </button>
 
                             <!-- 发起请求 -->
-                            <button
-                                v-else-if="conf.type === 'REQUEST'"
-                                :style="{ background: conf.background, color: conf.color }"
-                                @click="onOperatingRequest(conf.method, item, conf.url, conf.msg)"
-                            >
+                            <button v-else-if="conf.type === 'REQUEST'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingRequest(conf.method, item, conf.url, conf.msg)">
                                 {{ conf.title }}
                             </button>
 
@@ -145,6 +129,7 @@
                 </div>
             </div>
             <comp-entity ref="comp_entity"></comp-entity>
+            <p class="table-empty" v-if="!table || 0 >= table.length">当前数据为空</p>
         </div>
         <div class="pagination-box">
             <div class="statistics-box">
@@ -195,6 +180,7 @@ import Request from "@/module/request/request"
 import Utils from "@/module/utils/utils"
 import Href from "@/module/config/href"
 
+import elemFilter from "@/components/elem-filter.vue"
 import elemIcon from "@/components/elem-icon.vue"
 import elemOptions from "@/components/elem-options.vue"
 import elemSwitch from "@/components/elem-switch.vue"
@@ -211,8 +197,6 @@ class TableView extends ComponentMethods implements ComponentEntity {
     }
 
     private name: string = null
-
-    private filter: obj = null
 
     // 是否开启时间检索功能
     public isOpenTimeRetrieval: boolean = false
@@ -247,7 +231,6 @@ class TableView extends ComponentMethods implements ComponentEntity {
         displayLimitOptions: false,
         displayPageOptions: false,
         search: "",
-        filter_title: {},
 
         // 操作菜单悬浮
         suspension: false,
@@ -268,6 +251,7 @@ class TableView extends ComponentMethods implements ComponentEntity {
         elemSwitch,
         compEntity,
         compMenu,
+        elemFilter,
     }
 
     mounted() {
@@ -316,8 +300,8 @@ class TableView extends ComponentMethods implements ComponentEntity {
         this.getData()
 
         Utils.wait(() => {
-            Utils.getElements(["#TableID", "#BaseID"], (t, b) => {
-                this.suspension = t.clientWidth < b.clientWidth
+            Utils.getElement("#BaseID", b => {
+                this.suspension = b.clientWidth < b.scrollWidth
             })
 
             Utils.wait(() => {
@@ -330,15 +314,15 @@ class TableView extends ComponentMethods implements ComponentEntity {
      * 监听窗口大小变化事件
      */
     onResize() {
-        Utils.getElements(["#TableID", "#BaseID"], (t, b) => {
-            this.suspension = t.clientWidth < b.clientWidth
+        Utils.getElement("#BaseID", b => {
+            this.suspension = b.clientWidth < b.scrollWidth
         })
     }
 
     getData() {
         Request.post<obj>(
             this.api + "/FindAllToPage",
-            { page: this.page - 1, size: this.limit, search: this.search, filter: this.getFilter() },
+            { page: this.page - 1, size: this.limit, search: this.search, filter: this.filters },
             {
                 json: true,
             }
@@ -349,47 +333,20 @@ class TableView extends ComponentMethods implements ComponentEntity {
         })
     }
 
-    getFilter() {
-        var filters = []
-
-        // if (filter) {
-        //     filters = filters.concat(filter)
-        // }
+    onChangeFilter(evt: obj) {
+        const _filter = evt.value
 
         if (this.filter && Object.keys(this.filter).length > 0) {
-            const _filter = this.filter
-
-            Utils.each(Object.keys(_filter), k => {
-                filters.push({
+            Utils.each(Object.keys(this.filter), k => {
+                _filter.push({
                     key: k,
-                    value: _filter[k],
+                    value: this.filter[k],
                 })
             })
         }
 
-        return filters
-    }
+        this.filters = _filter
 
-    /**
-     * 监听过滤事件
-     */
-    onFilter(field: string, id: string, evt: ElemOptionEvent): void {
-        const data = evt.value
-
-        const _filter = this.filter || {}
-
-        if (Utils.isExist(data.value)) {
-            _filter[field] = data.value
-        } else {
-            delete _filter[field]
-        }
-
-        this.filter = _filter
-
-        // 显示过滤值
-        this.filter_title[id] = data.title
-
-        // 更新数据
         this.getData()
     }
 
@@ -621,41 +578,9 @@ export default Component.build(new TableView())
         .flex-center-items;
         .flex-shrink;
 
-        .filter-box {
-            .flex-grow;
-            .flex;
-            .flex-wrap;
-
-            .item-box {
-                position: relative;
-                margin: 5px 40px 5px 0;
-
-                .name {
-                    font-size: 14px;
-                    color: #c4c4c4;
-                    font-weight: 600;
-                }
-
-                .value {
-                    font-size: 12px;
-                    color: #333;
-                    font-weight: bold;
-
-                    .flex;
-                    .flex-center-items;
-
-                    .icon {
-                        width: 12px;
-                        height: 12px;
-                        margin-left: 3px;
-                    }
-                }
-            }
-        }
-
         .operating-box {
             padding: 5px 0;
-            
+
             .flex-shrink;
             .flex;
             .flex-center-items;
@@ -745,16 +670,18 @@ export default Component.build(new TableView())
         position: relative;
         width: 100%;
 
-        .scroll-all(8px);
         .flex;
         .flex-grow;
 
         .base-box {
-            min-width: 100%;
+            position: absolute;
+            width: 100%;
+            height: 100%;
 
             .flex-shrink;
             .flex;
             .flex-items(flex-start);
+            .scroll-all(8px);
 
             .content-box {
                 min-height: 100%;
@@ -1000,15 +927,6 @@ export default Component.build(new TableView())
                             }
                         }
                     }
-
-                    .empty {
-                        text-align: center;
-                        font-size: 15px;
-                        color: #888;
-                        line-height: 50px;
-
-                        .absolute(60px, 0, initial, 0);
-                    }
                 }
             }
 
@@ -1105,6 +1023,16 @@ export default Component.build(new TableView())
                     .radius(0 5px 5px 0);
                 }
             }
+        }
+
+        .table-empty {
+            text-align: center;
+            font-size: 15px;
+            color: #888;
+            line-height: 50px;
+            width: 100%;
+
+            .absolute(calc(50% - 60px - 25px), 0, initial, 0);
         }
     }
 
