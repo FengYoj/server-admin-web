@@ -5,12 +5,12 @@
                 <div class="back-btn" @click="show = false">
                     <elem-icon name="arrow_right_white"></elem-icon>
                 </div>
-                <p class="title">{{entity_title}}</p>
+                <p class="title">{{ entity_title }}</p>
             </div>
             <div class="entity-box" v-if="entity">
                 <div class="item-box" v-for="(item, idx) in fields" :key="idx" :class="'item-' + item.type">
-                    <p class="key">{{item.title}}</p>
-                    <p class="value">{{entity[item.name]}}</p>
+                    <p class="key">{{ item.title }}</p>
+                    <p class="value">{{ entity[item.name] }}</p>
                 </div>
             </div>
         </div>
@@ -18,13 +18,12 @@
 </template>
 
 <script lang="ts">
-import Request from '@/module/request/request'
-import Component, { ComponentMethods } from '../module/component/component'
+import Request from "@/module/request/request"
+import Component, { ComponentMethods } from "../module/component/component"
 
-import elemIcon from './elem-icon.vue'
+import elemIcon from "./elem-icon.vue"
 
 class EntityComponent extends ComponentMethods implements ComponentEntity {
-
     private fields: obj[] = null
 
     private entity: obj = null
@@ -40,15 +39,14 @@ class EntityComponent extends ComponentMethods implements ComponentEntity {
         name: String,
         title: {
             type: String,
-            default: "实体"
-        }
+            default: "实体",
+        },
     }
 
-    language = {
-    }
+    language = {}
 
     components = {
-        elemIcon
+        elemIcon,
     }
 
     created() {
@@ -61,17 +59,7 @@ class EntityComponent extends ComponentMethods implements ComponentEntity {
         }
     }
 
-    mounted() {
-        const parent: HTMLDivElement= this.$el.parentElement
-
-        parent.addEventListener('mousewheel', (evt) => {
-            if (this.show) {
-                evt.preventDefault()
-            }
-        }, { passive: false })
-    }
-
-    setConfig(config: { name: string, title: string }) {
+    setConfig(config: { name: string; title: string }) {
         if (config.name) {
             this.getConfig(config.name)
         }
@@ -85,7 +73,7 @@ class EntityComponent extends ComponentMethods implements ComponentEntity {
         this.entity_name = name
 
         Request.get<obj[]>(`ADMIN://${name}/GetEntityInfo`).then(res => {
-            this.fields = res.sort((v1) => v1.type === "Textarea" ? 1 : -1)
+            this.fields = res.sort(v1 => (v1.type === "Textarea" ? 1 : -1))
         })
     }
 
@@ -97,7 +85,7 @@ class EntityComponent extends ComponentMethods implements ComponentEntity {
     }
 }
 
-export default Component.build(new EntityComponent)
+export default Component.build(new EntityComponent())
 </script>
 
 <style lang="less">
@@ -170,10 +158,10 @@ export default Component.build(new EntityComponent)
             .flex-wrap;
             .flex-items(flex-start);
 
-            >.item-box {
+            > .item-box {
                 padding: 10px 5px;
                 width: 50%;
-                
+
                 .border-box;
 
                 .key {
@@ -190,7 +178,7 @@ export default Component.build(new EntityComponent)
                 }
             }
 
-            >.item-Textarea {
+            > .item-Textarea {
                 width: 100%;
             }
         }
@@ -208,5 +196,4 @@ export default Component.build(new EntityComponent)
         transform: translateX(0);
     }
 }
-
 </style>

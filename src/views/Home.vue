@@ -529,6 +529,17 @@ export default Component.build(new HomeView())
                     }
                 }
             }
+
+            @media (max-width: 700px) {
+                & {
+                    width: ~"calc(100% / 2 - 10px / 2)";
+                    margin-right: 10px;
+
+                    &:nth-child(2n) {
+                        margin-right: 0;
+                    }
+                }
+            }
         }
 
         .preview-red {
@@ -844,11 +855,11 @@ export default Component.build(new HomeView())
     }
 
     @media (max-width: 900px) {
-        padding: 0 20px;
+        padding: 10px 20px;
     }
 
     @media (max-width: 700px) {
-        padding: 0 10px;
+        padding: 5px 10px;
 
         .title-search {
             .title {
@@ -859,10 +870,6 @@ export default Component.build(new HomeView())
                 width: 100%;
             }
         }
-    }
-
-    @media (max-width: 600px) {
-        padding: 0;
     }
 }
 
