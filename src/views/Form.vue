@@ -490,8 +490,8 @@ export default Component.build(new FormView())
                                 width: 100%;
                                 padding: 20px;
                                 margin-bottom: 20px;
-                                border: 1px solid #e3e3e3;
 
+                                .border;
                                 .radius(6px);
                                 .flex;
                                 .flex-wrap;
