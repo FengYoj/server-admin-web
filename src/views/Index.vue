@@ -451,7 +451,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
                     .build()
                 break
             case "edit_password":
-                this.jump("/table?name=admin_account")
+                this.jump("/table?name=AdminAccount")
         }
     }
 }
