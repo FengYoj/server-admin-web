@@ -2,28 +2,7 @@
     <div class="elem-map-box">
         <elem-input-object :name="name" :value="input_value" :title="title" :required="required" :getValue="getValue"></elem-input-object>
         <div class="map-input-box">
-<<<<<<< HEAD
-            <input
-                class="input"
-                v-model="input_value"
-                type="text"
-                placeholder="输入地址"
-                @input="onInput"
-                @focus="
-                    setTimeout(() => {
-                        display_result = true
-                    }, 100)
-                "
-                @blur="
-                    setTimeout(() => {
-                        display_result = false
-                    }, 100)
-                "
-            />
-=======
             <input class="input" v-model="input_value" type="text" placeholder="输入地址" @input="onInput" @focus="onFocus" @blur="onBlur" />
->>>>>>> 423431e8608b653c84dc94a443ed9a1436562d00
-
             <div class="result-box" v-show="display_result && result && result.length > 0">
                 <div class="item-box" v-for="(item, idx) in result" :key="idx" @click="onSelectResult(item)">
                     <p class="name">{{ item.name }}</p>
@@ -235,13 +214,8 @@ export default {
                             district: data.district,
                             province: data.province,
                             address: data.formatted_address,
-<<<<<<< HEAD
-                            longitude: l[0],
-                            latitude: l[1],
-=======
                             lng: l[0],
-                            lat: l[1]
->>>>>>> 423431e8608b653c84dc94a443ed9a1436562d00
+                            lat: l[1],
                         })
                     } else {
                         let msg = "无法识别输入的地址，请在地图上选址！"
@@ -272,13 +246,8 @@ export default {
                             district: a.district,
                             province: a.province,
                             address: f,
-<<<<<<< HEAD
-                            longitude: lnglat[0],
-                            latitude: lnglat[1],
-=======
                             lng: lnglat[0],
-                            lat: lnglat[1]
->>>>>>> 423431e8608b653c84dc94a443ed9a1436562d00
+                            lat: lnglat[1],
                         })
                     } else {
                         let msg = "无法识别经纬度，请在地图上选址！"
@@ -289,19 +258,19 @@ export default {
                 })
             })
         },
-<<<<<<< HEAD
-    },
-=======
 
         onFocus() {
-            setTimeout(() => { this.display_result = true }, 100)
+            setTimeout(() => {
+                this.display_result = true
+            }, 100)
         },
 
         onBlur() {
-            setTimeout(() => { this.display_result = false}, 100)
-        }
-	}
->>>>>>> 423431e8608b653c84dc94a443ed9a1436562d00
+            setTimeout(() => {
+                this.display_result = false
+            }, 100)
+        },
+    },
 }
 </script>
 

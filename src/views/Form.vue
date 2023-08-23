@@ -491,11 +491,7 @@ export default Component.build(new FormView())
                                 padding: 20px;
                                 margin-bottom: 20px;
 
-<<<<<<< HEAD
-                                .border;
-=======
                                 .border(1px);
->>>>>>> 423431e8608b653c84dc94a443ed9a1436562d00
                                 .radius(6px);
                                 .flex;
                                 .flex-wrap;

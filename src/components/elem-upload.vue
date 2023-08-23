@@ -30,17 +30,17 @@
 
                     <div class="upload-file-operating">
                         <div v-if="type === 'image'" class="upload-file-operating-button" @click="editImageById(item.id)">
-                            <elem-icon src="static/icon/components/elem-upload/" name="edit" dark="edit_white"></elem-icon>
+                            <ElemIcon src="static/icon/components/elem-upload/" name="edit" dark="edit_white"></ElemIcon>
                         </div>
                         <div v-else class="upload-file-operating-button operating-button-disable" @click="editUploadDisable">
-                            <elem-icon src="static/icon/components/elem-upload/" name="edit" dark="edit_white"></elem-icon>
+                            <ElemIcon src="static/icon/components/elem-upload/" name="edit" dark="edit_white"></ElemIcon>
                         </div>
                         <div class="upload-file-operating-move">
                             <div class="upload-file-operating-button upload-file-operating-move-before" @click="moveUpload(item.id, 'move-before')">
-                                <elem-icon src="static/icon/components/elem-upload/" name="move_left" dark="move_left_white"></elem-icon>
+                                <ElemIcon src="static/icon/components/elem-upload/" name="move_left" dark="move_left_white"></ElemIcon>
                             </div>
                             <div class="upload-file-operating-button upload-file-operating-move-after" @click="moveUpload(item.id, 'move-after')">
-                                <elem-icon src="static/icon/components/elem-upload/" name="move_right" dark="move_right_white"></elem-icon>
+                                <ElemIcon src="static/icon/components/elem-upload/" name="move_right" dark="move_right_white"></ElemIcon>
                             </div>
                         </div>
                         <div class="upload-file-operating-button" @click="deleteUpload(item.id)">
@@ -64,7 +64,7 @@ import Theme from "@/module/theme/theme"
 import Language from "@/module/language/language"
 
 import elemInputObject from "./elem-input-object.vue"
-import elemIcon from "./elem-icon.vue"
+import ElemIcon from "./elem-icon.vue"
 
 export default {
     props: {
@@ -129,7 +129,7 @@ export default {
     },
 
     components: {
-        elemIcon,
+        ElemIcon,
         elemInputObject,
     },
 

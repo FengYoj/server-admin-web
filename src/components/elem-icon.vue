@@ -11,7 +11,6 @@ import Utils from "@/module/utils/utils"
 import Component, { ComponentMethods } from "../module/component/component"
 
 class ElemIconComponent extends ComponentMethods implements ComponentEntity {
-
     public theme = Theme.getTheme()
 
     public html: string = null
@@ -20,20 +19,20 @@ class ElemIconComponent extends ComponentMethods implements ComponentEntity {
         name: String,
         src: {
             type: String,
-            default: "static/icon/"
+            default: "static/icon/",
         },
         width: {
             type: String,
-            default: "100%"
+            default: "100%",
         },
         height: {
             type: String,
-            default: "100%"
+            default: "100%",
         },
         hover: {
             type: String,
-            default: ""
-        }
+            default: "",
+        },
     }
 
     created() {
@@ -41,14 +40,14 @@ class ElemIconComponent extends ComponentMethods implements ComponentEntity {
     }
 
     getResource() {
-        FileUtil.getContent(this.src + this.name + '.svg').then(res => {
+        FileUtil.getContent(this.src + this.name + ".svg").then(res => {
             if (res.isNormal()) {
                 this.html = res.getData()
 
                 setTimeout(() => {
                     this.onProcessSize()
 
-                    if (this.theme === 'dark') {
+                    if (this.theme === "dark") {
                         this.onProcessTheme()
                     }
                 })
@@ -64,63 +63,79 @@ class ElemIconComponent extends ComponentMethods implements ComponentEntity {
     }
 
     onProcessSize() {
-        Utils.getElement("svg", e => {
-            // 移除默认宽高
-            e.removeAttribute("width")
-            e.removeAttribute("height")
-        }, this.$el)
+        Utils.getElement(
+            "svg",
+            e => {
+                // 移除默认宽高
+                e.removeAttribute("width")
+                e.removeAttribute("height")
+            },
+            this.$el
+        )
     }
 
     onProcessTheme() {
-        const dark = this.theme === 'dark'
+        const dark = this.theme === "dark"
 
-        Utils.getElementAll("path", e => {
-            if (dark) {
-                let c = e.getAttribute("dark")
+        Utils.getElementAll(
+            "path",
+            e => {
+                if (dark) {
+                    let c = e.getAttribute("dark")
 
-                if (c) {
-                    if (!e.getAttribute("default-fill")) {
-                        e.setAttribute("default-fill", e.getAttribute("fill"))
+                    if (c) {
+                        if (!e.getAttribute("default-fill")) {
+                            e.setAttribute("default-fill", e.getAttribute("fill"))
+                        }
+
+                        e.setAttribute("fill", c)
                     }
-
-                    e.setAttribute("fill", c)
+                } else if (e.getAttribute("default-fill")) {
+                    e.setAttribute("fill", e.getAttribute("default-fill"))
                 }
-            } else if (e.getAttribute("default-fill")) {
-                e.setAttribute("fill", e.getAttribute("default-fill"))
-            }
-        }, this.$el)
+            },
+            this.$el
+        )
     }
 
     onEnter() {
         if (!this.hover) return
 
-        Utils.getElementAll("path", e => {
-            var fill: string = e.getAttribute("fill")
+        Utils.getElementAll(
+            "path",
+            e => {
+                var fill: string = e.getAttribute("fill")
 
-            if (fill) {
-                e.setAttribute("initial-fill", fill)
-            }
+                if (fill) {
+                    e.setAttribute("initial-fill", fill)
+                }
 
-            e.setAttribute("fill", this.hover)
-        }, this.$el)
+                e.setAttribute("fill", this.hover)
+            },
+            this.$el
+        )
     }
 
     onLeave() {
         if (!this.hover) return
 
-        Utils.getElementAll("path", e => {
-            var fill: string = e.getAttribute("initial-fill")
+        Utils.getElementAll(
+            "path",
+            e => {
+                var fill: string = e.getAttribute("initial-fill")
 
-            if (fill) {
-                e.setAttribute("fill", fill)
-            } else {
-                e.removeAttribute("fill")
-            }
-        }, this.$el)
+                if (fill) {
+                    e.setAttribute("fill", fill)
+                } else {
+                    e.removeAttribute("fill")
+                }
+            },
+            this.$el
+        )
     }
 }
 
-export default Component.build(new ElemIconComponent)
+export default Component.build(new ElemIconComponent())
 </script>
 
 <style lang="less">
@@ -133,7 +148,7 @@ export default Component.build(new ElemIconComponent)
     .flex;
     .flex-center-all;
 
-    >.elem-icon {
+    > .elem-icon {
         .flex;
         .flex-center-all;
 
