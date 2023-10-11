@@ -72,7 +72,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import RequestPage from "@/module/request/page"
 import Utils from "@/module/utils/utils"
 import ElemRender from "@/module/entity/header"
@@ -115,7 +115,7 @@ export default {
             default: true,
         },
         // 列配置
-        columns: Array,
+        columns: Array<obj>,
         // 接口
         tableApi: {
             type: String,
@@ -265,7 +265,7 @@ export default {
             for (let i = 0, cs = this.columns; i < cs.length; i++) {
                 const c = cs[i]
 
-                Utils.each(this.tableData, v => {
+                Utils.each<obj>(this.tableData, v => {
                     if (!v._id) {
                         v._id = Utils.getUuid()
                     }
@@ -473,7 +473,7 @@ export default {
 
             const result = []
 
-            Utils.each(this.copyTableData, l => {
+            Utils.each<obj>(this.copyTableData, l => {
                 Utils.eachObj(l, (k, v) => {
                     if (v && String(v).indexOf(t) > -1 && !result.includes(l)) {
                         result.push(l)
