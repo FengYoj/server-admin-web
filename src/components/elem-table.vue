@@ -115,7 +115,7 @@ export default {
             default: true,
         },
         // 列配置
-        columns: Array<obj>,
+        columns: Object,
         // 接口
         tableApi: {
             type: String,
