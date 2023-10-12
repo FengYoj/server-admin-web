@@ -9,10 +9,13 @@
                     </div>
                     <input class="input" type="text" placeholder="输入搜索内容" v-model="search" @keyup.enter="getData" />
                 </div>
-                <a class="add-btn" v-if="tableConfig.pages.indexOf('create') > -1" @click="jumpForm({ type: 'create', name: name })">
+                <a class="btn-box" v-if="tableConfig.pages.indexOf('create') > -1" @click="jumpForm({ type: 'create', name: name })">
                     <elem-icon class="icon" name="add_white"></elem-icon>
                     <p class="text">添加记录</p>
                 </a>
+                <div class="operating-btn" v-for="(item, idx) in tableConfig.tableHeadOperatings" :key="idx">
+                    <ElemOperating :config="item"></ElemOperating>
+                </div>
                 <div class="more-box">
                     <elem-icon class="icon" name="more"></elem-icon>
                     <comp-menu :value="moreMenu" @select="onSelectMoreMenu"></comp-menu>
@@ -187,9 +190,20 @@ import elemSwitch from "@/components/elem-switch.vue"
 import compEntity from "@/components/comp-entity.vue"
 import compMenu from "@/components/comp-menu.vue"
 import { PageLoading } from "@/module/loading/loading"
+import ElemOperating from "@/components/elem-operating.vue"
 
 class TableView extends ComponentMethods implements ComponentEntity {
     private pageName = "Table"
+
+    components = {
+        elemIcon,
+        elemOptions,
+        elemSwitch,
+        compEntity,
+        compMenu,
+        elemFilter,
+        ElemOperating,
+    }
 
     /** 表格配置 */
     public tableConfig: obj = {
@@ -243,15 +257,6 @@ class TableView extends ComponentMethods implements ComponentEntity {
         page() {
             this.getData()
         },
-    }
-
-    components = {
-        elemIcon,
-        elemOptions,
-        elemSwitch,
-        compEntity,
-        compMenu,
-        elemFilter,
     }
 
     mounted() {
@@ -585,25 +590,21 @@ export default Component.build(new TableView())
             .flex;
             .flex-center-items;
 
-            .add-btn {
+            .btn-box {
                 cursor: pointer;
-                padding: 0 20px;
-                height: 35px;
-                margin-left: 20px;
+                padding: 5px 12px;
+                margin-left: 10px;
                 background: #00b3d9;
+                font-size: 13px;
 
                 .shadow(0 0 5px rgba(0, 0, 0, 0.1));
-                .radius(35px);
+                .radius(4px);
                 .flex;
                 .flex-center-items;
                 .transition;
 
                 &:hover {
                     .shadow(0 0 10px rgba(0, 0, 0, 0.3));
-                }
-
-                &:first-child {
-                    margin-left: initial;
                 }
 
                 .icon {
@@ -613,13 +614,21 @@ export default Component.build(new TableView())
                 }
 
                 .text {
-                    font-size: 14px;
                     color: #fff;
                 }
+
+                &.operating {
+                    background: #31b678;
+                }
+            }
+
+            .operating-btn {
+                margin-left: 10px;
             }
 
             .search-box {
                 position: relative;
+                margin: 0 10px;
 
                 .flex;
 
@@ -986,12 +995,12 @@ export default Component.build(new TableView())
                             cursor: pointer;
                             padding: 5px 12px;
                             color: #fff;
-                            font-size: 14px;
+                            font-size: 13px;
                             border: 0;
 
                             .flex;
                             .transition;
-                            .radius(5px);
+                            .radius(4px);
 
                             &:hover {
                                 .shadow(0 0 10px rgba(0, 0, 0, 0.2));
