@@ -1,11 +1,13 @@
 <template>
-    <index-view v-if="loaded"></index-view>
+    <index-view v-if="acPage === 'index'"></index-view>
+    <initial-view v-if="acPage === 'initial'" @on-success="onSuccessInitial"></initial-view>
     <login-view ref="login"></login-view>
     <comp-menu position="follow" click-type="right" cursor="initial" :value="setting_menu"></comp-menu>
 </template>
 
 <script lang="ts">
 import IndexView from "@/views/Index.vue"
+import InitialView from "@/views/Initial.vue"
 import LoginView from "@/views/Login.vue"
 
 import Cache from "@/module/cache/cache"
@@ -23,13 +25,25 @@ export default {
         return {
             loaded: false,
             setting_menu: SettingMenu,
+            acPage: "",
         }
     },
 
     components: {
         IndexView,
+        InitialView,
         LoginView,
         compMenu,
+    },
+
+    watch: {
+        loaded(v) {
+            if (v) {
+                Request.get("ADMIN://Setting/Config/IsInitial").then(res => {
+                    this.acPage = res ? "index" : "initial"
+                })
+            }
+        },
     },
 
     async created() {
@@ -58,6 +72,12 @@ export default {
             window["Login"].do(() => {
                 this.loaded = true
             })
+    },
+
+    methods: {
+        onSuccessInitial() {
+            this.acPage = "index"
+        },
     },
 }
 </script>
