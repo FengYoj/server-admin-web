@@ -1,41 +1,45 @@
 <template>
-    <div class="empty-page" :style="{ position : type === 'page' ? 'absolute' : 'relative' }">
+    <div class="empty-page" :style="{ position: type === 'page' ? 'absolute' : 'relative' }">
         <div class="empty-icon">
             <elem-icon class="icon" name="empty" dark="empty_dark" mode="widthFix"></elem-icon>
         </div>
-        <p class="p" v-if="title">{{title}}</p>
-        <p class="p" v-else>{{type === 'page' ? language.page : language.components}}</p>
-        <p class="prompt" v-if="prompt">{{prompt}}</p>
-        <p class="prompt" v-else>{{language.examine}}</p>
-        <button v-if="type === 'page'" class="button" @click="onBack">{{language.back}}</button>
+        <p class="p" v-if="title">{{ title }}</p>
+        <p class="p" v-else>{{ type === "page" ? language.page : language.components }}</p>
+        <p class="prompt" v-if="prompt">{{ prompt }}</p>
+        <p class="prompt" v-else>{{ language.examine }}</p>
+        <button v-if="type === 'page' && botton !== false" class="button" @click="onBack">{{ botton || language.back }}</button>
     </div>
 </template>
 
 <script lang="ts">
-import Component, { ComponentMethods } from '../module/component/component'
+import Component, { ComponentMethods } from "../module/component/component"
 
-import elemIcon from './elem-icon.vue'
+import elemIcon from "./elem-icon.vue"
 
 class EmptyComponent extends ComponentMethods implements ComponentEntity {
     props = {
         // 类型传参为 page 或 component , 默认 page
         type: {
             type: String,
-            default: "page"
+            default: "page",
         },
         title: String,
-        prompt: String
+        prompt: String,
+        botton: {
+            type: String,
+            required: false,
+        },
     }
 
     language = {
         page: "当前页面数据为空",
         components: "当前组件数据为空",
         examine: "请检查当前状态或与我们联系",
-        back: "返回上一级"
+        back: "返回上一级",
     }
 
     components = {
-        elemIcon
+        elemIcon,
     }
 
     onBack() {
@@ -46,7 +50,7 @@ class EmptyComponent extends ComponentMethods implements ComponentEntity {
     }
 }
 
-export default Component.build(new EmptyComponent)
+export default Component.build(new EmptyComponent())
 </script>
 
 <style lang="less">

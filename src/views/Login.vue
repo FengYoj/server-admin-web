@@ -607,7 +607,9 @@ class LoginPage extends ComponentMethods implements ComponentEntity {
         Queue.single("Login-GetValidateCode", next => {
             this.codeInfo = null
 
-            Request.get<obj>("WEB://ValidateCode/GetCode", null, {
+            Request.get<obj>("WEB://ValidateCode/GetCode", {
+                nature: "ADMIN_LOGIN"
+            }, {
                 hideLoading: true,
                 onComplete: () => {
                     next()

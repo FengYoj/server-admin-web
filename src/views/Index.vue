@@ -617,7 +617,7 @@ export default Component.build(new IndexView())
                                 }
 
                                 &:visited {
-                                    text_decoration: none;
+                                    text-decoration: none;
                                 }
 
                                 &::after {
@@ -972,6 +972,7 @@ export default Component.build(new IndexView())
         }
 
         > .content-box {
+            position: relative;
             margin: 10px 40px 20px 40px;
             background: #fff;
             overflow: hidden;

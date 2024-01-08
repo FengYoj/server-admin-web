@@ -1,25 +1,25 @@
 <template>
-    <div class="user-page" dark-class="user-page-dark">
+    <div class="order-page" dark-class="order-page-dark">
         <!-- <div class="menu-box">
             
         </div> -->
 
         <div class="tool-bar-box">
             <div class="item-bar filter-box">
-                <div class="item-box" v-for="(item, idx) in filters" :key="idx" :id="'filter_item_' + idx">
-                    <p class="name">{{ item.title }}</p>
+                <div class="item-box" id="order_entity">
+                    <p class="name">所属订单</p>
                     <div class="value">
-                        <p>{{ filter_title["filter_item_" + idx] || "所有" }}</p>
+                        <p>{{ order_entity || "未配置" }}</p>
                         <elem-icon class="icon" name="select"></elem-icon>
                     </div>
-                    <elem-options :el="'#filter_item_' + idx" :data="item.data" @select="onFilter(item.name, 'filter_item_' + idx, $event)"></elem-options>
+                    <elem-options :all="false" el="#order_entity" :data="order_infos" @select="order_entity_title = $event.value.title"></elem-options>
                 </div>
             </div>
             <div class="item-bar mode-base">
                 <div class="mode-box">
-                    <div class="item-box" :class="{ activity: mode === 'basis' }" @click="onChangeMode('basis')">基础模式</div>
-                    <div class="item-box" :class="{ activity: mode === 'concise' }" @click="onChangeMode('concise')">简洁模式</div>
-                    <!-- <div class="item-box" :class="{ activity: mode === 'statistics' }" @click="onChangeMode('statistics')">分析统计</div> -->
+                    <div class="item-box" :class="{ activity: mode === 'WAITING_ACCEPT' }" @click="onChangeMode('WAITING_ACCEPT')">待接单</div>
+                    <div class="item-box" :class="{ activity: mode === 'concise' }" @click="onChangeMode('concise')">售后处理</div>
+                    <div class="item-box" :class="{ activity: mode === 'ALL' }" @click="onChangeMode('ALL')">全部订单</div>
                 </div>
             </div>
             <div class="item-bar operating-box">
@@ -29,10 +29,6 @@
                     </div>
                     <input class="input" type="text" placeholder="输入搜索内容" v-model="search" @keyup.enter="onSubmitSearch" />
                 </div>
-                <a class="add-btn" @click="jump('/form', { type: 'create', name: 'User' })">
-                    <elem-icon class="icon" name="add_white"></elem-icon>
-                    <p class="text">添加</p>
-                </a>
                 <!-- <div class="more-box">
                     <elem-icon class="icon" name="more"></elem-icon>
                     <comp-menu :value="moreMenu" @select="onSelectMoreMenu"></comp-menu>
@@ -40,8 +36,8 @@
             </div>
         </div>
 
-        <div class="user-box" dark-class="user-box-dark">
-            <div class="item-box" v-for="(item, idx) in users" :key="idx">
+        <div class="order-box" dark-class="order-box-dark">
+            <div class="item-box" v-for="(item, idx) in orderList" :key="idx">
                 <div class="operating-btn">
                     <elem-icon name="operating"></elem-icon>
                     <comp-menu :absolute="true" position="follow" maxWidth="200px" :value="getMenu(item.status === 3)" @select="onSelectMenu(item, $event)"></comp-menu>
@@ -49,65 +45,42 @@
 
                 <div class="floor-box contact-box">
                     <div class="item-box">
-                        <p class="name">手机号码</p>
-                        <p class="value">{{ item.phone || "-" }}</p>
+                        <p class="name">订单类型:</p>
+                        <p class="value">{{ { 1: "配送上门", 2: "快递配送", 3: "自提" }[item.pathway] || "未知" }}</p>
                     </div>
-                    <div class="item-box" v-if="mode === 'basis'">
-                        <p class="name">住址</p>
-                        <p class="value">{{ getAddress(item) }}</p>
+                    <div class="item-box" v-if="item.address">
+                        <p class="name">地址:</p>
+                        <p class="value">{{ [item.address.province, item.address.city, item.address.district, item.address.address].join("") }}</p>
                     </div>
                 </div>
 
-                <div class="floor-box event-box" v-if="mode === 'basis'">
-                    <div class="timeline-box">
-                        <div class="line"></div>
-                    </div>
-                    <div class="event-item-box">
-                        <div class="item-box">
-                            <p class="name">加入日期</p>
-                            <p class="value">{{ item.createdDate }}</p>
-                        </div>
-                        <div class="item-box">
-                            <p class="name">最后访问日期</p>
-                            <p class="value">{{ item.lastAccess || item.createdDate }}</p>
-                        </div>
+                <div class="floor-box goods-box">
+                    <div class="item" v-for="(goods, idx) in item.goodsItems" :key="idx">
+                        <div class="img" :style="{ 'background-image': 'url(' + goods.cover.url + ')' }"></div>
                     </div>
                 </div>
 
                 <div class="floor-box data-box">
                     <div class="item-box">
-                        <p class="name">推广收益</p>
-                        <p class="value">￥{{ centsToYuan(item.totalCommission) }}</p>
+                        <p class="name">订单金额</p>
+                        <p class="value">￥{{ centsToYuan(item.price) }}</p>
                     </div>
                     <div class="item-box">
-                        <p class="name">访问次数</p>
-                        <p class="value">{{ item.accessFrequency || 0 }}</p>
+                        <p class="name">优惠金额</p>
+                        <p class="value">￥{{ centsToYuan(item.discountPrice) }}</p>
                     </div>
                     <div class="item-box">
-                        <p class="name">消费金额</p>
-                        <p class="value">￥{{ item.orderTotal || "0.00" }}</p>
+                        <p class="name">配送费</p>
+                        <p class="value">￥{{ centsToYuan(item.postagePrice) }}</p>
                     </div>
                 </div>
 
-                <div class="floor-box info-box">
-                    <div class="avatar-box">
-                        <img class="img" :src="item.avatar ? item.avatar.url : 'static/icon/user.svg'" />
-                    </div>
-                    <div class="basic-box">
-                        <div class="username-box">
-                            <p class="username">{{ item.username || "User" }}</p>
-                            <elem-icon v-if="item.gender != null && item.gender <= 1" class="icon-box" :name="['gender_male', 'gender_female'][item.gender]"></elem-icon>
-                        </div>
-                        <p class="uid">{{ item.uid || "-" }}</p>
-                    </div>
-                    <div class="status-box">
-                        <div class="item-box" v-if="item.status === 3">
-                            <elem-icon class="icon-box" name="disable"></elem-icon>
-                            <elem-prompt title="禁用状态"></elem-prompt>
-                        </div>
-                    </div>
+                <div class="floor-box operate-box">
+                    <button class="item" v-if="item.transportStatus === 'WAITING_ACCEPT'" @click="onAccepted(item)">接单</button>
                 </div>
             </div>
+
+            <comp-empty v-if="orderList && orderList.length == 0" :botton="false" title="当前订单为空" prompt="收到新订单时将为你第一时间显示"></comp-empty>
         </div>
 
         <comp-model ref="comp_model" :title="model_title" :scroll="false">
@@ -124,6 +97,7 @@ import elemPrompt from "@/components/elem-prompt.vue"
 import elemOptions from "@/components/elem-options.vue"
 import compMenu from "@/components/comp-menu.vue"
 import CompModel from "@/components/comp-model.vue"
+import CompEmpty from "@/components/comp-empty.vue"
 
 import Message from "@/module/interactive/message"
 import Request, { RequestPage } from "@/module/request/request"
@@ -133,6 +107,15 @@ import Headway from "@/module/utils/headway"
 import Loading from "@/module/loading/loading"
 
 class ToolView extends ComponentMethods implements ComponentEntity {
+    components = {
+        elemIcon,
+        elemPrompt,
+        elemOptions,
+        compMenu,
+        CompModel,
+        CompEmpty,
+    }
+
     public title: string = "用户管理"
 
     private users: obj[] = null
@@ -142,8 +125,6 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     private filter_title = {}
 
     private search: string = null
-
-    private mode: string = Cache.get("UserPageMode", "basis")
 
     private menu_config: obj[] = null
 
@@ -176,45 +157,48 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         },
     ]
 
-    components = {
-        elemIcon,
-        elemPrompt,
-        elemOptions,
-        compMenu,
-        CompModel,
+    mode: string = "WAITING_ACCEPT"
+    // 订单实体标题
+    order_entity_title: string = null
+    // 订单消息
+    order_infos: obj[] = null
+    // 当前选择
+    order_info_ac: obj = null
+
+    // 订单列表
+    orderList: obj[] = null
+
+    watch = {
+        order_info_ac(val: obj) {
+            this.requestPage.setData({
+                entity: val.id,
+                type: "WAITING_ACCEPT",
+            })
+        },
     }
 
     async created() {
-        // 获取菜单配置
-        await this.getMenuConfig()
         // 分页实体
-        this.requestPage = new RequestPage("ADMIN://User/FindAllToPage", {
-            method: "POST",
+        this.requestPage = new RequestPage("ADMIN://SubstanceOrder/FindAllByType", {
+            load: false,
+            method: "GET",
             size: 20,
             onChange: res => {
-                this.users = res
+                this.orderList = res
             },
         })
 
-        window.addEventListener("message", evt => {
-            if (evt.data?.type === "CloseModel") {
-                this.$refs.comp_model.onClose()
-            }
-        })
-
-        // setTimeout(() => {
-        //     this.onOpenModel(
-        //         {
-        //             name: "开通科目",
-        //             url: "http://127.0.0.1/admin/test.html",
-        //         },
-        //         { uuid: "123" }
-        //     )
-        // }, 3000)
+        await this.getAllInfo()
     }
 
-    activated() {
-        this.requestPage?.reset()
+    async getAllInfo() {
+        return Request.get<obj[]>("ADMIN://SubstanceOrder/FindAllInfo").then(res => {
+            this.order_infos = res
+
+            if (res?.length > 0) {
+                this.order_info_ac = res[0]
+            }
+        })
     }
 
     onReachBottom() {
@@ -224,21 +208,6 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     onSubmitSearch() {
         this.requestPage.setData({
             search: this.search,
-        })
-    }
-
-    /**
-     * 获取菜单配置
-     */
-    async getMenuConfig(): Promise<void> {
-        return new Promise(resolve => {
-            Request.get<obj[]>("ADMIN://User/GetMenu", null, {
-                onFail: () => false,
-            })
-                .then(res => {
-                    this.menu_config = res
-                })
-                .finally(resolve)
         })
     }
 
@@ -394,15 +363,37 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     onChangeMode(mode: string) {
         this.mode = mode
 
-        if (mode === "basis" || mode === "concise") {
-            Cache.set("UserPageMode", mode, {
-                storage: "local",
-            })
+        switch (mode) {
+            case "WAITING_ACCEPT":
+                this.requestPage.setData({
+                    entity: this.order_info_ac.id,
+                    type: "WAITING_ACCEPT",
+                })
+                break
+            case "ALL":
+                this.requestPage.setData({
+                    entity: this.order_info_ac.id,
+                })
+                break
+            default:
+                break
         }
     }
 
     onLoadIframe() {
         this.isLoadedIframe = true
+    }
+
+    /**
+     * 接单
+     */
+    onAccepted(item: obj) {
+        Request.post("ADMIN://SubstanceOrder/Accepted", {
+            uuid: item.uuid,
+            entity: this.order_info_ac.id,
+        }).then(res => {
+            console.log(res)
+        })
     }
 }
 
@@ -413,13 +404,15 @@ export default Component.build(new ToolView())
 @import (reference) "@/style/utils.less";
 @import (reference) "@/style/color.less";
 
-.user-page {
+.order-page {
     padding: 20px;
 
     .tool-bar-box {
+        position: relative;
         width: 100%;
         padding: 0 20px;
         height: 50px;
+        z-index: 20;
 
         .radius(10px);
         .border-box;
@@ -586,7 +579,7 @@ export default Component.build(new ToolView())
         }
     }
 
-    .user-box {
+    .order-box {
         width: 100%;
         margin-top: 20px;
 
@@ -596,36 +589,39 @@ export default Component.build(new ToolView())
 
         > .item-box {
             position: relative;
-            width: ~"calc(100% / 6 - 20px)";
-            margin: 10px;
+            width: ~"calc(100% / 5 - 30px)";
+            margin: 15px;
             background: #fff;
 
+            .flex;
+            .flex-column;
             .radius(15px);
             .border-box;
             .transition;
-            .shadow(0 0 20px rgba(0,0,0,0.05));
+            .shadow(2px 2px 15px rgba(0,0,0,0.08));
+            .border;
 
             &:hover {
-                .shadow(0 0 30px rgba(0,0,0,0.1));
+                .shadow(5px 5px 20px rgba(0,0,0,0.15));
             }
 
             @media (max-width: 2300px) {
-                width: ~"calc(100% / 5 - 20px)";
+                width: 400px;
+            }
+
+            @media (max-width: 2000px) {
+                width: ~"calc(100% / 4 - 20px)";
             }
 
             @media (max-width: 1600px) {
-                width: ~"calc(25% - 20px)";
+                width: ~"calc(100% / 3 - 20px)";
             }
 
             @media (max-width: 1200px) {
-                width: ~"calc(33.33% - 20px)";
+                width: ~"calc(100% / 2 - 20px)";
             }
 
-            @media (max-width: 1000px) {
-                width: ~"calc(50% - 20px)";
-            }
-
-            @media (max-width: 500px) {
+            @media (max-width: 800px) {
                 width: ~"calc(100% - 20px)";
             }
 
@@ -652,9 +648,9 @@ export default Component.build(new ToolView())
             .contact-box {
                 .flex-items(flex-start);
                 .flex-column;
+                .flex-grow;
 
                 > .item-box {
-                    height: 40px;
                     margin-bottom: 10px;
 
                     .flex;
@@ -671,80 +667,32 @@ export default Component.build(new ToolView())
                     }
 
                     .value {
-                        font-size: 14px;
-                        line-height: 20px;
+                        font-size: 13px;
+                        line-height: 18px;
+                        font-weight: bold;
+                        letter-spacing: 1px;
                     }
                 }
             }
 
-            .event-box {
-                position: relative;
-                padding-left: 60px;
+            .goods-box {
+                > .item {
+                    position: relative;
+                    width: calc(100% / 4 - (30px / 4));
+                    padding-bottom: calc(100% / 4 - (30px / 4));
+                    margin-right: 10px;
 
-                .timeline-box {
-                    position: absolute;
-                    left: 20px;
-                    top: 18px;
-                    bottom: 18px;
-
-                    &::after {
-                        content: "";
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 8px;
-                        height: 8px;
-                        border: 3px solid #333;
-
-                        .radius(50%);
+                    &:last-child {
+                        margin-right: 0;
                     }
 
-                    &::before {
-                        content: "";
-                        position: absolute;
-                        bottom: 0;
-                        left: 0;
-                        width: 8px;
-                        height: 8px;
-                        border: 3px solid #333;
+                    .img {
+                        background-position: center;
+                        background-size: cover;
+                        overflow: hidden;
 
-                        .radius(2px);
-                    }
-
-                    .line {
-                        position: absolute;
-                        top: 18px;
-                        left: 3px;
-                        bottom: 18px;
-
-                        border: 1px dashed #888;
-                    }
-                }
-
-                .event-item-box {
-                    .flex-column;
-
-                    > .item-box {
-                        min-height: 40px;
-                        margin-bottom: 10px;
-
-                        .flex;
-                        .flex-column;
-                        .flex-content(space-between);
-
-                        &:last-child {
-                            margin-bottom: 0;
-                        }
-
-                        .name {
-                            font-size: 12px;
-                            color: #999;
-                        }
-
-                        .value {
-                            font-size: 14px;
-                            line-height: 20px;
-                        }
+                        .absolute(0, 0, 0, 0);
+                        .radius(6px);
                     }
                 }
             }
@@ -771,87 +719,24 @@ export default Component.build(new ToolView())
                 }
             }
 
-            .info-box {
-                .avatar-box {
-                    width: 45px;
-                    height: 45px;
-                    padding: 1px;
-                    border: 2px solid #2faaf7;
+            .operate-box {
+                display: flex;
+                justify-content: center;
 
-                    .flex-shrink;
-                    .shadow(0 0 10px rgb(0 0 0 / 20%));
-                    .border-box;
-                    .radius(50%);
+                > .item {
+                    padding: 8px 20px;
+                    width: 100%;
+                    background: #00acdb;
+                    color: #fff;
+                    max-width: 250px;
 
-                    .img {
-                        .radius(50%);
-                    }
-                }
-
-                .basic-box {
-                    height: 45px;
-                    margin: 0 12px;
-                    overflow: hidden;
-
-                    .flex;
-                    .flex-column;
-                    .flex-content(space-evenly);
-                    .flex-grow;
-
-                    .username-box {
-                        .flex;
-                        .flex-center-items;
-
-                        .username {
-                            font-size: 14px;
-                            line-height: 14px;
-
-                            .ellipsis;
-                        }
-
-                        .icon-box {
-                            margin-left: 5px;
-                            width: 14px;
-                            height: 14px;
-                        }
-                    }
-
-                    .uid {
-                        color: #999;
-                        font-size: 12px;
-                    }
-                }
-
-                .status-box {
-                    .flex;
-                    .flex-center-items;
-                    .flex-shrink;
-
-                    > .item-box {
-                        margin-right: 5px;
-                        width: 40px;
-                        height: 40px;
-                        background: #f3f3f3;
-
-                        .flex;
-                        .flex-center-all;
-                        .radius(10px);
-
-                        &:last-child {
-                            margin-right: 0;
-                        }
-
-                        .icon-box {
-                            width: 20px;
-                            height: 20px;
-                        }
-                    }
+                    .radius(6px);
                 }
             }
         }
     }
 
-    .user-box-dark > .item-box {
+    .order-box-dark > .item-box {
         background: @dark_box;
 
         .child-box > .item-box {
@@ -860,7 +745,7 @@ export default Component.build(new ToolView())
     }
 }
 
-.user-page-dark {
+.order-page-dark {
     .tool-bar-box {
         .mode-base .mode-box > .item-box:not(.activity) {
             background: @dark_box;
