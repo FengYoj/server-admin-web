@@ -1,5 +1,5 @@
 <template>
-    <div class="comp-form-item-box" :class="'item-' + data.type" v-if="getConditionValue()">
+    <div class="elem-form-item-box" ref="elem" :class="'item-' + data.type" v-if="getConditionValue()">
         <p class="title">{{ data.title }}{{ getTypeName(data.type) }}</p>
 
         <div v-if="data.type === 'Input'" class="input-box">
@@ -196,14 +196,37 @@ export default {
         this.name = this.entity ? `${this.entity}[${this.index}].${this.data.name}` : this.data.name
     },
 
+    activated() {
+        // 监听页面大小变化
+        window.addEventListener("resize", this.onResize)
+    },
+
+    deactivated() {
+        // 移除监听
+        window.removeEventListener("resize", this.onResize)
+    },
+
     methods: {
+        onResize() {
+            // 获取父级元素的宽度
+            const width = this.$refs.elem.parentElement.offsetWidth
+
+            if (width > 1200) {
+                this.$refs.elem.style.width = "33.33%"
+            } else if (width > 800) {
+                this.$refs.elem.style.width = "50%"
+            } else {
+                this.$refs.elem.style.width = "100%"
+            }
+        },
+
         onChangeData(evt: ElemEvent<any>) {
             const value = this.form_value
             value[evt.name] = evt.value
 
             this.$emit("change-data", {
                 value: value,
-                type: "comp-form",
+                type: "elem-form",
             })
         },
 
@@ -266,19 +289,11 @@ export default {
 <style lang="less">
 @import (reference) "@/style/utils.less";
 
-.comp-form-item-box {
+.elem-form-item-box {
     width: 100%;
     padding: 10px 20px 10px 20px;
 
     .border-box;
-
-    @media screen and (min-width: 800px) {
-        width: 50%;
-    }
-
-    @media screen and (min-width: 1200px) {
-        width: 33.33%;
-    }
 
     > .title {
         font-size: 16px;

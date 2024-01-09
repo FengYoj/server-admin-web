@@ -36,17 +36,17 @@
                         <div class="step-content" v-if="conf.type === 'PASSWORD'">
                             <div class="prompt">密码必须包含 1 个字母和 1 个数字，密码长度至少为 8 个字符，如需修改密码时输入任意字符或删除任意字符即可</div>
                             <div class="form-box">
-                                <comp-form v-for="(item, idx) in conf.data" :index="idx" :key="idx" :data="item" :config="conf" :value="value" @change-data="onChangeValue"></comp-form>
+                                <elem-form v-for="(item, idx) in conf.data" :index="idx" :key="idx" :data="item" :config="conf" :value="value" @change-data="onChangeValue"></elem-form>
                             </div>
                         </div>
                         <div class="step-content" v-else>
                             <div class="prompt" v-if="conf.prompt">{{ conf.prompt }}</div>
                             <div class="form-box" v-if="!conf.list">
-                                <comp-form v-for="(item, idx) in conf.data" :index="idx" :key="idx" :data="item" :config="conf" :value="value" @change-data="onChangeValue"></comp-form>
+                                <elem-form v-for="(item, idx) in conf.data" :index="idx" :key="idx" :data="item" :config="conf" :value="value" @change-data="onChangeValue"></elem-form>
                             </div>
                             <div class="form-box" v-else>
                                 <div class="list-box" v-for="(sub, sub_idx) in getStepMap(conf.name)" :key="sub.key_id">
-                                    <comp-form
+                                    <elem-form
                                         v-for="(item, idx) in conf.data"
                                         :entity="conf.name"
                                         :index="sub_idx"
@@ -55,7 +55,7 @@
                                         :config="conf"
                                         :value="value"
                                         @change-data="onChangeValue"
-                                    ></comp-form>
+                                    ></elem-form>
                                     <div class="operating-box">
                                         <button type="button" class="clear-button" @click="onChangeList('clear', conf.name, sub_idx)">
                                             <elem-icon class="icon-box" name="clear_red"></elem-icon>
@@ -81,7 +81,7 @@ import Utils from "@/module/utils/utils"
 import Message from "@/module/interactive/message"
 
 import elemIcon from "@/components/elem-icon.vue"
-import compForm from "@/components/comp-form.vue"
+import ElemForm from "@/components/elem-form.vue"
 import Href from "@/module/config/href"
 
 class FormView extends ComponentMethods implements ComponentEntity {
@@ -95,7 +95,7 @@ class FormView extends ComponentMethods implements ComponentEntity {
 
     public components = {
         elemIcon,
-        compForm,
+        ElemForm,
     }
 
     async onLoad(param: obj): Promise<void> {
