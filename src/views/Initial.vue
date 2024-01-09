@@ -215,6 +215,8 @@ export default Component.build(new InitialPage())
                     border-radius: 50%;
                     background: #e8e8e8;
                     color: #999;
+                    font-weight: bold;
+                    line-height: 1;
 
                     .flex;
                     .flex-center-all;
@@ -241,6 +243,7 @@ export default Component.build(new InitialPage())
                     .index {
                         background: #2faaf7;
                         color: #fff;
+                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
                     }
 
                     .info-box {
@@ -252,6 +255,7 @@ export default Component.build(new InitialPage())
                     .index {
                         background: #2faaf7;
                         color: #fff;
+                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
                     }
                 }
             }
@@ -270,6 +274,7 @@ export default Component.build(new InitialPage())
 
         .button-box {
             width: 90%;
+            max-width: 350px;
             margin: 0 auto;
 
             .flex;
