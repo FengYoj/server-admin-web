@@ -196,12 +196,14 @@ export default {
         this.name = this.entity ? `${this.entity}[${this.index}].${this.data.name}` : this.data.name
     },
 
-    activated() {
+    mounted() {
         // 监听页面大小变化
         window.addEventListener("resize", this.onResize)
+        // 初始化
+        this.$nextTick(() => this.onResize())
     },
 
-    deactivated() {
+    beforeUnmount() {
         // 移除监听
         window.removeEventListener("resize", this.onResize)
     },

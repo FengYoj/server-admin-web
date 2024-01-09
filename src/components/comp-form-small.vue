@@ -328,7 +328,7 @@ export default Component.build(new FormView())
             width: 100%;
 
             > .item-box {
-                padding: 10px;
+                padding: 20px 10px 10px;
 
                 &:last-child {
                     border-bottom: initial;

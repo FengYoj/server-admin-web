@@ -39,8 +39,12 @@ export default {
     watch: {
         loaded(v) {
             if (v) {
-                Request.get("ADMIN://Setting/Config/IsInitial").then(res => {
+                Request.get("ADMIN://Setting/Config/IsInitial", null, {
+                    hideMessage: true,
+                }).then(res => {
                     this.acPage = res ? "index" : "initial"
+                }).catch(() => {
+                    this.acPage = "index"
                 })
             }
         },

@@ -76,8 +76,10 @@ class InitialPage extends ComponentMethods implements ComponentEntity {
     onCloseStep() {
         Message.info("是否确认关闭设置向导？（可稍后自行设置）", true)
             .onConfirm(() => {
-                this.$emit("on-success", {
-                    tag: "Initial",
+                Request.post("ADMIN://Setting/Config/SetInitialStatus").then(() => {
+                    this.$emit("on-success", {
+                        tag: "Initial",
+                    })
                 })
             })
             .build()
@@ -87,24 +89,29 @@ class InitialPage extends ComponentMethods implements ComponentEntity {
      * 下一步
      */
     public async onNextStep() {
+        const item = this.initials[this.step]
         // 获取当前表单
-        const form = this.$refs[this.initials[this.step].name][0]
-
-        console.log(form)
-
+        const form = this.$refs[item.name][0]
         // 获取表单数据
         const data = await form.getFormData()
-
-        console.log(data)
-
+        // 缓存表单数据
+        item.formData = data
+        // 最后一步提交
         if (this.step === this.initials.length - 1) {
             // 提交
-            Request.post("ADMIN://Setting/Config/Initial", data).then(res => {
-                if (res) {
-                    this.$emit("on-success", {
-                        tag: "Initial",
-                    })
-                }
+            Request.post("ADMIN://Setting/Config/Initial", {
+                data: this.initials.map((item: obj) => {
+                    return {
+                        name: item.name,
+                        value: item.formData,
+                    }
+                })
+            }, {
+                json: true
+            }).then(() => {
+                this.$emit("on-success", {
+                    tag: "Initial",
+                })
             })
         } else {
             this.step++
@@ -147,7 +154,8 @@ export default Component.build(new InitialPage())
 
     .steer-box {
         position: relative;
-        width: 450px;
+        width: 90%;
+        max-width: 1000px;
         margin: 0 auto;
         max-width: 80%;
         z-index: 20;
