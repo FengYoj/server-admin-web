@@ -307,7 +307,7 @@ export default {
 .item-Editor,
 .item-RichText,
 .item-Keyboard {
-    width: 100%;
+    width: 100% !important;
 }
 
 .item-Map {

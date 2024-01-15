@@ -448,7 +448,7 @@ export default {
                         console.log(e)
                     },
                 }).then(res => {
-                    resolve(this.multi ? res : res[0])
+                    resolve(res)
                 })
             })
         },
