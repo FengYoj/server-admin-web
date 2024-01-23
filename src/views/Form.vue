@@ -101,6 +101,7 @@ class FormView extends ComponentMethods implements ComponentEntity {
     async onLoad(param: obj): Promise<void> {
         this.formConfig = {}
         this.value = null
+        this.step_map = {}
 
         const name = (this.entity_name = param.name)
         const type = (this.type = param.type)

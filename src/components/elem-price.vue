@@ -275,7 +275,7 @@ export default Component.build(new ElemPasswordComponent())
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 150;
+            z-index: 10;
 
             > .icon {
                 width: 25px;

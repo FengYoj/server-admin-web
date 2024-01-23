@@ -376,10 +376,12 @@ export default {
                 z-index: 40;
 
                 .item-box {
-                    padding: 0 12px;
-                    height: 40px;
-                    line-height: 40px;
+                    padding: 10px 12px;
+                    min-height: 40px;
+                    line-height: 20px;
                     font-size: 14px;
+                    display: flex;
+                    align-items: center;
 
                     .border-position(top);
 
