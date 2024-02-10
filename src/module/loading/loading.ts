@@ -9,9 +9,9 @@ export default class Loading {
 
     private static timeout: number
 
-    private static judge: Operate
+    private static closeTimeout: number
 
-    private static showTimeout: number
+    private static judge: Operate
 
     private static status: 'show' | 'hide' = 'hide'
 
@@ -62,28 +62,24 @@ export default class Loading {
     }
 
     public static show(name: string = "加载中..."): void {
-
         if (this.status === 'show') {
             return
         }
 
         this.status = 'show'
 
-        // 重置
-        clearTimeout(this.showTimeout)
+        clearTimeout(this.closeTimeout)
 
-        this.showTimeout = setTimeout(async () => {
-            // 修改文本
-            this.nameBox.innerText = name
+        // 修改文本
+        this.nameBox.innerText = name
 
-            // 显示加载框
-            this.changeVisibility(true)
+        // 显示加载框
+        this.changeVisibility(true)
 
-            // 超时自动关闭
-            this.timeout = setTimeout(() => {
-                this.changeVisibility(false)
-            }, 30 * 1000)
-        }, 500)
+        // 超时自动关闭
+        this.timeout = setTimeout(() => {
+            this.changeVisibility(false)
+        }, 30 * 1000)
     }
 
     public static hide() {
@@ -93,12 +89,12 @@ export default class Loading {
 
         this.status = 'hide'
 
-        this.changeVisibility(false)
+        this.closeTimeout = setTimeout(() => {
+            this.changeVisibility(false)
+        }, 500);
 
         // 取消延迟关闭
         clearTimeout(this.timeout)
-        // 取消延迟显示
-        clearTimeout(this.showTimeout)
     }
 
     public static page(el: HTMLDivElement): PageLoading {

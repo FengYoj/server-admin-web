@@ -1,7 +1,7 @@
 /** version: 1.0.2 */
 
 <template>
-    <div class="comp-menu" :class="{ 'comp-menu-dark': isDark(), 'comp-menu-display': display }" :style="{ 'max-width': maxWidth }">
+    <div class="comp-menu" :class="{ 'comp-menu-dark': isDark(), 'comp-menu-display': display }" :style="{ 'max-width': maxWidth, width: width }">
         <div class="item-box" v-for="(item, idx) in menus" :key="idx">
             <div class="title" v-if="item.title">{{ item.title }}</div>
             <div v-if="item.prompt" class="prompt">{{ item.prompt }}</div>
@@ -60,6 +60,10 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
             type: String,
             default: "auto",
         },
+        width: {
+            type: String,
+            required: false,
+        },
     }
 
     components = {
@@ -92,7 +96,12 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
 
         const display = async (evt: obj) => {
             if (this.position === "follow") {
-                evt.preventDefault()
+                // 判断是否为触碰
+                if (evt.type.indexOf("touch") === -1) {
+                    evt.preventDefault()
+                }
+
+                // evt.preventDefault()
             }
 
             this.evt = evt
@@ -187,8 +196,8 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
             })
 
             parent.addEventListener("touchend", evt => {
-                evt.preventDefault()
                 if (new Date().getTime() - duration.getTime() > 300) {
+                    evt.preventDefault()
                     display(evt)
                 } else {
                     hide()
@@ -223,8 +232,6 @@ class CompMenuComponent extends ComponentMethods implements ComponentEntity {
     }
 
     onSelectMenu(e: obj) {
-        console.log(e)
-
         e.onClick && e.onClick(this.evt, e.id)
 
         !e.display &&
@@ -286,6 +293,7 @@ export default Component.build(new CompMenuComponent())
             color: #666;
             font-weight: bold;
             padding: 5px 10px;
+            text-align: left;
         }
 
         .prompt {

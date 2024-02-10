@@ -448,6 +448,14 @@ export default {
                         console.log(e)
                     },
                 }).then(res => {
+                    if (this.multi && !(res instanceof Array)) {
+                        return reject([res])
+                    }
+
+                    if (!this.multi && res instanceof Array) {
+                        return reject(res[0])
+                    }
+
                     resolve(res)
                 })
             })
