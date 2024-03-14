@@ -1,11 +1,12 @@
 <template>
     <div class="elem-icon-page" @mouseenter="onEnter" @mouseleave="onLeave">
-        <div class="elem-icon" :style="{ width: width, height: height }" v-html="html"></div>
+        <!-- <div class="elem-icon" :style="{ width: width, height: height }" v-html="html"></div> -->
+        <img :src="img_src" :style="{ width: width, height: height }" />
     </div>
 </template>
 
 <script lang="ts">
-import FileUtil from "@/module/file/file_util"
+// import FileUtil from "@/module/file/file_util"
 import Theme from "@/module/theme/theme"
 import Utils from "@/module/utils/utils"
 import Component, { ComponentMethods } from "../module/component/component"
@@ -14,6 +15,8 @@ class ElemIconComponent extends ComponentMethods implements ComponentEntity {
     public theme = Theme.getTheme()
 
     public html: string = null
+
+    public img_src: string = null
 
     props = {
         name: String,
@@ -40,19 +43,20 @@ class ElemIconComponent extends ComponentMethods implements ComponentEntity {
     }
 
     getResource() {
-        FileUtil.getContent(this.src + this.name + ".svg").then(res => {
-            if (res.isNormal()) {
-                this.html = res.getData()
+        this.img_src = this.src + this.name + ".svg"
+        // FileUtil.getContent(this.src + this.name + ".svg").then(res => {
+        //     if (res.isNormal()) {
+        //         this.html = res.getData()
 
-                setTimeout(() => {
-                    this.onProcessSize()
+        //         setTimeout(() => {
+        //             this.onProcessSize()
 
-                    if (this.theme === "dark") {
-                        this.onProcessTheme()
-                    }
-                })
-            }
-        })
+        //             if (this.theme === "dark") {
+        //                 this.onProcessTheme()
+        //             }
+        //         })
+        //     }
+        // })
     }
 
     onChangeTheme(theme) {

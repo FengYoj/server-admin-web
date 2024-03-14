@@ -1,6 +1,6 @@
 <template>
     <div class="comp-form" id="CreatePage" dark-class="comp-form-dark">
-        <div class="step-box" @scroll="onStepBoxScroll" :id="id + '-step'">
+        <div class="step-box" :class="{ padding: !!submitApi }" @scroll="onStepBoxScroll" :id="id + '-step'">
             <form class="form-box" :id="id + '-form'">
                 <div class="item-box step-item" v-for="(conf, idx) in structure" :key="idx" :id="'FromItemBox-' + conf.name" :data-step-id="'StepItemBox-' + conf.name">
                     <div class="item-base step-base" :class="'step-item-' + idx" v-if="getConditionValue(conf.where)">
@@ -46,6 +46,8 @@
                 </div>
             </form>
         </div>
+
+        <button v-if="!!submitApi" class="submit-button" @click="submit">提交</button>
     </div>
 </template>
 
@@ -258,6 +260,10 @@ class FormView extends ComponentMethods implements ComponentEntity {
         }
     }
 
+    clear() {
+        this.value = {}
+    }
+
     getConditionValue(where: string) {
         if (!where) return true
         return new Function(`return ${where.replace(/&{(\w*)}/g, "this.$1")}`).call(this.value)
@@ -311,7 +317,7 @@ export default Component.build(new FormView())
 .comp-form {
     position: relative;
     overflow: hidden;
-    max-height: 100%;
+    height: 100%;
     z-index: 30;
 
     .flex;
@@ -323,6 +329,10 @@ export default Component.build(new FormView())
 
         .flex-grow;
         .scroll-y;
+
+        &.padding {
+            padding-bottom: 80px;
+        }
 
         > .form-box {
             width: 100%;
@@ -477,6 +487,23 @@ export default Component.build(new FormView())
                 }
             }
         }
+    }
+
+    .submit-button {
+        position: absolute;
+        left: 20px;
+        bottom: 20px;
+        right: 20px;
+        height: 45px;
+        background: #2faaf7;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        z-index: 50;
     }
 }
 

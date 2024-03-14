@@ -125,6 +125,11 @@
                                 {{ conf.title }}
                             </button>
 
+                            <!-- 提交表单 -->
+                            <button v-else-if="conf.type === 'FORM'" :style="{ background: conf.background, color: conf.color }" @click="onDisplayForm(conf, item)">
+                                {{ conf.title }}
+                            </button>
+
                             <!-- 显示实体 -->
                             <button v-else-if="conf.type === 'ENTITY'" class="entity" @click="openEntity(item)">{{ conf.title }}</button>
                         </div>
@@ -173,6 +178,8 @@
                 </div>
             </div>
         </div>
+
+        <comp-form ref="comp_form" @on-submit="getData()"></comp-form>
     </div>
 </template>
 
@@ -191,6 +198,7 @@ import compEntity from "@/components/comp-entity.vue"
 import compMenu from "@/components/comp-menu.vue"
 import { PageLoading } from "@/module/loading/loading"
 import ElemOperating from "@/components/elem-operating.vue"
+import CompForm from "@/components/comp-form.vue"
 
 class TableView extends ComponentMethods implements ComponentEntity {
     private pageName = "Table"
@@ -203,6 +211,7 @@ class TableView extends ComponentMethods implements ComponentEntity {
         compMenu,
         elemFilter,
         ElemOperating,
+        CompForm
     }
 
     /** 表格配置 */
@@ -248,6 +257,11 @@ class TableView extends ComponentMethods implements ComponentEntity {
 
         // 操作菜单悬浮
         suspension: false,
+
+        // 表单结构
+        formStructure: null,
+        // 表单提交地址
+        formSubmitApi: null,
     }
 
     watch = {
@@ -488,6 +502,19 @@ class TableView extends ComponentMethods implements ComponentEntity {
     onOperatingPopup(data, url, msg) {
         this.onOperatingMsg(msg, () => {
             // Popup.open(this.getUrl(data, url))
+        })
+    }
+
+    /**
+     * 显示表单
+     */
+    onDisplayForm(conf, data) {
+        this.$refs.comp_form.display({
+            title: conf.title,
+            method: conf.method,
+            submitApi: this.getUrl(data, conf.url),
+            structure: conf.forms,
+            data,
         })
     }
 

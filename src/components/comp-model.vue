@@ -1,6 +1,6 @@
 <template>
     <div class="comp-model-page" :class="display ? 'show' : 'hide'" ref="page_box">
-        <div class="content-page" :style="{ width: width }">
+        <div class="content-page" :style="{ width: width, height: height }">
             <div class="head-box">
                 <p class="title">{{ title }}</p>
                 <div class="head-operate">
@@ -39,6 +39,10 @@ export default {
         width: {
             type: String,
             default: "400px",
+        },
+        height: {
+            type: String,
+            default: "90%",
         },
         // 持续显示，加载即显示
         continued: {
@@ -152,7 +156,7 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 120;
+    z-index: 50;
     background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
