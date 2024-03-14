@@ -307,6 +307,8 @@ export default Component.build(new FormView())
             height: 100%;
             margin: 0 10%;
 
+            .scroll-x(1px);
+
             > .step-base {
                 width: 100%;
                 height: 100%;
