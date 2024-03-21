@@ -40,7 +40,7 @@
             <div class="item-box" v-for="(item, idx) in orderList" :key="idx">
                 <div class="operating-btn">
                     <elem-icon name="operating"></elem-icon>
-                    <comp-menu :absolute="true" position="follow" maxWidth="200px" :value="getMenu(item.status === 3)" @select="onSelectMenu(item, $event)"></comp-menu>
+                    <comp-menu :absolute="true" position="follow" maxWidth="200px" :value="getMenu(item)" @select="onSelectMenu(item, $event)"></comp-menu>
                 </div>
 
                 <div class="floor-box contact-box">
@@ -52,7 +52,11 @@
                         <p class="name">订单状态:</p>
                         <p class="value">{{ getOrderStatus(item) }}</p>
                     </div>
-                     <div class="item-box" v-if="item.address">
+                    <div class="item-box">
+                        <p class="name">订单编号:</p>
+                        <p class="value">{{ item.orderNumber }}</p>
+                    </div>
+                    <div class="item-box" v-if="item.address">
                         <p class="name">联系人:</p>
                         <p class="value">{{ [item.address.name, item.address.phone].join(" - ") }}</p>
                     </div>
@@ -63,8 +67,8 @@
                 </div>
 
                 <div class="floor-box goods-box">
-                    <div class="item" v-for="(goods, idx) in item.goods" :key="idx">
-                        <div class="img" :style="{ 'background-image': 'url(' + goods.cover.url + ')' }"></div>
+                    <div class="item" v-for="(goods, idx) in item.goods" :key="idx" :title="goods.title">
+                        <div class="img" :style="{ 'background-image': 'url(' + goods.cover.url + '?x-oss-process=image/resize,m_fill,h_300,w_300,limit_0' + ')' }"></div>
                         <div class="name">{{ goods.title }}</div>
                     </div>
                 </div>
@@ -75,18 +79,18 @@
                         <p class="value">￥{{ centsToYuan(item.price) }}</p>
                     </div>
                     <div class="item-box">
-                        <p class="name">优惠金额</p>
-                        <p class="value">￥{{ centsToYuan(item.discountPrice) }}</p>
+                        <p class="name">运费</p>
+                        <p class="value">￥{{ centsToYuan(item.postagePrice) }}</p>
                     </div>
                     <div class="item-box">
-                        <p class="name">配送费</p>
-                        <p class="value">￥{{ centsToYuan(item.postagePrice) }}</p>
+                        <p class="name">分销</p>
+                        <p class="value">{{ item.distribution ? item.distribution.name : "-" }}</p>
                     </div>
                 </div>
 
                 <div class="floor-box operate-box">
                     <button class="item g" v-if="item.transportStatus === 'WAITING_ACCEPT'" @click="onAccepted(item)">接单</button>
-                    <button class="item b" v-else-if="item.transportStatus === 'WAITING_SHIPMENTS'" @click="onAccepted(item)">发货</button>
+                    <button class="item b" v-else-if="item.transportStatus === 'WAITING_SHIPMENTS' && item.address" @click="onShipments(item)">发货</button>
                     <button class="item r" v-if="item.paymentStatus === 1" @click="onAccepted(item)">退款</button>
                 </div>
             </div>
@@ -97,6 +101,8 @@
         <comp-model ref="comp_model" :title="model_title" :scroll="false">
             <iframe ref="iframe" v-if="model_url" :src="model_url" frameborder="0" @load="onLoadIframe" width="100%" height="100%"></iframe>
         </comp-model>
+
+        <comp-form ref="comp_form" @on-submit="onSubmitForm"></comp-form>
     </div>
 </template>
 
@@ -109,6 +115,7 @@ import elemOptions from "@/components/elem-options.vue"
 import compMenu from "@/components/comp-menu.vue"
 import CompModel from "@/components/comp-model.vue"
 import CompEmpty from "@/components/comp-empty.vue"
+import CompForm from "@/components/comp-form.vue"
 
 import Message from "@/module/interactive/message"
 import Request from "@/module/request/request"
@@ -126,6 +133,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         compMenu,
         CompModel,
         CompEmpty,
+        CompForm,
     }
 
     public title: string = "用户管理"
@@ -258,21 +266,35 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         return "#" + ("00000" + ((Math.random() * 0x1000000) << 0).toString(16)).substr(-6)
     }
 
-    getMenu(disable: boolean): obj[] {
+    getMenu(item: obj): obj[] {
         let arr: obj[] = [
             {
-                title: "操作",
-                prompt: "删除用户成功后将无法恢复，请谨慎操作！",
+                title: "数据",
                 sub: [
                     {
-                        id: disable ? "CancelDisable" : "Disable",
-                        icon: "disable",
-                        name: disable ? "取消禁用" : "禁用",
+                        id: "CopyOrderNumber",
+                        icon: "copy",
+                        name: "复制订单号",
                     },
+                    ...(item.address
+                        ? [
+                              {
+                                  id: "CopyAddress",
+                                  icon: "copy",
+                                  name: "复制收货信息",
+                              },
+                          ]
+                        : []),
+                ],
+            },
+            {
+                title: "操作",
+                prompt: "删除数据后将无法恢复，请谨慎操作！",
+                sub: [
                     {
                         id: "Delete",
                         icon: "delete",
-                        name: "删除用户",
+                        name: "删除订单",
                     },
                 ],
             },
@@ -403,12 +425,58 @@ class ToolView extends ComponentMethods implements ComponentEntity {
      * 接单
      */
     onAccepted(item: obj) {
-        Request.post("ADMIN://SubstanceOrder/Accepted", {
+        Request.post("ADMIN://GoodsOrder/Receiving", {
             uuid: item.uuid,
-            entity: this.order_info_ac.id,
-        }).then(res => {
-            console.log(res)
+        }).then(() => {
+            Message.success("接单成功")
+            item.transportStatus = "WAITING_SHIPMENTS"
         })
+    }
+
+    /**
+     * 发货
+     */
+    onShipments(item: obj) {
+        this.$refs.comp_form.display({
+            title: "发货",
+            method: "POST",
+            submitApi: "ADMIN://GoodsOrder/Delivery?uuid=" + item.uuid,
+            structure: [
+                {
+                    type: "ORDINARY",
+                    data: [
+                        {
+                            field: "expressNumber",
+                            name: "expressNumber",
+                            title: "快递单号",
+                            length: 255,
+                            required: true,
+                            type: "Input",
+                        },
+                        {
+                            field: "expressCompany",
+                            name: "expressCompany",
+                            title: "快递公司",
+                            length: 255,
+                            required: true,
+                            type: "Input",
+                            modify: true,
+                        },
+                    ],
+                    title: "通用数据",
+                    exist: true,
+                },
+            ],
+            data: item,
+        })
+    }
+
+    /**
+     * 表单提交成功事件
+     */
+    onSubmitForm(evt: obj) {
+        Message.success("发货成功")
+        evt.value.data.transportStatus = "WAITING_RECEIPT"
     }
 
     getOrderStatus(item: obj) {
@@ -417,7 +485,9 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         let p = { 0: "未支付", 2: "已取消", 3: "支付失败" }[o.paymentStatus]
         if (p) return p
 
-        return { WAITING_ACCEPT: "待确认", WAITING_DELIVERED: "待配送", WAITING_GET: "待取货", WAITING_SHIPMENTS: "待发货", WAITING_RECEIPT: "待收货", SUCCESS: "已完成" }[o.transportStatus] || "待确认"
+        return (
+            { WAITING_ACCEPT: "待确认", WAITING_DELIVERED: "待配送", WAITING_GET: "待取货", WAITING_SHIPMENTS: "待发货", WAITING_RECEIPT: "待收货", SUCCESS: "已完成" }[o.transportStatus] || "待确认"
+        )
     }
 }
 
@@ -701,7 +771,9 @@ export default Component.build(new ToolView())
             }
 
             .goods-box {
-                overflow-x: auto;
+                align-items: flex-start;
+
+                .scroll-x(5px);
 
                 > .item {
                     position: relative;
@@ -725,15 +797,19 @@ export default Component.build(new ToolView())
                         font-size: 12px;
                         padding: 5px 5px 0 5px;
                         max-width: 100px;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
                         overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: normal;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        color: #333;
                     }
                 }
             }
 
             .data-box {
-                .flex-content(space-between);
+                .flex-content(space-around);
 
                 > .item-box {
                     height: 40px;

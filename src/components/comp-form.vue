@@ -11,7 +11,6 @@ import compModel from "@/components/comp-model.vue"
 import compFormSmall from "@/components/comp-form-small.vue"
 
 class CompFormView extends ComponentMethods implements ComponentEntity {
-
     public components = {
         compModel,
         compFormSmall,
@@ -27,6 +26,7 @@ class CompFormView extends ComponentMethods implements ComponentEntity {
 
     methods = {
         display(param: obj) {
+            this.param = param
             this.title = param.title
             this.formStructure = param.structure
             this.formSubmitApi = param.submitApi
@@ -36,8 +36,12 @@ class CompFormView extends ComponentMethods implements ComponentEntity {
         onSubmit() {
             this.$refs.form_model.onClose()
             this.$refs.form.clear()
-            this.$emit("on-submit")
-        }
+
+            this.$emit("on-submit", {
+                tag: "CompForm",
+                value: this.param,
+            })
+        },
     }
 }
 
@@ -236,7 +240,7 @@ export default Component.build(new CompFormView())
         font-size: 16px;
         cursor: pointer;
         transition: background 0.3s;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         z-index: 50;
     }
 }
