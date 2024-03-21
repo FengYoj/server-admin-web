@@ -9,14 +9,14 @@
 import Utils from "../utils/utils"
 import Request from "./request"
 
-export default class RequestPage {
+export default class RequestPage<T> {
     url: string
-    data: obj
+    data: T[]
     config: obj
     param: obj
     total: number
     // 页码
-    page = 1
+    page = 0
     // 大小
     size = 20
     // 是否加载完毕
@@ -27,7 +27,7 @@ export default class RequestPage {
     constructor(url: string, config: obj = {}) {
         this.url = this.processUrl(url)
         this.data = config.data
-        this.page = config.page || 1
+        this.page = config.page || 0
         this.size = config.size || 20
         this.config = config
 
@@ -86,16 +86,16 @@ export default class RequestPage {
 
                     // 是否为 内容分块 类型
                     if (cfg.type === "block" || current) {
-                        content = res.dataList
+                        content = res.content
                     } else {
                         // 合并所有数组
-                        content = this.content.concat(res.dataList)
+                        content = this.content.concat(res.content)
                     }
 
-                    this.total = res.maxCount
+                    this.total = res.totalElements
 
                     // 判断是否加载完毕
-                    if (res.currentPage >= res.maxPage) {
+                    if (res.last) {
                         this.__onLoaded()
                     }
 
@@ -231,7 +231,7 @@ export default class RequestPage {
      */
     reset(load = true, initData = true) {
         // 重置基础属性
-        this.page = 1
+        this.page = 0
         this.loaded = false
         initData && (this.data = this.config.data || {})
         this.content = []

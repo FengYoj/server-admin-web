@@ -6,18 +6,18 @@
 
         <div class="tool-bar-box">
             <div class="item-bar filter-box">
-                <div class="item-box" id="order_entity">
+                <!-- <div class="item-box" id="order_entity">
                     <p class="name">所属订单</p>
                     <div class="value">
                         <p>{{ order_entity || "未配置" }}</p>
                         <elem-icon class="icon" name="select"></elem-icon>
                     </div>
                     <elem-options :all="false" el="#order_entity" :data="order_infos" @select="order_entity_title = $event.value.title"></elem-options>
-                </div>
+                </div> -->
             </div>
             <div class="item-bar mode-base">
                 <div class="mode-box">
-                    <div class="item-box" :class="{ activity: mode === 'WAITING_ACCEPT' }" @click="onChangeMode('WAITING_ACCEPT')">待接单</div>
+                    <div class="item-box" :class="{ activity: mode === 'TODOS' }" @click="onChangeMode('TODOS')">待处理 ({{ todos_number }})</div>
                     <div class="item-box" :class="{ activity: mode === 'concise' }" @click="onChangeMode('concise')">售后处理</div>
                     <div class="item-box" :class="{ activity: mode === 'ALL' }" @click="onChangeMode('ALL')">全部订单</div>
                 </div>
@@ -44,19 +44,28 @@
                 </div>
 
                 <div class="floor-box contact-box">
-                    <div class="item-box">
+                    <!-- <div class="item-box">
                         <p class="name">订单类型:</p>
                         <p class="value">{{ { 1: "配送上门", 2: "快递配送", 3: "自提" }[item.pathway] || "未知" }}</p>
+                    </div> -->
+                    <div class="item-box">
+                        <p class="name">订单状态:</p>
+                        <p class="value">{{ getOrderStatus(item) }}</p>
+                    </div>
+                     <div class="item-box" v-if="item.address">
+                        <p class="name">联系人:</p>
+                        <p class="value">{{ [item.address.name, item.address.phone].join(" - ") }}</p>
                     </div>
                     <div class="item-box" v-if="item.address">
                         <p class="name">地址:</p>
-                        <p class="value">{{ [item.address.province, item.address.city, item.address.district, item.address.address].join("") }}</p>
+                        <p class="value">{{ [item.address.province, item.address.city, item.address.district, item.address.address].join(" - ") }}</p>
                     </div>
                 </div>
 
                 <div class="floor-box goods-box">
-                    <div class="item" v-for="(goods, idx) in item.goodsItems" :key="idx">
+                    <div class="item" v-for="(goods, idx) in item.goods" :key="idx">
                         <div class="img" :style="{ 'background-image': 'url(' + goods.cover.url + ')' }"></div>
+                        <div class="name">{{ goods.title }}</div>
                     </div>
                 </div>
 
@@ -76,7 +85,9 @@
                 </div>
 
                 <div class="floor-box operate-box">
-                    <button class="item" v-if="item.transportStatus === 'WAITING_ACCEPT'" @click="onAccepted(item)">接单</button>
+                    <button class="item g" v-if="item.transportStatus === 'WAITING_ACCEPT'" @click="onAccepted(item)">接单</button>
+                    <button class="item b" v-else-if="item.transportStatus === 'WAITING_SHIPMENTS'" @click="onAccepted(item)">发货</button>
+                    <button class="item r" v-if="item.paymentStatus === 1" @click="onAccepted(item)">退款</button>
                 </div>
             </div>
 
@@ -100,7 +111,8 @@ import CompModel from "@/components/comp-model.vue"
 import CompEmpty from "@/components/comp-empty.vue"
 
 import Message from "@/module/interactive/message"
-import Request, { RequestPage } from "@/module/request/request"
+import Request from "@/module/request/request"
+import RequestPage from "@/module/request/page"
 import Utils from "@/module/utils/utils"
 import Cache from "@/module/cache/cache"
 import Headway from "@/module/utils/headway"
@@ -157,13 +169,15 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         },
     ]
 
-    mode: string = "WAITING_ACCEPT"
+    mode: string = "TODOS"
     // 订单实体标题
     order_entity_title: string = null
     // 订单消息
     order_infos: obj[] = null
     // 当前选择
     order_info_ac: obj = null
+    // 待处理总数
+    todos_number: number = 0
 
     // 订单列表
     orderList: obj[] = null
@@ -172,19 +186,20 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         order_info_ac(val: obj) {
             this.requestPage.setData({
                 entity: val.id,
-                type: "WAITING_ACCEPT",
+                type: "TODOS",
             })
         },
     }
 
     async created() {
         // 分页实体
-        this.requestPage = new RequestPage("ADMIN://SubstanceOrder/FindAllByType", {
+        this.requestPage = new RequestPage("ADMIN://GoodsOrder/FindAllByTypeToPage", {
             load: false,
             method: "GET",
             size: 20,
             onChange: res => {
                 this.orderList = res
+                this.todos_number = this.requestPage.getTotal()
             },
         })
 
@@ -364,10 +379,10 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         this.mode = mode
 
         switch (mode) {
-            case "WAITING_ACCEPT":
+            case "TODOS":
                 this.requestPage.setData({
                     entity: this.order_info_ac.id,
-                    type: "WAITING_ACCEPT",
+                    type: "TODOS",
                 })
                 break
             case "ALL":
@@ -395,6 +410,15 @@ class ToolView extends ComponentMethods implements ComponentEntity {
             console.log(res)
         })
     }
+
+    getOrderStatus(item: obj) {
+        const o = item
+
+        let p = { 0: "未支付", 2: "已取消", 3: "支付失败" }[o.paymentStatus]
+        if (p) return p
+
+        return { WAITING_ACCEPT: "待确认", WAITING_DELIVERED: "待配送", WAITING_GET: "待取货", WAITING_SHIPMENTS: "待发货", WAITING_RECEIPT: "待收货", SUCCESS: "已完成" }[o.transportStatus] || "待确认"
+    }
 }
 
 export default Component.build(new ToolView())
@@ -419,11 +443,8 @@ export default Component.build(new ToolView())
 
         .flex;
         .flex-center-items;
+        .flex-content(space-between);
         .flex-shrink;
-
-        .item-bar {
-            width: 33.33%;
-        }
 
         .filter-box {
             .flex-grow;
@@ -457,6 +478,9 @@ export default Component.build(new ToolView())
         }
 
         .mode-base {
+            margin: 0 20px;
+
+            .flex-grow;
             .flex;
             .flex-center-all;
 
@@ -474,6 +498,7 @@ export default Component.build(new ToolView())
                     height: 100%;
                     font-size: 14px;
                     background: #fff;
+                    white-space: nowrap;
 
                     .border-position(right);
                     .flex;
@@ -589,8 +614,8 @@ export default Component.build(new ToolView())
 
         > .item-box {
             position: relative;
-            width: ~"calc(100% / 5 - 30px)";
-            margin: 15px;
+            width: ~"calc(100% / 5 - 20px)";
+            margin: 10px;
             background: #fff;
 
             .flex;
@@ -676,10 +701,10 @@ export default Component.build(new ToolView())
             }
 
             .goods-box {
+                overflow-x: auto;
+
                 > .item {
                     position: relative;
-                    width: calc(100% / 4 - (30px / 4));
-                    padding-bottom: calc(100% / 4 - (30px / 4));
                     margin-right: 10px;
 
                     &:last-child {
@@ -687,12 +712,22 @@ export default Component.build(new ToolView())
                     }
 
                     .img {
+                        width: 100px;
+                        height: 100px;
                         background-position: center;
                         background-size: cover;
                         overflow: hidden;
 
-                        .absolute(0, 0, 0, 0);
                         .radius(6px);
+                    }
+
+                    .name {
+                        font-size: 12px;
+                        padding: 5px 5px 0 5px;
+                        max-width: 100px;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
                     }
                 }
             }
@@ -721,16 +756,31 @@ export default Component.build(new ToolView())
 
             .operate-box {
                 display: flex;
-                justify-content: center;
+                justify-content: flex-end;
 
                 > .item {
+                    margin-left: 10px;
                     padding: 8px 20px;
-                    width: 100%;
-                    background: #00acdb;
-                    color: #fff;
+                    background: #fff;
+                    color: #333;
                     max-width: 250px;
 
                     .radius(6px);
+
+                    &.b {
+                        background: #00acdb;
+                        color: #fff;
+                    }
+
+                    &.g {
+                        background: #186400;
+                        color: #fff;
+                    }
+
+                    &.r {
+                        background: #ac0505;
+                        color: #fff;
+                    }
                 }
             }
         }
