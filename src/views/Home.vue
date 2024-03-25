@@ -333,6 +333,9 @@ class HomeView extends ComponentMethods implements ComponentEntity {
             },
             series: Utils.each(this.ordersChartData, v => {
                 v.type = "spline"
+                v.tooltip = {
+                    valueSuffix: "元",
+                }
             }),
         })
     }
