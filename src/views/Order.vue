@@ -38,9 +38,12 @@
 
         <div class="order-box" dark-class="order-box-dark">
             <div class="item-box" v-for="(item, idx) in orderList" :key="idx">
-                <div class="operating-btn">
-                    <elem-icon name="operating"></elem-icon>
-                    <comp-menu :absolute="true" position="follow" maxWidth="200px" :value="getMenu(item)" @select="onSelectMenu(item, $event)"></comp-menu>
+                <div class="head-box" :style="{ backgroundColor: getOrderStatusColor(item)}">
+                    <div class="status">{{ getOrderStatus(item) }}</div>
+                    <div class="operating-btn">
+                        <elem-icon name="operating"></elem-icon>
+                        <comp-menu :absolute="true" position="follow" maxWidth="200px" :value="getMenu(item)" @select="onSelectMenu(item, $event)"></comp-menu>
+                    </div>
                 </div>
 
                 <div class="floor-box contact-box">
@@ -49,12 +52,12 @@
                         <p class="value">{{ { 1: "配送上门", 2: "快递配送", 3: "自提" }[item.pathway] || "未知" }}</p>
                     </div> -->
                     <div class="item-box">
-                        <p class="name">订单状态:</p>
-                        <p class="value">{{ getOrderStatus(item) }}</p>
-                    </div>
-                    <div class="item-box">
                         <p class="name">订单编号:</p>
                         <p class="value">{{ item.orderNumber }}</p>
+                    </div>
+                    <div class="item-box" v-if="item.address">
+                        <p class="name">下单时间:</p>
+                        <p class="value">{{ item.createdDate }}</p>
                     </div>
                     <div class="item-box" v-if="item.address">
                         <p class="name">联系人:</p>
@@ -310,22 +313,24 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         return arr
     }
 
-    onSelectMenu(user: obj, evt: ElemEvent<string>) {
+    onSelectMenu(item: obj, evt: ElemEvent<string>) {
         switch (evt.value) {
-            case "Disable":
-                this.onDisableUser(user)
+            case "CopyOrderNumber":
+                Utils.copyText(item.orderNumber)
+                Message.success("复制成功")
                 break
-            case "CancelDisable":
-                this.onChangeDisableUser(user, false)
+            case "CopyAddress":
+                Utils.copyText([item.address.name, item.address.phone, `${[item.address.province, item.address.city, item.address.district, item.address.address].join('')}`].join(" "))
+                Message.success("复制成功")
                 break
             case "Delete":
-                this.onDeleteUser(user)
+                this.onDeleteUser(item)
                 break
             case "Href":
-                evt.data.href && this.jump(this.getUrl(user, evt.data.href))
+                evt.data.href && this.jump(this.getUrl(item, evt.data.href))
                 break
             case "Model":
-                this.onOpenModel(evt.data, user)
+                this.onOpenModel(evt.data, item)
         }
     }
 
@@ -480,14 +485,22 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     }
 
     getOrderStatus(item: obj) {
-        const o = item
-
-        let p = { 0: "未支付", 2: "已取消", 3: "支付失败" }[o.paymentStatus]
+        let p = { 0: "未支付", 2: "已取消", 3: "支付失败" }[item.paymentStatus]
         if (p) return p
-
         return (
-            { WAITING_ACCEPT: "待确认", WAITING_DELIVERED: "待配送", WAITING_GET: "待取货", WAITING_SHIPMENTS: "待发货", WAITING_RECEIPT: "待收货", SUCCESS: "已完成" }[o.transportStatus] || "待确认"
+            { WAITING_ACCEPT: "待接单", WAITING_DELIVERED: "待配送", WAITING_GET: "待取货", WAITING_SHIPMENTS: "待发货", WAITING_RECEIPT: "待收货", SUCCESS: "已完成" }[item.transportStatus] || "未知"
         )
+    }
+
+    getOrderStatusColor(item: obj) {
+        if (item.paymentStatus !== 1) {
+            return "#333"
+        }
+
+        return {
+            WAITING_ACCEPT: "#186400",
+            WAITING_SHIPMENTS: "#00acdb"
+        }[item.transportStatus] || "#333"
     }
 }
 
@@ -687,6 +700,7 @@ export default Component.build(new ToolView())
             width: ~"calc(100% / 5 - 20px)";
             margin: 10px;
             background: #fff;
+            overflow: hidden;
 
             .flex;
             .flex-column;
@@ -720,12 +734,27 @@ export default Component.build(new ToolView())
                 width: ~"calc(100% - 20px)";
             }
 
-            .operating-btn {
-                position: absolute;
-                top: 15px;
-                right: 10px;
-                width: 30px;
-                height: 30px;
+            .head-box {
+                width: 100%;
+                padding: 0 20px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                box-sizing: border-box;
+                
+                .border-position(bottom);
+
+                .status {
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #fff;
+                }
+
+                .operating-btn {
+                    width: 30px;
+                    height: 30px;
+                }
             }
 
             .floor-box {

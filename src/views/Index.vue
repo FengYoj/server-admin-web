@@ -301,7 +301,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
         var wScrollY = e.scrollTop // 当前滚动条位置
         var wInnerH = e.clientHeight // 设备窗口的高度（不会变）
         var bScrollH = e.scrollHeight // 滚动条总高度
-        if (wScrollY + wInnerH >= bScrollH) {
+        if (wScrollY + wInnerH >= bScrollH - 20) {
             const page = this.$route.matched[0].instances.default
             // 触发触底事件
             page.onReachBottom && page.onReachBottom()
