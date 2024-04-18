@@ -1,90 +1,90 @@
 <template>
-    <div class="elem-switch-box" :class="[ 'elem-switch-box-size-' + size, { 'elem-switch-box-dark': theme === 'dark' } ]">
-		<elem-input-object :name="name" :value='val' :is-required="required"></elem-input-object>
+    <div class="elem-switch-box" :class="['elem-switch-box-size-' + size, { 'elem-switch-box-dark': theme === 'dark' }]">
+        <elem-input-object :name="name" :value="val" :is-required="required"></elem-input-object>
         <div class="switch-box" :class="val ? 'switch-on' : 'switch-off'" :style="{ 'border-radius': radius + 'px' }">
-            <div class="switch-btn on-btn" @click="onChangeSwitch(true)">{{on}}</div>
-            <div class="switch-btn off-btn" @click="onChangeSwitch(false)">{{off}}</div>
+            <div class="switch-btn on-btn" @click="onChangeSwitch(true)">{{ on }}</div>
+            <div class="switch-btn off-btn" @click="onChangeSwitch(false)">{{ off }}</div>
             <div class="block" :style="{ 'border-radius': radius + 'px' }"></div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import elemInputObject from './elem-input-object.vue'
-import Theme from '../module/theme/theme'
+import elemInputObject from "./elem-input-object.vue"
+import Theme from "../module/theme/theme"
 
 export default {
     data() {
         return {
             radius: null,
             val: null,
-            theme: Theme.getTheme()
+            theme: Theme.getTheme(),
         }
     },
 
-	props: {
+    props: {
         on: {
             type: String,
-            default: "ON"
+            default: "ON",
         },
         required: {
             type: Boolean,
-            default: false
+            default: false,
         },
         off: {
             type: String,
-            default: "OFF"
-		},
-		name: {
-			type: String,
-            default: "switch"
-		},
-		value: {
-			type: Boolean,
-			default: false
+            default: "OFF",
+        },
+        name: {
+            type: String,
+            default: "switch",
+        },
+        value: {
+            type: Boolean,
+            default: false,
         },
 
         // 大小，小：small 中：medium
         size: {
             type: String,
-            default: "medium"
+            default: "medium",
         },
         // 形状，圆：circle 方：square
         shape: {
             type: String,
-            default: "circle"
-        }
+            default: "circle",
+        },
     },
 
     components: {
-        elemInputObject
+        elemInputObject,
     },
 
     watch: {
-        "value": function(v) {
+        value: function (v) {
             console.log(v)
-        }
+        },
     },
 
     mounted() {
         Theme.processPage(this.$el)
     },
 
-	created() {
+    created() {
         this.val = this.value
 
-		if (this.shape === "circle") {
+        if (this.shape === "circle") {
             this.radius = this.size === "medium" ? 20 : 15
         } else {
             this.radius = 6
         }
 
-        Theme.onChange((theme) => {
+        Theme.onChange(theme => {
             this.theme = theme
         })
     },
-    
-	methods: {
+
+    methods: {
         onChangeSwitch(val: boolean) {
             if (val != this.val) {
                 this.val = val
@@ -94,16 +94,16 @@ export default {
         },
 
         onChange(val: boolean) {
-            this.$emit('change', {
+            this.$emit("change", {
                 value: val,
                 type: "elem-switch",
                 name: this.name,
                 restore: () => {
                     this.val = !val
-                }
+                },
             })
-        }
-	}
+        },
+    },
 }
 </script>
 
@@ -131,7 +131,7 @@ export default {
         position: relative;
         width: 50%;
         height: 100%;
-        z-index: 30;
+        z-index: 15;
         display: flex;
         align-items: center;
         color: #666;
@@ -151,7 +151,7 @@ export default {
         left: 5px;
         background: #fff;
         border-radius: 4px;
-        z-index: 20;
+        z-index: 10;
         transition: all 0.3s ease;
     }
 
@@ -177,12 +177,12 @@ export default {
 
 .elem-switch-box-size-medium {
     width: 120px;
-	height: 40px;
+    height: 40px;
 }
 
 .elem-switch-box-size-small {
     width: 100px;
-	height: 30px;
+    height: 30px;
 }
 
 .elem-switch-box-size-small .switch-btn {
