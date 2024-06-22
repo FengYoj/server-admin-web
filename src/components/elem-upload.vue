@@ -449,11 +449,11 @@ export default {
                     },
                 }).then(res => {
                     if (this.multi && !(res instanceof Array)) {
-                        return reject([res])
+                        return resolve([res])
                     }
 
                     if (!this.multi && res instanceof Array) {
-                        return reject(res[0])
+                        return resolve(res[0])
                     }
 
                     resolve(res)
