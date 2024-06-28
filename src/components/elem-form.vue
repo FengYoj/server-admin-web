@@ -1,6 +1,9 @@
 <template>
     <div class="elem-form-item-box" ref="elem" :class="'item-' + data.type" v-if="getConditionValue()">
-        <p class="title">{{ data.title }}{{ getTypeName(data.type) }}</p>
+        <p class="title">
+            {{ data.title }}{{ getTypeName(data.type) }}
+            <span style="color:red">{{ data.required ? "*" : "" }}</span>
+        </p>
 
         <div v-if="data.type === 'Input'" class="input-box">
             <component
