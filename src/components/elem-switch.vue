@@ -62,7 +62,7 @@ export default {
 
     watch: {
         value: function (v) {
-            console.log(v)
+            this.val = v
         },
     },
 

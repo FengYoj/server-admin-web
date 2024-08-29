@@ -528,7 +528,9 @@ class TableView extends ComponentMethods implements ComponentEntity {
                     evt.restore()
                 },
             }
-        )
+        ).then(() => {
+            this.getData()
+        })
     }
 
     /**

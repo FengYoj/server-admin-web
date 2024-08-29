@@ -43,16 +43,18 @@ export default class Language {
         return new Promise((resolve, reject) => {
             this.language_package = {}
 
-            Axios.get(`${Path.WEB}/Language/FindLanguageBySign?sign=${this.sign}&terminal=server_admin`).then(res => {
-                if (res.status === 200 && res.data.status === 200) {
-                    this.language_package = res.data || {}
-                    resolve(res)
-                }
+            resolve({})
 
-                let message = res.status === 200 ? res.data.message : res.statusText
+            // Axios.get(`${Path.WEB}/Language/FindLanguageBySign?sign=${this.sign}&terminal=server_admin`).then(res => {
+            //     if (res.status === 200 && res.data.status === 200) {
+            //         this.language_package = res.data || {}
+            //         resolve(res)
+            //     }
 
-                reject(message)
-            }).catch(reject)
+            //     let message = res.status === 200 ? res.data.message : res.statusText
+
+            //     reject(message)
+            // }).catch(reject)
         })
     }
 

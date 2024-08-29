@@ -449,14 +449,14 @@ export default {
                     },
                 }).then(res => {
                     if (this.multi && !(res instanceof Array)) {
-                        return resolve([res])
+                        return resolve([...path, res])
                     }
 
                     if (!this.multi && res instanceof Array) {
                         return resolve(res[0])
                     }
 
-                    resolve(res)
+                    resolve(res instanceof Array && path.length > 0 ? [...res, ...path] : res)
                 })
             })
         },
