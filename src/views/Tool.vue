@@ -180,15 +180,12 @@ export default Component.build(new ToolView())
                 width: 50px;
                 height: 50px;
                 background: #87dbb1;
+                padding: 10px;
 
                 .radius(3px);
                 .flex;
                 .flex-center-all;
-
-                .icon {
-                    width: 60%;
-                    height: 60%;
-                }
+                .border-box;
             }
 
             .title {
@@ -237,6 +234,7 @@ export default Component.build(new ToolView())
                     width: 30px;
                     height: 30px;
                     background: #eee;
+                    padding: 5px;
 
                     .radius(3px);
                     .flex;

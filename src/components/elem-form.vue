@@ -168,6 +168,7 @@ export default {
         return {
             form_value: {},
             name: null,
+            isDisplay: true
         }
     },
 
@@ -213,6 +214,7 @@ export default {
 
     methods: {
         onResize() {
+            if (!this.$refs.elem) return
             // 获取父级元素的宽度
             const width = this.$refs.elem.parentElement.offsetWidth
 
@@ -282,10 +284,19 @@ export default {
             var c: string = this.data.where
 
             if (!c) {
+                this.isDisplay = true
                 return true
             }
 
-            return new Function(`return ${c.replace(/&{(\w*)}/g, "this?.$1")}`).call(this.form_value)
+            var isDisplay = new Function(`return ${c.replace(/&{(\w*)}/g, "this?.$1")}`).call(this.form_value)
+
+            if (!this.isDisplay && isDisplay) {
+                this.$nextTick(() => this.onResize())
+            }
+
+            this.isDisplay = isDisplay
+
+            return isDisplay
         },
     },
 }

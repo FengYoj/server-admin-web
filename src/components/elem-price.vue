@@ -26,7 +26,7 @@
             </div>
             <div class="menu-box">
                 <elem-icon class="icon" name="operating"></elem-icon>
-                <comp-menu ref="operatings_menu" :value="operatings" @select="onSelectOperating"></comp-menu>
+                <comp-menu ref="operatings_menu" position="follow" :value="operatings" @select="onSelectOperating"></comp-menu>
             </div>
         </div>
     </div>

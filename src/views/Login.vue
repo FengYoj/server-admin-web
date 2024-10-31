@@ -1020,6 +1020,10 @@ export default Component.build(new LoginPage())
             text-align: center;
             margin-bottom: 20px;
 
+            .logo-icon {
+                border-radius: 10px;
+            }
+
             img {
                 width: initial;
             }
