@@ -6,14 +6,14 @@
 
         <div class="tool-bar-box">
             <div class="item-bar filter-box">
-                <!-- <div class="item-box" id="order_entity">
+                <div class="item-box" id="order_entity">
                     <p class="name">所属订单</p>
                     <div class="value">
-                        <p>{{ order_entity || "未配置" }}</p>
+                        <p>{{ order_info_ac ? order_info_ac.title : "请选择" }}</p>
                         <elem-icon class="icon" name="select"></elem-icon>
                     </div>
-                    <elem-options :all="false" el="#order_entity" :data="order_infos" @select="order_entity_title = $event.value.title"></elem-options>
-                </div> -->
+                    <elem-options :all="false" el="#order_entity" :data="order_infos" @select="order_info_ac = $event.value"></elem-options>
+                </div>
             </div>
             <div class="item-bar mode-base">
                 <div class="mode-box">
@@ -92,8 +92,8 @@
                 </div>
 
                 <div class="floor-box operate-box">
-                    <button class="item g" v-if="item.transportStatus === 'WAITING_ACCEPT'" @click="onAccepted(item)">接单</button>
-                    <button class="item b" v-else-if="item.transportStatus === 'WAITING_SHIPMENTS' && item.address" @click="onShipments(item)">发货</button>
+                    <!-- <button class="item g" v-if="item.transportStatus === 'WAITING_ACCEPT'" @click="onAccepted(item)">接单</button>
+                    <button class="item b" v-else-if="item.transportStatus === 'WAITING_SHIPMENTS' && item.address" @click="onShipments(item)">发货</button> -->
                     <button class="item r" v-if="item.paymentStatus === 1" @click="onAccepted(item)">退款</button>
                 </div>
             </div>
@@ -139,7 +139,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         CompForm,
     }
 
-    public title: string = "用户管理"
+    public title: string = "订单管理"
 
     private users: obj[] = null
 
@@ -181,8 +181,6 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     ]
 
     mode: string = "TODOS"
-    // 订单实体标题
-    order_entity_title: string = null
     // 订单消息
     order_infos: obj[] = null
     // 当前选择
@@ -204,7 +202,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
 
     async created() {
         // 分页实体
-        this.requestPage = new RequestPage("ADMIN://GoodsOrder/FindAllByTypeToPage", {
+        this.requestPage = new RequestPage("ADMIN://SubstanceOrder/FindAllByType", {
             load: false,
             method: "GET",
             size: 20,
@@ -218,7 +216,11 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     }
 
     async getAllInfo() {
-        return Request.get<obj[]>("ADMIN://SubstanceOrder/FindAllInfo").then(res => {
+        return Request.get<obj[]>("ADMIN://SubstanceOrder/FindAllInfo", null, {
+            onFail: () => {
+                return false
+            }
+        }).then(res => {
             this.order_infos = res
 
             if (res?.length > 0) {
@@ -760,7 +762,7 @@ export default Component.build(new ToolView())
             .floor-box {
                 padding: 15px 20px;
 
-                .border-position(bottom);
+                .border-position(top);
                 .flex;
                 .flex-center-items;
 
@@ -804,6 +806,10 @@ export default Component.build(new ToolView())
 
                 .scroll-x(5px);
 
+                &:empty {
+                    display: none;
+                }
+
                 > .item {
                     position: relative;
                     margin-right: 10px;
@@ -838,10 +844,9 @@ export default Component.build(new ToolView())
             }
 
             .data-box {
-                .flex-content(space-around);
-
                 > .item-box {
                     height: 40px;
+                    width: 33.33%;
 
                     .flex;
                     .flex-column;
@@ -862,6 +867,10 @@ export default Component.build(new ToolView())
             .operate-box {
                 display: flex;
                 justify-content: flex-end;
+
+                &:empty {
+                    display: none;
+                }
 
                 > .item {
                     margin-left: 10px;
