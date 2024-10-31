@@ -72,8 +72,8 @@
                                     </div>
 
                                     <div v-else-if="conf.type === 'Switch'" class="switch-box">
-                                        <!-- <p class="text-box" th:text="|{{item.${item.field} ? '是' : '否'}}|"></p> -->
-                                        <elem-switch size="small" :value="item[conf.field]" @change="onChangeDataBySwitch($event, conf.field, item.uuid)"></elem-switch>
+                                        <p class="text-box" v-if="conf.edit === false">{{ item[conf.field] ? '是' : '否' }}</p>
+                                        <elem-switch v-else size="small" :value="item[conf.field]" @change="onChangeDataBySwitch($event, conf.field, item.uuid)"></elem-switch>
                                     </div>
 
                                     <!-- 实体 -->
@@ -725,6 +725,7 @@ export default Component.build(new TableView())
                 min-height: 100%;
                 padding: 0 5px;
 
+                .flex-grow;
                 .flex;
                 .flex-column;
                 .flex-items(flex-start);
@@ -974,7 +975,6 @@ export default Component.build(new TableView())
                 min-height: 100%;
                 padding-right: 5px;
 
-                .flex-grow;
                 .flex-shrink;
                 .flex;
                 .flex-column;
