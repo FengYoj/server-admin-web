@@ -107,22 +107,22 @@ export default {
                 image: {
                     name: "图片",
                     accept: "image/*",
-                    url: "/WebAPI/Resource/Image/Upload",
+                    url: "WEB://Resource/Image/Upload",
                 },
                 video: {
                     name: "视频",
                     accept: "video/*",
-                    url: "/WebAPI/Resource/Video/Upload",
+                    url: "WEB://Resource/Video/Upload",
                 },
                 audio: {
                     name: "音频",
                     accept: "audio/*",
-                    url: "/WebAPI/Resource/Audio/Upload",
+                    url: "WEB://Resource/Audio/Upload",
                 },
                 file: {
                     name: "文件",
                     accept: "",
-                    url: "/WebAPI/Resource/File/Upload",
+                    url: "WEB://Resource/File/Upload",
                 },
             },
         }
