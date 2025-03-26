@@ -181,7 +181,7 @@ export default class Request {
                     let cb: boolean | void = config.onFail ? config.onFail(res) : null
 
                     if (cb !== false && !config.hideMessage) {
-                        Message.error(config.message || res.message)
+                        Message[res.status === 203 ? 'info' : 'error'](config.message || res.message)
                     }
 
                     reject()

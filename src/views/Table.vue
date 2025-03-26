@@ -14,7 +14,7 @@
                     <p class="text">添加记录</p>
                 </a>
                 <div class="operating-btn" v-for="(item, idx) in tableConfig.tableHeadOperatings" :key="idx">
-                    <ElemOperating :config="item"></ElemOperating>
+                    <ElemOperating :api="api" :page="page" :config="item" @on-refresh="getData()"></ElemOperating>
                 </div>
                 <div class="more-box">
                     <elem-icon class="icon" name="more"></elem-icon>
@@ -26,12 +26,12 @@
             <div class="base-box" id="BaseID">
                 <div class="content-box">
                     <div class="head">
-                        <div class="item" style="width: 100px">S/N</div>
+                        <div class="item" style="width: 130px">S/N</div>
                         <div class="item" v-for="(item, idx) in tableConfig.table" :key="idx" :style="{ width: item.width + 'px' }">{{ item.title }}</div>
                     </div>
                     <div class="body">
                         <div class="row" v-for="(item, idx) in table" :key="idx">
-                            <div class="column" style="width: 100px">
+                            <div class="column" style="width: 130px">
                                 <div class="column-box">
                                     <p class="text-box">{{ Number(idx + 1) + (page - 1) * limit }}</p>
                                 </div>
@@ -246,8 +246,9 @@ class TableView extends ComponentMethods implements ComponentEntity {
     private loading: PageLoading
 
     data = {
+        api: null,
         table: null,
-        limit: 10,
+        limit: 20,
         page: 1,
         totalElements: 0,
         totalPages: 0,

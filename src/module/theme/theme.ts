@@ -16,8 +16,6 @@ export default class Theme {
         axios.get("static/css/theme.css").then(res => {
             if (res.status === 200) {
                 Theme._dark_style = res.data
-
-                console.log(Theme.__dark_style)
             }
         })
 
@@ -187,8 +185,6 @@ export default class Theme {
             let dark_class: string = node.getAttribute("dark-class")
             dark_class && node.classList.add(dark_class)
         }
-
-        console.log(Theme._dark_style)
 
         this.style.innerHTML = this._dark_style + this._customize_style
     }

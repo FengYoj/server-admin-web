@@ -137,6 +137,19 @@
             <component v-bind:is="getComponent('elem-map')" :name="name" :required="data.required" :value="getValue(data.field, entity, index)"></component>
         </div>
 
+        <div v-else-if="data.type === 'Date'" class="date-box" dark-class="dark">
+            <DatePicker
+                class="date-picker"
+                type="datetime"
+                :name="name"
+                :required="data.required"
+                :field="data.field"
+                :title="data.title"
+                :placeholder="data.placeholder || ('选择' + data.title)"
+                :model-value="getValue(data.field, entity, index)"
+            ></DatePicker>
+        </div>
+
         <div v-else-if="data.type === 'Label'" class="label-box">
             <component
                 v-bind:is="getComponent('elem-label')"
@@ -161,6 +174,7 @@
 </template>
 
 <script lang="ts">
+import Theme from "@/module/theme/theme"
 import Utils from "@/module/utils/utils"
 
 export default {
@@ -201,6 +215,7 @@ export default {
     },
 
     mounted() {
+        Theme.processPage(this.$el)
         // 监听页面大小变化
         window.addEventListener("resize", this.onResize)
         // 初始化
@@ -303,7 +318,8 @@ export default {
 </script>
 
 <style lang="less">
-@import (reference) "@/style/utils.less";
+@import (reference) "/src/style/utils.less";
+@import (reference) "/src/style/color.less";
 
 .elem-form-item-box {
     width: 100%;
@@ -330,6 +346,63 @@ export default {
     .map-box {
         width: 100%;
         height: auto;
+    }
+}
+
+.item-Date {
+    .date-box {
+        .date-picker {
+            width: 100%;
+
+            * {
+                color: #333;
+            }
+
+            .ivu-date-picker-prev-btn-arrow-double i:after,
+            .ivu-date-picker-next-btn-arrow-double i:after {
+                display: none;
+            }
+
+            .ivu-date-picker-cells .ivu-date-picker-cells-cell-next-month em,
+            .ivu-date-picker-cells .ivu-date-picker-cells-cell-prev-month em {
+                color: #c5c8ce;
+            }
+
+            .ivu-input {
+                position: relative;
+                height: 45px;
+                padding: 0 50px 0 12px;
+                font-size: 14px;
+                z-index: 10;
+                box-sizing: border-box;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+                background: #fff;
+
+                .border;
+
+                &:hover,
+                &:focus {
+                    border-color: #b3b3b3;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+
+                &::placeholder {
+                    color: #666666;
+                }
+            }
+        }
+
+        &.dark .date-picker .ivu-input {
+            color: #fff;
+            background: #252a31;
+            border-color: @dark_border;
+
+            &:hover,
+            &:focus {
+                border-color: #5a5a5a;
+            }
+        }
     }
 }
 </style>

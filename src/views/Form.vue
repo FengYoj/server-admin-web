@@ -171,9 +171,19 @@ class FormView extends ComponentMethods implements ComponentEntity {
             return Message.error(status.getMessage())
         }
 
+        const value = this.value
+
         const data = {
             ...this.getParams(),
             ...status.getData(),
+        }
+
+        const keys = Object.keys(data)
+
+        for (const key in value) {
+            if (!keys.includes(key)) {
+                data[key] = value[key]
+            }
         }
 
         let url: string

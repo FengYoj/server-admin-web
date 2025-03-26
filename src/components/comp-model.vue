@@ -1,13 +1,13 @@
 <template>
     <div class="comp-model-page" :class="display ? 'show' : 'hide'" ref="page_box">
-        <div class="content-page" :style="{ width: width, height: height }">
+        <div class="content-page" :style="{ width: width, height: height }" dark-class="content-dark">
             <div class="head-box">
                 <p class="title">{{ title }}</p>
                 <div class="head-operate">
                     <slot name="head-operate"></slot>
                 </div>
                 <div class="close-btn" @click="onClose">
-                    <elem-icon name="close" width="15px" height="15px"></elem-icon>
+                    <elem-icon name="close" width="15px" height="15px" dark="close_white"></elem-icon>
                 </div>
             </div>
             <div class="scroll-content" :style="{ 'overflow-y': scroll ? 'auto' : 'hidden' }">
@@ -23,6 +23,7 @@
 <script>
 import Utils from "@/module/utils/utils"
 import ElemIcon from "@/components/elem-icon.vue"
+import Theme from "@/module/theme/theme"
 
 export default {
     components: { ElemIcon },
@@ -84,6 +85,8 @@ export default {
     },
 
     mounted() {
+        // 处理主题数据
+        Theme.processPage(this.$el)
         // 移动到 body 层级，不受父组件样式影响
         document.body.appendChild(this.$el)
         // 持续显示，加载完毕即显示
@@ -150,6 +153,9 @@ export default {
 </script>
 
 <style lang="less">
+@import (reference) "@/style/utils.less";
+@import (reference) "@/style/color.less";
+
 .comp-model-page {
     position: absolute;
     top: 0;
@@ -239,6 +245,32 @@ export default {
             flex-shrink: 0;
             background: linear-gradient(transparent, rgba(255, 255, 255, 0.7));
             border-top: 1px solid #f3f3f3;
+
+            &:empty {
+                display: none;
+            }
+        }
+
+        &.content-dark {
+            background: @dark_background;
+
+            .head-box {
+                background: @dark_background;
+                border-color: @dark_border;
+                
+                .title {
+                    color: @dark_text;
+                }
+
+                .close-btn {
+                    color: @dark_text;
+                    border-color: @dark_border;
+                }
+            }
+
+            .bottom-operate {
+                border-color: @dark_border;
+            }
         }
     }
 }

@@ -263,7 +263,7 @@ export default {
 .elem-select-box {
     position: relative;
     width: 100%;
-    height: 40px;
+    height: 45px;
 
     .select-base {
         position: relative;
@@ -291,7 +291,7 @@ export default {
             .first-box {
                 position: relative;
                 padding: 0 12px;
-                height: 40px;
+                height: 45px;
                 display: flex;
                 align-items: center;
 
@@ -352,7 +352,7 @@ export default {
                 position: absolute;
                 top: 0;
                 right: 0;
-                height: 40px;
+                height: 45px;
                 width: 50px;
                 display: flex;
                 justify-content: center;
