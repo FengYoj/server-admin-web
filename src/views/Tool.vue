@@ -100,11 +100,11 @@ class ToolView extends ComponentMethods implements ComponentEntity {
             color: "#4889A7",
         },
         {
-            icon: "collect",
-            href: "/table?name=Domain",
-            title: "域名管理",
-            explain: "用于配置域名使用权限。",
-            color: "#4889A7",
+            icon: "certificate",
+            href: "/table?name=SSL",
+            title: "SSL证书管理",
+            explain: "用于管理和配置SSL证书。",
+            color: "#04a79f",
         },
     ]
 
