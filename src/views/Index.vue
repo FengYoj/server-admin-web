@@ -1,15 +1,13 @@
 <template>
     <div class="index-page" dark-class="index-page-dark">
         <!-- 移动端菜单 -->
-        <nav id="menu-mobile" style="display: none">
-            <div id="panel-menu">
-                <ul>
-                    <li v-for="(menu, idx) in menus" :key="idx">
-                        <a :href="menu.href">{{ menu.name }}</a>
-                        <ul v-if="menu.child" v-html="getMobileMenuChild(menu.child)"></ul>
-                    </li>
-                </ul>
-            </div>
+        <nav id="menu-mobile">
+            <ul>
+                <li v-for="(item, idx) in menus" :key="idx">
+                    <a :href="item.href" child>{{ item.name }}</a>
+                    <ul v-if="item.child" v-html="getMobileMenuChild(item.child)"></ul>
+                </li>
+            </ul>
         </nav>
 
         <!-- 左侧栏 PC 菜单 -->
@@ -59,6 +57,9 @@
         <div class="column-box">
             <div class="head-box">
                 <div class="page-name">
+                    <div class="menu-icon" @click="menu.open()">
+                        <elem-icon name="menu"></elem-icon>
+                    </div>
                     <div class="icon">
                         <elem-icon src="static/icon/menu_icon/" :key="page_icon" :name="page_icon"></elem-icon>
                     </div>
@@ -120,6 +121,9 @@
 </template>
 
 <script lang="ts">
+import Mmenu from 'mmenu-js'
+import 'mmenu-js/dist/mmenu.css'
+
 import Utils from "@/module/utils/utils"
 import Component, { ComponentMethods } from "@/module/component/component"
 import Cache from "@/module/cache/cache"
@@ -274,6 +278,18 @@ class IndexView extends ComponentMethods implements ComponentEntity {
 
             setTimeout(() => {
                 this._setMenuChildBoxStyle()
+
+                this.menu = new Mmenu("#menu-mobile", {
+                    "theme": "dark"
+                })
+
+                // 为所有菜单链接绑定点击事件，点击后关闭菜单
+                const menuLinks = document.querySelectorAll('#menu-mobile a[child]')
+                    menuLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        this.menu.close()
+                    })
+                })
             })
         })
 
@@ -284,6 +300,10 @@ class IndexView extends ComponentMethods implements ComponentEntity {
 
     mounted() {
         this.processRoute()
+    }
+
+    beforeDestroy() {
+        this.menu?.destroy();
     }
 
     /**
@@ -361,7 +381,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
         Utils.getElementAll<HTMLDivElement>(".menu-child-base", e => {
             const p = e.getBoundingClientRect()
 
-            if (p.height + p.y > window.innerHeight) {
+            if (p.height + p.y + 100 > window.innerHeight) {
                 if (!e.classList.contains("menu-child-box-bottom")) {
                     e.classList.add("menu-child-box-bottom")
                 }
@@ -409,7 +429,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
         Utils.each(child, v => {
             childs += `
                 <li>
-                    <a ${v.href ? 'href="' + v.href + '"' : ""}>${v.name}</a>
+                    <a ${v.href ? 'href="' + v.href + '"' : ""} child>${v.name}</a>
                     ${v.child ? this.getMobileMenuChild(v.child, true) : ""}
                 </li>
             `
@@ -474,11 +494,11 @@ export default Component.build(new IndexView())
 
 // @import "mmenu.css";
 
-.mm-page {
-    position: absolute;
-    min-height: 100%;
-    width: 100%;
-}
+// .mm-page {
+//     position: absolute;
+//     min-height: 100%;
+//     width: 100%;
+// }
 
 .index-page {
     overflow: hidden;
@@ -486,6 +506,14 @@ export default Component.build(new IndexView())
 
     .flex;
     .fixed(0, 0, 0, 0);
+
+    // #menu-mobile {
+    //     display: none;
+
+    //     @media (max-width: 700px) {
+    //         display: inline-block;
+    //     }
+    // }
 
     .sidebar {
         margin: 20px 0 20px 20px;
@@ -519,7 +547,7 @@ export default Component.build(new IndexView())
         }
 
         .main-menu-pc {
-            margin: 40px 0;
+            margin: clamp(10px, 3vh, 40px) 0;
             width: 100%;
 
             .flex();
@@ -528,7 +556,7 @@ export default Component.build(new IndexView())
             .menu-item {
                 position: relative;
                 width: 100%;
-                height: 65px;
+                height: clamp(40px, 7vh, 65px);
                 margin: 5px 0;
 
                 .menu-item-box {
@@ -540,8 +568,8 @@ export default Component.build(new IndexView())
 
                     .icon {
                         filter: grayscale(100%);
-                        width: 25px;
-                        height: 25px;
+                        width: clamp(15px, 3vh, 25px);
+                        height: clamp(15px, 3vh, 25px);
 
                         .transition;
                     }
@@ -575,7 +603,7 @@ export default Component.build(new IndexView())
 
                         .menu-child-item {
                             position: relative;
-                            height: 65px;
+                            height: clamp(40px, 7vh, 65px);
 
                             &:last-child {
                                 > .menu-child-item-box::after {
@@ -630,8 +658,8 @@ export default Component.build(new IndexView())
 
                                 .menu-child-icon {
                                     filter: grayscale(1);
-                                    width: 22px;
-                                    height: 22px;
+                                    width: clamp(16px, 2.5vh, 22px);
+                                    height: clamp(16px, 2.5vh, 22px);
 
                                     .flex-shrink();
                                 }
@@ -639,7 +667,7 @@ export default Component.build(new IndexView())
                                 .menu-child-name {
                                     margin: 0 20px;
                                     color: #666;
-                                    font-size: 14px;
+                                    font-size: clamp(10px, 1.6vh, 14px);
                                     letter-spacing: 2px;
                                     white-space: nowrap;
                                     overflow: hidden;
@@ -781,8 +809,7 @@ export default Component.build(new IndexView())
         .flex-grow;
 
         > .head-box {
-            height: 100px;
-            z-index: 50;
+            min-height: 100px;
             padding: 20px 20px 0 20px;
             margin: 0 20px;
 
@@ -792,21 +819,43 @@ export default Component.build(new IndexView())
             .flex-center-items;
             .flex-content(space-between);
 
-            .page-name {
-                white-space: nowrap;
+            @media (max-width: 700px) {
+                min-height: 50px;
+                padding: 10px 0 0 0;
+            }
 
+            .page-name {
                 .flex;
                 .flex-center-items;
 
                 .icon {
                     width: 23px;
                     height: 23px;
+
+                    @media (max-width: 700px) {
+                        display: none;
+                    }
+                }
+
+                .menu-icon {
+                    width: 23px;
+                    height: 23px;
+                    display: none;
+
+                    @media (max-width: 700px) {
+                        display: block;
+                    }
                 }
 
                 .name {
                     margin-left: 20px;
                     font-size: 20px;
                     color: #f3f3f3;
+
+                    @media (max-width: 700px) {
+                        margin-left: 10px;
+                        font-size: 14px;
+                    }
                 }
             }
 
@@ -829,6 +878,10 @@ export default Component.build(new IndexView())
                     &:first-child {
                         margin-left: initial;
                     }
+
+                    @media (max-width: 700px) {
+                        display: none;
+                    }
                 }
 
                 .search-box {
@@ -838,9 +891,10 @@ export default Component.build(new IndexView())
                     margin-right: 20px;
 
                     @media (max-width: 700px) {
-                        width: 35px;
-                        height: 35px;
-                        margin-right: 0;
+                        // width: 35px;
+                        // height: 35px;
+                        // margin-right: 0;
+                        display: none;
                     }
 
                     .search-base {
