@@ -135,7 +135,7 @@ export default {
         display: flex;
         align-items: center;
         color: #666;
-        padding: 10px;
+        padding: 15px;
         box-sizing: border-box;
     }
 
@@ -177,12 +177,16 @@ export default {
 
 .elem-switch-box-size-medium {
     width: 120px;
-    height: 40px;
+    height: 45px;
 }
 
 .elem-switch-box-size-small {
     width: 100px;
     height: 30px;
+
+    .switch-btn {
+        padding: 10px;
+    }
 }
 
 .elem-switch-box-size-small .switch-btn {

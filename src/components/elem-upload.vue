@@ -439,9 +439,13 @@ export default {
 
                 Request.post<obj[]>(this.types[this.type].url, formData, {
                     onFail: function (err) {
-                        Message.error(err.responseJSON.message)
+                        const msg = JSON.parse(err.responseText).message
+                        
+                        Message.error(msg)
 
-                        reject(err.responseJSON.message)
+                        reject(msg)
+
+                        return false
                     },
 
                     onProgress(e) {

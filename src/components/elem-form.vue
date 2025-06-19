@@ -69,6 +69,7 @@
                 :field="data.field"
                 :config="data.passwordConfig"
                 :name="name"
+                :disabled="!data.edit && value.uuid"
                 :placeholder="data.placeholder"
                 :required="data.required"
                 @change="onChangeData"
@@ -102,6 +103,7 @@
                 :required="data.required"
                 :title="data.title"
                 :placeholder="data.placeholder"
+                :config="data.selectConfig"
                 :value="getValue(data.field, entity, index, data.selectConfig.controller ? 'uuid' : '')"
             ></component>
         </div>
@@ -139,6 +141,7 @@
 
         <div v-else-if="data.type === 'Date'" class="date-box" dark-class="dark">
             <DatePicker
+                transfer
                 class="date-picker"
                 type="datetime"
                 :name="name"
@@ -148,6 +151,19 @@
                 :placeholder="data.placeholder || ('选择' + data.title)"
                 :model-value="getValue(data.field, entity, index)"
             ></DatePicker>
+        </div>
+
+        <div v-else-if="data.type === 'Time'" class="time-box" dark-class="dark">
+            <TimePicker
+                class="time-picker"
+                type="time"
+                :name="name"
+                :required="data.required"
+                :field="data.field"
+                :title="data.title"
+                :placeholder="data.placeholder || ('选择' + data.title)"
+                :model-value="getValue(data.field, entity, index)"
+            ></TimePicker>
         </div>
 
         <div v-else-if="data.type === 'Label'" class="label-box">
@@ -302,7 +318,7 @@ export default {
                 this.isDisplay = true
                 return true
             }
-
+            
             var isDisplay = new Function(`return ${c.replace(/&{(\w*)}/g, "this?.$1")}`).call(this.form_value)
 
             if (!this.isDisplay && isDisplay) {
@@ -349,23 +365,15 @@ export default {
     }
 }
 
-.item-Date {
-    .date-box {
-        .date-picker {
+.item-Date,
+.item-Time {
+    .date-box,
+    .time-box {
+        .date-picker, .time-picker {
             width: 100%;
 
             * {
                 color: #333;
-            }
-
-            .ivu-date-picker-prev-btn-arrow-double i:after,
-            .ivu-date-picker-next-btn-arrow-double i:after {
-                display: none;
-            }
-
-            .ivu-date-picker-cells .ivu-date-picker-cells-cell-next-month em,
-            .ivu-date-picker-cells .ivu-date-picker-cells-cell-prev-month em {
-                color: #c5c8ce;
             }
 
             .ivu-input {
@@ -393,16 +401,21 @@ export default {
             }
         }
 
-        &.dark .date-picker .ivu-input {
-            color: #fff;
-            background: #252a31;
-            border-color: @dark_border;
+        &.dark {
+            .date-picker,
+            .time-picker {
+                .ivu-input {
+                    color: #fff;
+                    background: #252a31;
+                    border-color: @dark_border;
 
-            &:hover,
-            &:focus {
-                border-color: #5a5a5a;
+                    &:hover,
+                    &:focus {
+                        border-color: #5a5a5a;
+                    }
+                }
             }
-        }
+        } 
     }
 }
 </style>

@@ -118,7 +118,7 @@ class HomeView extends ComponentMethods implements ComponentEntity {
             this.info = res
         })
 
-        this.initMessageSocket()
+        // this.initMessageSocket()
     }
 
     activated() {

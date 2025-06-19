@@ -29,10 +29,6 @@
                     </div>
                     <input class="input" type="text" placeholder="输入搜索内容" v-model="search" @keyup.enter="onSubmitSearch" />
                 </div>
-                <a class="add-btn" @click="jump('/form', { type: 'create', name: 'User' })">
-                    <elem-icon class="icon" name="add_white"></elem-icon>
-                    <p class="text">添加</p>
-                </a>
                 <!-- <div class="more-box">
                     <elem-icon class="icon" name="more"></elem-icon>
                     <comp-menu :value="moreMenu" @select="onSelectMoreMenu"></comp-menu>
@@ -108,6 +104,8 @@
                     </div>
                 </div>
             </div>
+
+            <comp-empty v-if="users && users.length == 0" :botton="false" title="用户列表为空" prompt="注册的用户将在此显示"></comp-empty>
         </div>
 
         <comp-model ref="comp_model" :title="model_title" :scroll="false">

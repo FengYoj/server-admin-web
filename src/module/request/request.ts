@@ -104,7 +104,7 @@ export default class Request {
      * @param config 配置
      */
     private static send<T extends Object>(method: RequestType, url: string, data: obj | FormData | string, config: RequestConfig): Promise<T> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve: (value: T) => void, reject) => {
             // 显示加载框
             !config.hideLoading && Loading.show()
 
@@ -171,6 +171,12 @@ export default class Request {
                 let response = request.response
 
                 if (!this.isJson(response)) {
+
+                    if (config.responseType === "blob") {
+                        let res: any = { blob: response, filename: request.getResponseHeader("Content-Disposition").split("filename=")[1] ?? "file" }
+                        return resolve(res)
+                    }
+
                     return resolve(response)
                 }
 
@@ -222,7 +228,7 @@ export default class Request {
         return /^{.*}$/.test(value)
     }
 
-    private static processUrl(url: string): string {
+    public static processUrl(url: string): string {
         if (~/^\S+:\/\/.*/.test(url)) {
             url.replace(/^(\S+):\/\/(\/*)?(.*)/, "")
 
@@ -248,15 +254,15 @@ export default class Request {
         })
     }
 
-    public static download(name: string, method: RequestType, url: string, data?: obj | FormData | string, config: RequestConfig = {}): void {
-        this.request<Blob>(method, url, data, { ...config, responseType: "blob" }).then(res => {
+    public static download(method: RequestType, url: string, name?: string, data?: obj | FormData | string, config: RequestConfig = {}): void {
+        this.request<obj>(method, url, data, { ...config, responseType: "blob" }).then(res => {
             Utils.shortElement("a", e => {
                 var reader = new FileReader()
-                reader.readAsDataURL(res)
+                reader.readAsDataURL(res.blob)
                 reader.onload = function (evt: obj) {
                     // 转换完成，创建一个a标签用于下载
                     e.href = evt.target.result
-                    e.download = name
+                    e.download = res.filename
                     e.click()
                 }
             })

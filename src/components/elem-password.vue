@@ -1,6 +1,7 @@
 <template>
     <div class="elem-password-box" dark-class="elem-password-box-dark">
         <input
+            :class="{ disabled: disabled }"
             ref="input"
             :maxlength="max"
             :type="hidden ? 'password' : 'text'"
@@ -10,18 +11,19 @@
             :required="required"
             :name="name"
             :placeholder="place_holder"
+            :disabled="disabled"
             v-model="val"
             @change="onChange"
             @input="onInput"
         />
-        <div class="operating-box">
+        <div class="operating-box" v-if="!disabled">
             <div class="check-box">
                 <elem-icon class="icon" v-show="check === true" src="static/icon/components/elem-input/" name="correct"></elem-icon>
                 <elem-icon class="icon" v-show="check === false" src="static/icon/components/elem-input/" name="error"></elem-icon>
             </div>
             <div class="menu-box">
                 <elem-icon class="icon" name="operating"></elem-icon>
-                <comp-menu ref="operatings_menu" :value="operatings" @select="onSelectOperating"></comp-menu>
+                <comp-menu ref="operatings_menu" :value="operatings" position="follow" @select="onSelectOperating"></comp-menu>
             </div>
         </div>
     </div>
@@ -101,6 +103,10 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
             default: "",
         },
         value: null,
+        disabled: {
+            type: Boolean,
+            default: false,
+        }
     }
 
     components = {
@@ -113,7 +119,7 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
             if (this.isEdit && !this.initial) {
                 this.check = true
                 this.initial = true
-                this.$refs.operatings_menu.onChangeDisable("Display", true)
+                this.$refs.operatings_menu?.onChangeDisable("Display", true)
                 return
             }
 
@@ -126,7 +132,7 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
                     this.check = null
                 }
 
-                this.$refs.operatings_menu.onChangeDisable("Display", false)
+                this.$refs.operatings_menu?.onChangeDisable("Display", false)
             } else {
                 if (value) {
                     this.check = Utils.verify("password", value)
@@ -149,7 +155,7 @@ class ElemPasswordComponent extends ComponentMethods implements ComponentEntity 
                 this.original = this.val = this.value.value
             }
             // 恢复密码功能设置为可用
-            this.$refs.operatings_menu.onChangeDisable("Restore", false)
+            this.$refs.operatings_menu?.onChangeDisable("Restore", false)
         }
 
         this.place_holder = this.placeholder || `${this.language.enter}${this.title || this.name}${this.required ? "" : "(" + this.language.optional + ")"}`
@@ -244,6 +250,10 @@ export default Component.build(new ElemPasswordComponent())
     position: relative;
     width: 100%;
     height: 45px;
+
+    .disabled {
+        cursor: not-allowed;
+    }
 
     .input {
         position: relative;

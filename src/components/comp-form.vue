@@ -1,5 +1,5 @@
 <template>
-    <comp-model ref="form_model" :title="title" height="auto">
+    <comp-model ref="form_model" :title="title" height="auto" @on-close="onClose">
         <comp-form-small ref="form" :structure="formStructure" :submitApi="formSubmitApi" @on-submit="onSubmit"></comp-form-small>
     </comp-model>
 </template>
@@ -34,14 +34,21 @@ class CompFormView extends ComponentMethods implements ComponentEntity {
         },
 
         onSubmit() {
-            this.$refs.form_model.onClose()
-            this.$refs.form.clear()
+            this.$refs.form_model.close()
 
             this.$emit("on-submit", {
                 tag: "CompForm",
                 value: this.param,
             })
         },
+
+        onClose() {
+            this.$refs.form.clear()
+
+            setTimeout(() => {
+                this.formStructure = null
+            }, 500)
+        }
     }
 }
 

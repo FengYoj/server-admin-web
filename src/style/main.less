@@ -80,10 +80,11 @@ a {
 
 html,
 .page {
-    position: absolute;
-    width: 100%;
-    min-height: 100%;
+    // position: absolute;
+    // width: 100%;
+    // min-height: 100%;
     background: #f9fafa;
+    overflow: hidden;
 
     -webkit-overflow-scrolling: touch;
 
@@ -110,4 +111,36 @@ html,
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background: #ededed;
+}
+
+.ivu-date-picker-prev-btn-arrow-double i:after,
+.ivu-date-picker-next-btn-arrow-double i:after {
+    display: none;
+}
+
+.ivu-date-picker-cells .ivu-date-picker-cells-cell-next-month em,
+.ivu-date-picker-cells .ivu-date-picker-cells-cell-prev-month em {
+    color: #c5c8ce;
+}
+
+.ivu-date-picker-cells span em {
+    color: #333;
+}
+
+.ivu-btn-small span {
+    color: #515a6e;
+}
+
+.ivu-btn-primary span {
+    color: #fff;
+}
+
+.ivu-time-picker-cells-list ul li {
+    color: #333;
+}
+
+.ivu-date-picker-header-label,
+.ivu-icon-ios-arrow-back:before,
+.ivu-icon-ios-arrow-forward:before {
+    color: #333;
 }

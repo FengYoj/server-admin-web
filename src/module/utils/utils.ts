@@ -505,7 +505,7 @@ export default class Utils {
     }
 
     public static eachNode<T extends Element>(a: NodeListOf<T>, cb: (v: T, i: number, e: boolean) => void | "break"): NodeListOf<T> {
-        for (let i = 0, l = a.length; i < l; i++) {
+        for (let i = 0, l = a?.length; i < l; i++) {
             let _cb = cb(a[i], i, i === l - 1)
 
             if (_cb === "break") {

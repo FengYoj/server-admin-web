@@ -116,6 +116,10 @@ export default {
             this.winow_config.status = true
         },
 
+        close() {
+            this.onClose()
+        },
+
         /** 关闭 */
         onClose() {
             this.display = false

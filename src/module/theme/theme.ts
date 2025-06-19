@@ -212,11 +212,11 @@ export default class Theme {
      * @param page 页面实体
      */
     public static processPage(page: HTMLDivElement): void {
-        if (page.hasAttribute("dark-class")) {
+        if (page?.hasAttribute?.("dark-class")) {
             this.processElement(page)
         }
 
-        Utils.eachNode<HTMLDivElement>(page.querySelectorAll("[dark-class]"), e => {
+        Utils.eachNode<HTMLDivElement>(page?.querySelectorAll?.("[dark-class]"), e => {
             this.processElement(e)
         })
     }

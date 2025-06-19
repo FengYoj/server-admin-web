@@ -2,7 +2,6 @@
     <index-view v-if="acPage === 'index'"></index-view>
     <initial-view v-if="acPage === 'initial'" @on-success="onSuccessInitial"></initial-view>
     <login-view ref="login"></login-view>
-    <comp-menu position="follow" click-type="right" cursor="initial" :value="setting_menu"></comp-menu>
 </template>
 
 <script lang="ts">
@@ -14,17 +13,12 @@ import Cache from "@/module/cache/cache"
 import Request from "@/module/request/request"
 import Utils from "./module/utils/utils"
 
-import compMenu from "@/components/comp-menu.vue"
 import Modal from "./module/interactive/modal"
-
-// 设置菜单（右键）
-import SettingMenu from "./config/setting_menu"
 
 export default {
     data() {
         return {
             loaded: false,
-            setting_menu: SettingMenu,
             acPage: "",
         }
     },
@@ -32,8 +26,7 @@ export default {
     components: {
         IndexView,
         InitialView,
-        LoginView,
-        compMenu,
+        LoginView
     },
 
     watch: {

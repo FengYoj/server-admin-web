@@ -61,7 +61,9 @@ export default {
 
     async mounted() {
         // 加载主文件
-        await FileUtil.script("https://webapi.amap.com/loader.js")
+        if (!window["AMapLoader"]) {
+            await FileUtil.script("https://webapi.amap.com/loader.js")
+        }
 
         const AMap = await window["AMapLoader"].load({
             key: "fd71e18f00affc42b5711435dd44064b", //首次调用load必须填写key
@@ -94,6 +96,11 @@ export default {
             this.init(this.old_value)
         }
     },
+
+    deactivated() {
+        this.map.destroy()
+    },
+
     methods: {
         init(data) {
             let { latitude, longitude } = data
@@ -214,8 +221,8 @@ export default {
                             district: data.district,
                             province: data.province,
                             address: data.formatted_address,
-                            lng: l[0],
-                            lat: l[1],
+                            longitude: l[0],
+                            latitude: l[1],
                         })
                     } else {
                         let msg = "无法识别输入的地址，请在地图上选址！"
@@ -246,8 +253,8 @@ export default {
                             district: a.district,
                             province: a.province,
                             address: f,
-                            lng: lnglat[0],
-                            lat: lnglat[1],
+                            longitude: lnglat[0],
+                            latitude: lnglat[1],
                         })
                     } else {
                         let msg = "无法识别经纬度，请在地图上选址！"
@@ -298,6 +305,7 @@ export default {
     width: 100%;
     padding: 0 12px;
     height: 40px;
+    color: #000;
     box-sizing: border-box;
 }
 
@@ -328,6 +336,7 @@ export default {
 
 .elem-map-box .result-box > .item-box .name {
     font-size: 14px;
+    color: #000;
 }
 
 .elem-map-box .result-box > .item-box .district {

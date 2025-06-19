@@ -18,7 +18,7 @@
                 </div>
                 <div class="more-box">
                     <elem-icon class="icon" name="more"></elem-icon>
-                    <comp-menu :value="moreMenu" @select="onSelectMoreMenu"></comp-menu>
+                    <comp-menu :value="getMoreMenu(tableConfig)"></comp-menu>
                 </div>
             </div>
         </div>
@@ -26,18 +26,18 @@
             <div class="base-box" id="BaseID">
                 <div class="content-box">
                     <div class="head">
-                        <div class="item" style="width: 130px">S/N</div>
-                        <div class="item" v-for="(item, idx) in tableConfig.table" :key="idx" :style="{ width: item.width + 'px' }">{{ item.title }}</div>
+                        <div class="item" style="width: 15vmin">S/N</div>
+                        <div class="item" v-for="(item, idx) in tableConfig.table" :key="idx" :style="{ width: (item.width / 8) + 'vmin' }">{{ item.title }}</div>
                     </div>
                     <div class="body">
                         <div class="row" v-for="(item, idx) in table" :key="idx">
-                            <div class="column" style="width: 130px">
+                            <div class="column" style="width: 15vmin">
                                 <div class="column-box">
                                     <p class="text-box">{{ Number(idx + 1) + (page - 1) * limit }}</p>
                                 </div>
                             </div>
 
-                            <div class="column" v-for="(conf, idx) in tableConfig.table" :key="idx" :style="{ width: conf.width + 'px' }">
+                            <div class="column" v-for="(conf, idx) in tableConfig.table" :key="idx" :style="{ width: (conf.width / 8) + 'vmin' }">
                                 <div class="column-box" v-if="isExist(item[conf.field])">
                                     <!-- 下级实体盒子 -->
                                     <!-- <div v-if="conf.type === 'subclass'" class="subclass-box" th:with="subclass=${item.config}" th:@click="|onOpenSubclass('${item.field}', '${subclass.mappedBy}', '${item.title}', item.uuid)|">
@@ -112,6 +112,11 @@
 
                             <!-- 上传文件 -->
                             <button v-else-if="conf.type === 'FILE'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingFile(item, conf.url, conf.msg, conf.config)">
+                                {{ conf.title }}
+                            </button>
+
+                            <!-- 下载文件 -->
+                            <button v-else-if="conf.type === 'DOWNLOAD'" :style="{ background: conf.background, color: conf.color }" @click="onOperatingDownload(item, conf)">
                                 {{ conf.title }}
                             </button>
 
@@ -223,25 +228,6 @@ class TableView extends ComponentMethods implements ComponentEntity {
 
     // 是否开启时间检索功能
     public isOpenTimeRetrieval: boolean = false
-
-    public moreMenu = [
-        {
-            title: "导出数据",
-            prompt: "将以 Excel 表格格式导出数据文件",
-            sub: [
-                {
-                    id: "ExportDataByPage",
-                    icon: "page",
-                    name: "当前页面",
-                },
-                {
-                    id: "ExportAllData",
-                    icon: "data",
-                    name: "所有数据",
-                },
-            ],
-        },
-    ]
 
     private loading: PageLoading
 
@@ -477,11 +463,11 @@ class TableView extends ComponentMethods implements ComponentEntity {
     /**
      * 文件上传操作事件
      */
-    onOperatingFile(data, url, msg, config) {
+    onOperatingFile(data, url, msg, config: obj) {
         const input = document.createElement("input")
 
         input.type = "file"
-        input.accept = config.accept
+        input.accept = config?.accept || "*"
 
         input.onchange = (evt: any) => {
             var formData = new FormData()
@@ -498,6 +484,13 @@ class TableView extends ComponentMethods implements ComponentEntity {
         }
 
         input.click()
+    }
+
+    /**
+     * 文件下载操作事件
+     */
+    onOperatingDownload(data: obj, conf: obj) {
+        Request.download(conf.method, this.getUrl(data, conf.url))
     }
 
     onOperatingPopup(data, url, msg) {
@@ -551,24 +544,6 @@ class TableView extends ComponentMethods implements ComponentEntity {
         this.$refs.comp_entity.open(data.uuid)
     }
 
-    onSelectMoreMenu(evt: obj) {
-        switch (evt.value) {
-            case "ExportAllData":
-                Request.download(this.pageConfig.title + ".xlsx", "GET", this.api + "/ExportAllData")
-                break
-            case "ExportDataByPage":
-                Request.download(
-                    this.pageConfig.title + ".xlsx",
-                    "POST",
-                    this.api + "/ExportDataByPage",
-                    { page: this.page - 1, size: this.limit, search: this.search, filter: this.getFilter() },
-                    {
-                        json: true,
-                    }
-                )
-        }
-    }
-
     /**
      * 跳转至表单页面
      */
@@ -585,6 +560,59 @@ class TableView extends ComponentMethods implements ComponentEntity {
     getConditionValue(where: string, value: obj) {
         if (!where) return true
         return new Function(`return ${where.replace(/&{(\w*)}/g, "this.$1")}`).call(value)
+    }
+
+    getMoreMenu(tableConfig: obj) {
+        const arr = []
+
+        if (tableConfig.pages.indexOf('create') > -1) {
+            arr.push({
+                title: "操作",
+                sub: [
+                    {
+                        id: "Add",
+                        icon: "data",
+                        name: "添加记录",
+                        onClick: () => {
+                            this.jumpForm({ type: 'create', name: this.name })
+                        }
+                    },
+                ],
+            })
+        }
+
+        arr.push({
+            title: "导出数据",
+            prompt: "将以 Excel 表格格式导出数据文件",
+            sub: [
+                {
+                    id: "ExportDataByPage",
+                    icon: "page",
+                    name: "当前页面",
+                    onClick: () => {
+                        Request.download(
+                            "POST",
+                            this.api + "/ExportDataByPage",
+                            this.pageConfig.title + ".xlsx",
+                            { page: this.page - 1, size: this.limit, search: this.search, filter: this.getFilter() },
+                            {
+                                json: true,
+                            }
+                        )
+                    },
+                },
+                {
+                    id: "ExportAllData",
+                    icon: "data",
+                    name: "所有数据",
+                    onClick: () => {
+                        Request.download("GET", this.api + "/ExportAllData", this.pageConfig.title + ".xlsx")
+                    }
+                },
+            ],
+        })
+
+        return arr
     }
 }
 
@@ -611,19 +639,23 @@ export default Component.build(new TableView())
 
         .flex;
         .flex-center-items;
+        .flex-wrap;
         .flex-shrink;
 
         .operating-box {
-            padding: 5px 0;
+            max-width: 100%;
+            margin-left: auto;
+            justify-content: right;
 
             .flex-shrink;
             .flex;
+            .flex-wrap;
             .flex-center-items;
 
             .btn-box {
                 cursor: pointer;
                 padding: 5px 12px;
-                margin-left: 10px;
+                margin: 5px 0 5px 10px;
                 background: #00b3d9;
                 font-size: 13px;
 
@@ -632,6 +664,10 @@ export default Component.build(new TableView())
                 .flex;
                 .flex-center-items;
                 .transition;
+
+                @media (max-width: 700px) {
+                    display: none;
+                }
 
                 &:hover {
                     .shadow(0 0 10px rgba(0, 0, 0, 0.3));
@@ -653,12 +689,12 @@ export default Component.build(new TableView())
             }
 
             .operating-btn {
-                margin-left: 10px;
+                margin: 5px 0 5px 10px;
             }
 
             .search-box {
                 position: relative;
-                margin: 0 10px;
+                margin: 5px 10px;
 
                 .flex;
 
@@ -682,6 +718,10 @@ export default Component.build(new TableView())
                     .border;
                     .radius(35px);
                     .border-box;
+
+                    @media (max-width: 700px) {
+                        width: 150px;
+                    }
                 }
             }
 
@@ -750,9 +790,15 @@ export default Component.build(new TableView())
                         font-size: 15px;
                         color: #abb4b9;
                         font-weight: bold;
+                        font-size: 15px;
 
                         .flex;
                         .flex-center-items;
+
+                        @media (max-width: 700px) {
+                            padding: 0 10px;
+                            font-size: 3vmin;
+                        }
                     }
                 }
 
@@ -787,6 +833,10 @@ export default Component.build(new TableView())
                             width: 200px;
                             height: 100%;
 
+                            @media (max-width: 700px) {
+                                padding: 0 10px;
+                            }
+
                             .column-box {
                                 margin: 3px 0;
                                 width: 100%;
@@ -804,6 +854,10 @@ export default Component.build(new TableView())
                                     white-space: nowrap;
                                     overflow: hidden;
                                     text-overflow: ellipsis;
+
+                                    @media (max-width: 700px) {
+                                        font-size: 2.5vmin;
+                                    }
                                 }
 
                                 &:hover .text-box {
@@ -991,11 +1045,16 @@ export default Component.build(new TableView())
                     color: #abb4b9;
                     font-weight: bold;
                     background: #f3f3f3;
+                    font-size: 15px;
 
                     .border-box;
                     .flex;
                     .flex-center-items;
                     .radius(5px);
+
+                    @media (max-width: 700px) {
+                        font-size: 3vmin;
+                    }
                 }
 
                 .operating-item {
@@ -1058,6 +1117,10 @@ export default Component.build(new TableView())
 
                 .shadow(-5px 0 5px rgba(0, 0, 0, 0.1));
 
+                @media (max-width: 700px) {
+                    position: relative;
+                }
+
                 .operating-title {
                     .radius(0 5px 5px 0);
                 }
@@ -1094,11 +1157,15 @@ export default Component.build(new TableView())
                 letter-spacing: 1px;
                 color: #888;
                 font-size: 14px;
+                margin: 0 10px;
+
+                @media (max-width: 700px) {
+                    display: none;
+                }
             }
 
             .select-box {
                 position: relative;
-                margin: 0 10px;
 
                 .select-base {
                     cursor: pointer;
@@ -1181,6 +1248,10 @@ export default Component.build(new TableView())
                 font-size: 14px;
                 letter-spacing: 1px;
                 font-weight: 300;
+
+                @media (max-width: 700px) {
+                    display: none;
+                }
             }
 
             .pages-box {

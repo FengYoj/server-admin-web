@@ -262,6 +262,8 @@ class FormView extends ComponentMethods implements ComponentEntity {
 
     clear() {
         this.value = {}
+        // 刷新
+        this.$forceUpdate()
     }
 
     getConditionValue(where: string) {

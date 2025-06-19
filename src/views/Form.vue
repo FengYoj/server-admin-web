@@ -32,6 +32,9 @@
                         <div class="title-box">
                             <p class="serial-number">{{ getStepNumber(idx) }}</p>
                             <p class="name">{{ conf.title }}</p>
+                            <button type="button" v-if="conf.list" class="add-button" @click="onChangeList('append', conf.name)">
+                                <elem-icon class="icon-box" name="add_blue"></elem-icon>
+                            </button>
                         </div>
                         <div class="step-content" v-if="conf.type === 'PASSWORD'">
                             <div class="prompt">密码必须包含 1 个字母和 1 个数字，密码长度至少为 8 个字符，如需修改密码时输入任意字符或删除任意字符即可</div>
@@ -45,7 +48,7 @@
                                 <elem-form v-for="(item, idx) in conf.data" :index="idx" :key="idx" :data="item" :config="conf" :value="value" @change-data="onChangeValue"></elem-form>
                             </div>
                             <div class="form-box" v-else>
-                                <div class="list-box" v-for="(sub, sub_idx) in getStepMap(conf.name)" :key="sub.key_id">
+                                <div class="list-box" v-for="(sub, sub_idx) in getStepMap(conf)" :key="sub.key_id">
                                     <elem-form
                                         v-for="(item, idx) in conf.data"
                                         :entity="conf.name"
@@ -87,7 +90,7 @@ import Href from "@/module/config/href"
 class FormView extends ComponentMethods implements ComponentEntity {
     private formConfig: obj = {}
 
-    private value: obj = null
+    private value: obj = {}
 
     private type: "create" | "edit" | "config" = "create"
 
@@ -100,7 +103,7 @@ class FormView extends ComponentMethods implements ComponentEntity {
 
     async onLoad(param: obj): Promise<void> {
         this.formConfig = {}
-        this.value = null
+        this.value = {}
         this.step_map = {}
 
         const name = (this.entity_name = param.name)
@@ -178,10 +181,8 @@ class FormView extends ComponentMethods implements ComponentEntity {
             ...status.getData(),
         }
 
-        const keys = Object.keys(data)
-
-        for (const key in value) {
-            if (!keys.includes(key)) {
+        for (const key of ["id"]) {
+            if (value[key] && !data[key]) {
                 data[key] = value[key]
             }
         }
@@ -225,21 +226,22 @@ class FormView extends ComponentMethods implements ComponentEntity {
         }
     }
 
-    private getStepMap(name: string): obj[] {
-        if (!this.step_map[name]) {
-            let size = this.value && this.value[name] && this.value[name].length > 0 ? this.value[name].length : 1
+    private getStepMap(config: obj): obj[] {
+        if (!this.step_map[config.name]) {
             var arr = []
 
+            let size = this.value && this.value[config.name] && this.value[config.name].length > 0 ? this.value[config.name].length : config.required ? 1 : 0
+            
             for (let i = 0; i < size; i++) {
                 arr.push({
                     key_id: Utils.getUuid(),
                 })
             }
 
-            this.step_map[name] = arr
+            this.step_map[config.name] = arr
         }
 
-        return this.step_map[name]
+        return this.step_map[config.name]
     }
 
     private onChangeList(type: "append" | "clear", name: string, idx?: number) {
@@ -252,6 +254,8 @@ class FormView extends ComponentMethods implements ComponentEntity {
         } else {
             step.splice(idx, 1)
         }
+
+        this.value[name] = step
     }
 
     getConditionValue(where: string) {
@@ -318,6 +322,10 @@ export default Component.build(new FormView())
             margin: 0 10%;
 
             .scroll-x(1px);
+
+            @media (max-width: 700px) {
+                display: none;
+            }
 
             > .step-base {
                 width: 100%;
@@ -444,6 +452,10 @@ export default Component.build(new FormView())
                     border-bottom: initial;
                 }
 
+                @media (max-width: 700px) {
+                    padding: 30px 0;
+                }
+
                 > .item-base {
                     > .title-box {
                         margin: 0 20px;
@@ -469,10 +481,39 @@ export default Component.build(new FormView())
                             margin-left: 20px;
                             color: #36414e;
                         }
+
+                        .add-button {
+                            cursor: pointer;
+                            margin-left: 20px;
+                            width: 26px;
+                            height: 26px;
+                            padding: 0;
+                            background: #fff;
+                            border: 1px solid #e3e3e3;
+
+                            .shadow(0 0 10px rgba(0,0,0,0.1));
+                            .radius(50%);
+                            .flex;
+                            .flex-center-all;
+                            .transition;
+
+                            &:hover {
+                                .shadow(0 2px 10px rgba(0,0,0,0.3));
+                            }
+
+                            .icon-box {
+                                width: 70%;
+                                height: 70%;
+                            }
+                        }
                     }
 
                     > .step-content {
                         width: 100%;
+
+                        &:empty {
+                            display: none;
+                        }
 
                         > .prompt {
                             margin: 30px 20px 0 20px;
@@ -497,6 +538,10 @@ export default Component.build(new FormView())
 
                             .flex;
                             .flex-wrap;
+
+                            &:empty {
+                                display: none;
+                            }
 
                             > .list-box {
                                 position: relative;
@@ -525,6 +570,7 @@ export default Component.build(new FormView())
                                         cursor: pointer;
                                         width: 26px;
                                         height: 26px;
+                                        margin: 10px 0;
                                         padding: 0;
                                         background: #fff;
                                         border: 1px solid #e3e3e3;
@@ -555,10 +601,6 @@ export default Component.build(new FormView())
                                     .operating-box {
                                         .add-button {
                                             margin-top: 0;
-                                        }
-
-                                        .clear-button {
-                                            display: none;
                                         }
                                     }
                                 }

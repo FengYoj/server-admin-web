@@ -10,7 +10,7 @@
             <div class="entity-box" v-if="entity">
                 <div class="item-box" v-for="(item, idx) in fields" :key="idx" :class="'item-' + item.type">
                     <p class="key">{{ item.title }}</p>
-                    <p class="value">{{ entity[item.name] }}</p>
+                    <p class="value">{{ entity[item.name] ?? '-' }}</p>
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@
     <div class="elem-select-box">
         <elem-input-object :name="name" :value="val" :title="title" :required="required"></elem-input-object>
         <div class="select-base" dark-class="select-base-dark">
-            <div class="select-box" :class="{ unfold: unfold }">
+            <div class="select-box" :class="{ unfold: unfold }" @click="onFocus">
                 <div class="first-box">
                     <div class="label-box" v-if="multiple">
                         <div class="label-item-box" v-for="(item, idx) in label" :key="idx">
@@ -12,21 +12,21 @@
                             </div>
                         </div>
                     </div>
-                    <input v-model="val_text" class="input" type="text" :placeholder="ph" @focus="onInputFocus" @blur="onInputBlur" @input="onSearchSelect" />
+                    <input ref="input" v-model="val_text" class="input" type="text" :placeholder="ph" @focus="onInputFocus" @blur="onInputBlur" @input="onSearchSelect" />
                 </div>
                 <div class="drop-icon">
                     <elem-icon v-show="val == null && !val_text" src="static/icon/components/elem-select/" name="arrow_bottom" width="50%" height="50%"></elem-icon>
                     <elem-icon v-show="val != null" src="static/icon/components/elem-select/" name="correct" width="60%" height="60%"></elem-icon>
                     <elem-icon v-show="val == null && val_text" src="static/icon/components/elem-select/" name="error" width="60%" height="60%"></elem-icon>
                 </div>
-                <div class="item-base" :class="{ unfold: unfold }">
+                <div class="item-base" ref="item_base" :class="{ unfold: unfold }">
                     <div
                         class="item-box"
                         v-for="(item, idx) in data_list"
                         :key="idx"
                         :value="item.id"
                         :selected="item.id == value"
-                        @click="onSelect(item.id, item.value)"
+                        @click.stop="onSelect(item.id, item.value)"
                         v-show="!search || item.value.indexOf(search) > -1"
                     >
                         {{ item.value }}
@@ -56,6 +56,7 @@ export default {
             search: null,
             ph: "",
             label: [],
+            unfold_width: 0
         }
     },
 
@@ -117,6 +118,12 @@ export default {
             )
 
             this.data_list = data_list
+        } else if (this.config?.type) {
+            let sp = this.config.type.split("."),
+                entity = sp[sp.length - 1]
+            Request.get(`ADMIN://${entity}/GetSelectValue`).then(res => {
+                this.data_list = res
+            })
         }
     },
 
@@ -157,9 +164,15 @@ export default {
                 )
             }
         }
+
+        this.unfold_width = this.$el.clientWidth
     },
 
     methods: {
+        onFocus() {
+            this.$refs.input.focus()
+        },
+
         onChangeData(value, oldValue) {
             this.$emit("change", {
                 value: value,
@@ -172,6 +185,21 @@ export default {
         },
 
         onInputFocus() {
+            // this.unfold_width = this.$el.clientWidth
+            // 获取元素相对于视口的坐标
+            const rect = this.$el.getBoundingClientRect();
+            
+            this.$refs.item_base.style.width = this.$el.clientWidth + "px"
+            this.$refs.item_base.style.left = rect.left + "px"
+            
+            if (rect.top + this.$el.clientHeight + 300 > window.innerHeight) {
+                this.$refs.item_base.style.top = "initial"
+                this.$refs.item_base.style.bottom = window.innerHeight - rect.top + 2 + "px"
+            } else {
+                this.$refs.item_base.style.top = rect.top + this.$el.clientHeight + 2 + "px"
+                this.$refs.item_base.style.bottom = "initial"
+            }
+
             this.unfold = true
         },
 
@@ -263,7 +291,7 @@ export default {
 .elem-select-box {
     position: relative;
     width: 100%;
-    height: 45px;
+    min-height: 45px;
 
     .select-base {
         position: relative;
@@ -271,39 +299,38 @@ export default {
         height: 100%;
 
         .select-box {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
             background: #fff;
             border-radius: 6px;
             transition: all 0.3s ease;
             overflow: hidden;
+            cursor: pointer;
 
             .border;
 
             &:hover {
                 border-color: #b3b3b3;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                z-index: 20;
             }
 
             .first-box {
                 position: relative;
-                padding: 0 12px;
-                height: 45px;
+                padding: 4px 12px;
+                min-height: 45px;
                 display: flex;
+                flex-wrap: wrap;
                 align-items: center;
 
                 .scroll-x(2px);
 
                 .label-box {
+                    max-width: 90%;
                     flex-shrink: 0;
                     display: flex;
+                    flex-wrap: wrap;
                     align-items: center;
 
                     .label-item-box {
-                        margin-right: 10px;
+                        margin: 5px 10px 5px 0;
                         padding: 3px 5px 3px 10px;
                         display: flex;
                         align-items: center;
@@ -339,7 +366,7 @@ export default {
                     cursor: pointer;
                     position: relative;
                     width: auto;
-                    padding-right: 40px;
+                    padding: 5px 40px 5px 0;
                     box-sizing: border-box;
                     z-index: 10;
                     font-size: 14px;
@@ -368,12 +395,17 @@ export default {
             }
 
             .item-base {
-                width: 100%;
+                position: fixed;
+                width: inherit;
+                margin-top: 3px;
                 max-height: 0;
                 overflow-y: hidden;
                 transition: all 0.2s ease;
-                position: relative;
-                z-index: 40;
+                z-index: 90;
+                background: #fff;
+                border-radius: 6px;
+                
+                .shadow(10px 10px 20px rgba(0,0,0,0.3));
 
                 .item-box {
                     padding: 10px 12px;
@@ -394,7 +426,7 @@ export default {
 
             .unfold {
                 max-height: 300px;
-                z-index: 20;
+                z-index: 90;
 
                 .scroll-y;
             }
@@ -403,7 +435,7 @@ export default {
         > .unfold {
             border-color: #b3b3b3;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 20;
+            z-index: 90;
         }
     }
 
@@ -414,6 +446,7 @@ export default {
 
             .item-base .item-box {
                 border-color: #333;
+                background: #252a31;
 
                 &:hover {
                     background: #3e3f46;
