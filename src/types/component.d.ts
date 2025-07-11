@@ -19,7 +19,11 @@ declare interface ComponentEntity {
 
     /** 监听 data 变化 */
     watch?: {
-        [key: string]: (value: any, old?: any) => void
+        [key: string]: ((value: any, old?: any) => void) | {
+            deep?: boolean
+            immediate?: boolean
+            handler: (value: any, old?: any) => void
+        }
     }
 
     methods?: { [key: string]: (...param: any) => any }

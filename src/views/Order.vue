@@ -1,5 +1,5 @@
 <template>
-    <div class="order-page" dark-class="order-page-dark">
+    <div ref="page" class="order-page" dark-class="order-page-dark">
         <!-- <div class="menu-box">
             
         </div> -->
@@ -14,11 +14,32 @@
                     </div>
                     <elem-options :all="false" el="#order_entity" :data="order_infos" @select="order_info_ac = $event.value"></elem-options>
                 </div>
+                <div class="item-box" id="order_entity">
+                    <p class="name">日期范围</p>
+                    <DatePicker
+                        :open="date_open"
+                        :model-value="date_range"
+                        confirm
+                        clearable
+                        type="daterange"
+                        split-panels
+                        @on-clear="date_open = false"
+                        @on-clickoutside="date_open = false"
+                        @on-ok="date_open = false"
+                        @on-change="onChangeDate"
+                    >
+                        <div class="value" @click="date_open = true">
+                            <p class="p" v-if="date_range">{{ date_range.join(" - ") }}</p>
+                            <p class="p" v-else>所有</p>
+                            <elem-icon class="icon" name="select"></elem-icon>
+                        </div>
+                    </DatePicker>
+                </div>
             </div>
             <div class="item-bar mode-base">
                 <div class="mode-box">
-                    <div class="item-box" :class="{ activity: mode === 'TODOS' }" @click="onChangeMode('TODOS')">待处理 ({{ todos_number }})</div>
-                    <div class="item-box" :class="{ activity: mode === 'concise' }" @click="onChangeMode('concise')">售后处理</div>
+                    <div class="item-box" :class="{ activity: mode === 'TODOS' }" @click="onChangeMode('TODOS')">待处理 ({{ todo_q }})</div>
+                    <!-- <div class="item-box" :class="{ activity: mode === 'AFTER_SALES' }" @click="onChangeMode('AFTER_SALES')">售后处理</div> -->
                     <div class="item-box" :class="{ activity: mode === 'ALL' }" @click="onChangeMode('ALL')">全部订单</div>
                 </div>
             </div>
@@ -27,7 +48,10 @@
                     <div class="icon-base">
                         <elem-icon class="icon-box" name="search"></elem-icon>
                     </div>
-                    <input class="input" type="text" placeholder="输入搜索内容" v-model="search" @keyup.enter="onSubmitSearch" />
+                    <input class="input" type="text" placeholder="输入订单编号" v-model="search" @keyup.enter="onSubmitSearch" />
+                    <div class="icon-base close" v-if="search">
+                        <elem-icon class="icon-box" name="close" @click="onClearSearch"></elem-icon>
+                    </div>
                 </div>
                 <!-- <div class="more-box">
                     <elem-icon class="icon" name="more"></elem-icon>
@@ -55,7 +79,7 @@
                         <p class="name">订单编号:</p>
                         <p class="value">{{ item.orderNumber }}</p>
                     </div>
-                    <div class="item-box" v-if="item.address">
+                    <div class="item-box">
                         <p class="name">下单时间:</p>
                         <p class="value">{{ item.createdDate }}</p>
                     </div>
@@ -70,9 +94,13 @@
                 </div>
 
                 <div class="floor-box goods-box">
-                    <div class="item" v-for="(goods, idx) in item.goods" :key="idx" :title="goods.title">
+                    <div class="item" v-for="(goods, idx) in item.goodsItems" :key="idx" :title="goods.title">
                         <div class="img" :style="{ 'background-image': 'url(' + goods.cover.url + '?x-oss-process=image/resize,m_fill,h_300,w_300,limit_0' + ')' }"></div>
-                        <div class="name">{{ goods.title }}</div>
+                        <div class="info-box">
+                            <div class="name">{{ goods.title }}</div>
+                            <div class="spec">{{ goods.specification?.map(v => v.title).join(', ') }}</div>
+                            <div class="quantity">x{{ goods.quantity }}</div>
+                        </div>
                     </div>
                 </div>
 
@@ -92,9 +120,9 @@
                 </div>
 
                 <div class="floor-box operate-box">
-                    <!-- <button class="item g" v-if="item.transportStatus === 'WAITING_ACCEPT'" @click="onAccepted(item)">接单</button>
-                    <button class="item b" v-else-if="item.transportStatus === 'WAITING_SHIPMENTS' && item.address" @click="onShipments(item)">发货</button> -->
-                    <button class="item r" v-if="item.paymentStatus === 1" @click="onAccepted(item)">退款</button>
+                    <button class="item g" v-if="item.transportStatus === 'WAITING_ACCEPT'" @click="onAccepted(item)">接单</button>
+                    <button class="item b" v-else-if="item.transportStatus === 'WAITING_SHIPMENTS' && item.address" @click="onShipments(item)">发货</button>
+                    <!-- <button class="item r" v-if="item.paymentStatus === 1" @click="onAccepted(item)">退款</button> -->
                 </div>
             </div>
 
@@ -154,31 +182,12 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     private model_title: string = "数据"
     // 模块链接
     private model_url: string = null
+    // 日期范围
+    private date_range = null
+    // 日期组件显示状态
+    private date_open = false
 
-    private filters = [
-        {
-            name: "status",
-            title: "状态值",
-            data: [
-                {
-                    title: "未知",
-                    value: "0",
-                },
-                {
-                    title: "正常",
-                    value: "1",
-                },
-                {
-                    title: "禁用",
-                    value: "3",
-                },
-                {
-                    title: "已删除",
-                    value: "4",
-                },
-            ],
-        },
-    ]
+    private filters = {}
 
     mode: string = "TODOS"
     // 订单消息
@@ -186,7 +195,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     // 当前选择
     order_info_ac: obj = null
     // 待处理总数
-    todos_number: number = 0
+    todo_q: number = 0
 
     // 订单列表
     orderList: obj[] = null
@@ -194,21 +203,52 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     watch = {
         order_info_ac(val: obj) {
             this.requestPage.setData({
-                entity: val.id,
-                type: "TODOS",
-            })
+                entity: val.id
+            }, false)
+
+            this.onChangeMode("TODOS")
         },
+
+        date_range(v) {
+            console.log(v);
+        },
+
+        filters: {
+            handler(val: obj) {
+                const arr = []
+
+                Object.keys(val).forEach((key) => {
+                    let item = val[key]
+
+                    if (item instanceof Array) {
+                        arr.push(...item)
+                    } else {
+                        arr.push(item)
+                    }
+                })
+
+                this.requestPage.setData({
+                    entity: this.order_info_ac.id,
+                    filter: arr
+                })
+            },
+            deep: true
+        }
     }
 
     async created() {
         // 分页实体
         this.requestPage = new RequestPage("ADMIN://SubstanceOrder/FindAllByType", {
             load: false,
-            method: "GET",
+            method: "POST",
             size: 20,
+            json: true,
             onChange: res => {
                 this.orderList = res
-                this.todos_number = this.requestPage.getTotal()
+
+                if (this.mode === "TODOS") {
+                    this.todo_q = this.requestPage.getTotal()
+                }
             },
         })
 
@@ -229,14 +269,32 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         })
     }
 
+    // onResize(evt: obj) {
+    //     console.log(evt);
+    //     console.log(this.$refs.page.offsetWidth);
+    // }
+
     onReachBottom() {
         this.requestPage?.load()
     }
 
     onSubmitSearch() {
-        this.requestPage.setData({
-            search: this.search,
-        })
+        if (!this.search) {
+            delete this.filters['search']
+            return
+        }
+
+        this.filters['search'] = {
+            key: "orderNumber",
+            value: this.search,
+            operator: "equal",
+            fuzzy: true
+        }
+    }
+
+    onClearSearch() {
+        this.search = ""
+        delete this.filters['search']
     }
 
     /**
@@ -326,7 +384,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
                 Message.success("复制成功")
                 break
             case "Delete":
-                this.onDeleteUser(item)
+                this.onDeleteOrder(item)
                 break
             case "Href":
                 evt.data.href && this.jump(this.getUrl(item, evt.data.href))
@@ -374,25 +432,10 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         })
     }
 
-    onDisableUser(user: obj) {
-        Message.info("确认禁用当前用户？", true)
+    onDeleteOrder(user: obj) {
+        Message.info("确认删除当前订单？", true)
             .onConfirm(() => {
-                this.onChangeDisableUser(user, true)
-            })
-            .build()
-    }
-
-    onChangeDisableUser(user: obj, disable: boolean) {
-        Request.post("ADMIN://User/ChangeDisable", { user: user.uuid, disable }).then(() => {
-            Message.success(disable ? "禁用成功" : "取消禁用成功")
-            user.status = disable ? 3 : 1
-        })
-    }
-
-    onDeleteUser(user: obj) {
-        Message.info("确认删除当前用户？", true)
-            .onConfirm(() => {
-                Request.delete("ADMIN://User/Delete", { user: user.uuid }).then(() => {
+                Request.delete("ADMIN:///Delete", { user: user.uuid }).then(() => {
                     Utils.each(
                         this.users,
                         () => "delete",
@@ -407,21 +450,28 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     onChangeMode(mode: string) {
         this.mode = mode
 
+        var filters: obj = [{
+            key: "paymentStatus",
+            value: 1,
+            operator: "equal",
+        }]
+
         switch (mode) {
             case "TODOS":
-                this.requestPage.setData({
-                    entity: this.order_info_ac.id,
-                    type: "TODOS",
+                filters.push({
+                    key: "transportStatus",
+                    value: ["WAITING_ACCEPT", "WAITING_SHIPMENTS"],
+                    operator: "equal",
+                    relation: "or",
                 })
-                break
-            case "ALL":
-                this.requestPage.setData({
-                    entity: this.order_info_ac.id,
-                })
-                break
-            default:
                 break
         }
+        
+        this.filters['mode'] = filters
+        // this.requestPage.setData({
+        //     entity: this.order_info_ac.id,
+        //     type: mode
+        // })
     }
 
     onLoadIframe() {
@@ -466,8 +516,16 @@ class ToolView extends ComponentMethods implements ComponentEntity {
                             title: "快递公司",
                             length: 255,
                             required: true,
-                            type: "Input",
+                            type: "Select",
                             modify: true,
+                            selectConfig: {
+                                field: null,
+                                controller: true,
+                                data: null,
+                                selectField: {},
+                                multiple: false,
+                                type: "com.jemmy.framework.component.order.substance.delivery.DeliveryCompany"
+                            }
                         },
                     ],
                     title: "通用数据",
@@ -476,6 +534,41 @@ class ToolView extends ComponentMethods implements ComponentEntity {
             ],
             data: item,
         })
+    }
+
+    onChangeDate(evt: string[]) {
+        if (evt?.[0] && evt?.[1]) {
+            if (evt[0] === evt[1])
+                this.filters['date'] = {
+                    key: "createdDate",
+                    value: evt[0],
+                    type: "date",
+                    operator: "equal",
+                }
+            else
+                this.filters['date'] = [
+                    {
+                        key: "createdDate",
+                        value: evt[0],
+                        type: "date",
+                        operator: "greater_equal",
+                    },
+                    {
+                        key: "createdDate",
+                        value: evt[1],
+                        type: "date",
+                        operator: "less_equal",
+                    }
+                ]
+
+            this.date_range = evt
+        } else {
+            this.date_range = null
+            delete this.filters['date']
+        }
+
+        // 设置为关闭状态
+        this.date_open = false
     }
 
     /**
@@ -490,7 +583,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         let p = { 0: "未支付", 2: "已取消", 3: "支付失败" }[item.paymentStatus]
         if (p) return p
         return (
-            { WAITING_ACCEPT: "待接单", WAITING_DELIVERED: "待配送", WAITING_GET: "待取货", WAITING_SHIPMENTS: "待发货", WAITING_RECEIPT: "待收货", SUCCESS: "已完成" }[item.transportStatus] || "未知"
+            { WAITING_ACCEPT: "待接单", WAITING_DELIVERED: "待配送", WAITING_GET: "待取货", WAITING_SHIPMENTS: "待发货", WAITING_RECEIPT: "待收货", WAITING_COMMENT: "待评价", SUCCESS: "已完成" }[item.transportStatus] || "未知"
         )
     }
 
@@ -500,7 +593,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
         }
 
         return {
-            WAITING_ACCEPT: "#186400",
+            WAITING_ACCEPT: "#007843",
             WAITING_SHIPMENTS: "#00acdb"
         }[item.transportStatus] || "#333"
     }
@@ -532,7 +625,6 @@ export default Component.build(new ToolView())
         .flex-shrink;
 
         .filter-box {
-            .flex-grow;
             .flex;
 
             .item-box {
@@ -565,7 +657,6 @@ export default Component.build(new ToolView())
         .mode-base {
             margin: 0 20px;
 
-            .flex-grow;
             .flex;
             .flex-center-all;
 
@@ -656,10 +747,21 @@ export default Component.build(new ToolView())
                         width: 50%;
                         height: 50%;
                     }
+
+                    &.close {
+                        cursor: pointer;
+
+                        .absolute(0, 0, 0, initial);
+
+                        .icon-box {
+                            width: 30%;
+                            height: 30%;
+                        }
+                    } 
                 }
 
                 .input {
-                    padding: 0 20px 0 40px;
+                    padding: 0 40px 0 40px;
                     height: 40px;
                     background: #fff;
 
@@ -765,13 +867,11 @@ export default Component.build(new ToolView())
                 .border-position(top);
                 .flex;
                 .flex-center-items;
-
-                &:last-child {
-                    border: initial;
-                }
             }
 
             .contact-box {
+                border: initial;
+
                 .flex-items(flex-start);
                 .flex-column;
                 .flex-grow;
@@ -814,31 +914,52 @@ export default Component.build(new ToolView())
                     position: relative;
                     margin-right: 10px;
 
+                    .flex;
+                    .flex-grow;
+
                     &:last-child {
                         margin-right: 0;
                     }
 
                     .img {
-                        width: 100px;
-                        height: 100px;
+                        width: 50px;
+                        height: 50px;
                         background-position: center;
                         background-size: cover;
                         overflow: hidden;
 
                         .radius(6px);
+                        .flex-shrink;
                     }
 
-                    .name {
-                        font-size: 12px;
-                        padding: 5px 5px 0 5px;
-                        max-width: 100px;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: normal;
-                        display: -webkit-box;
-                        -webkit-line-clamp: 2;
-                        -webkit-box-orient: vertical;
-                        color: #333;
+                    .info-box {
+                        position: relative;
+                        margin: 5px 0 5px 15px;
+
+                        .flex-grow;
+
+                        .name {
+                            font-size: 12px;
+                            margin-right: 30px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: normal;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 1;
+                            -webkit-box-orient: vertical;
+                        }
+
+                        .spec {
+                            margin-top: 5px;
+                            font-size: 11px;
+                        }
+
+                        .quantity {
+                            position: absolute;
+                            right: 0;
+                            top: 0;
+                            font-size: 12px;
+                        }
                     }
                 }
             }
@@ -887,7 +1008,7 @@ export default Component.build(new ToolView())
                     }
 
                     &.g {
-                        background: #186400;
+                        background: #1e7c33;
                         color: #fff;
                     }
 

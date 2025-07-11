@@ -130,7 +130,7 @@ export default class Version {
      */
     public static checkFrameworkVersion(v: string): boolean {
         if (!this.framework_version) return false
-        return this.compareVersions(v, this.framework_version)
+        return this.compareVersions(this.framework_version, v)
     }
 
     private static compareVersions(v1: string, v2: string): boolean {
