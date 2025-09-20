@@ -1,6 +1,6 @@
 <template>
     <div class="elem-upload-box" dark-class="elem-upload-box-dark">
-        <elem-input-object :name="name" :title="title" :required="required" :getValue="this.getFiles"></elem-input-object>
+        <elem-input-object :name="name" :title="title" :required="required" :getValue="getFiles"></elem-input-object>
         <input ref="upload_input" class="upload-input" type="file" :accept="accept || types[type].accept" :multiple="multi" @change="onSelectFile" />
         <div ref="upload_drag" class="upload-drag-box" v-show="multi || files.length <= 0" @click="onClickUpload">
             <div class="icon-box">
