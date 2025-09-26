@@ -265,6 +265,8 @@ class TableView extends ComponentMethods implements ComponentEntity {
     }
 
     async onLoad(param: obj) {
+        this.table = []
+
         this.loading && this.loading.show()
 
         const name = (this.name = this.getParam<string>("name"))

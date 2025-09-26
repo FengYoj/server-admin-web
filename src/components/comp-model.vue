@@ -1,5 +1,5 @@
 <template>
-    <div class="comp-model-page" :class="display ? 'show' : 'hide'" ref="page_box">
+    <div class="comp-model-page" :class="displayModel ? 'show' : 'hide'" ref="page_box">
         <div class="content-page" :style="{ width: width, height: height }" dark-class="content-dark">
             <div class="head-box">
                 <p class="title">{{ title }}</p>
@@ -30,7 +30,7 @@ export default {
 
     data() {
         return {
-            display: false,
+            displayModel: false,
         }
     },
 
@@ -72,10 +72,10 @@ export default {
 
         Object.defineProperty(this.winow_config, "status", {
             set: v => {
-                this.display = v
+                this.displayModel = v
             },
             get: () => {
-                return this.display
+                return this.displayModel
             },
         })
 
@@ -103,6 +103,10 @@ export default {
 
         /** 显示 */
         onDisplay() {
+            this.display()
+        },
+
+        display() {
             for (let i = 0, ws = this.windows; i < ws.length; i++) {
                 let w = ws[i]
 
@@ -122,7 +126,7 @@ export default {
 
         /** 关闭 */
         onClose() {
-            this.display = false
+            this.displayModel = false
 
             for (let i = 0, ws = this.windows; i < ws.length; i++) {
                 let w = ws[i]
