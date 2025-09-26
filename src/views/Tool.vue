@@ -34,7 +34,7 @@ class ToolView extends ComponentMethods implements ComponentEntity {
     private tools = [
         {
             icon: "blocklist",
-            href: "/table?name=AdminAccount",
+            href: "/admin?name=AdminAccount",
             title: "管理员用户",
             explain: "可对管理员用户进行添加、管理的操作。",
             color: "#117bbd",
