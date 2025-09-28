@@ -63,6 +63,8 @@ class ElemRichTextComponent extends ComponentMethods implements ComponentEntity 
                 menubar: true,
                 branding: false,
                 promotion: false,
+                relative_urls: false,
+                remove_script_host: false,
                 plugins: [
                     "advlist",
                     "autolink",
