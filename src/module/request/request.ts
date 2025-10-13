@@ -262,7 +262,7 @@ export default class Request {
                 reader.onload = function (evt: obj) {
                     // 转换完成，创建一个a标签用于下载
                     e.href = evt.target.result
-                    e.download = res.filename
+                    e.download = name || res.filename
                     e.click()
                 }
             })

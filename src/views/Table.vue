@@ -616,6 +616,27 @@ class TableView extends ComponentMethods implements ComponentEntity {
 
         return arr
     }
+
+    getFilter() {
+        var filters = []
+
+        // if (filter) {
+        //     filters = filters.concat(filter)
+        // }
+
+        if (this.filter && Object.keys(this.filter).length > 0) {
+            const _filter = this.filter
+
+            Utils.each(Object.keys(_filter), k => {
+                filters.push({
+                    key: k,
+                    value: _filter[k]
+                })
+            })
+        }
+
+        return filters
+    }
 }
 
 export default Component.build(new TableView())
