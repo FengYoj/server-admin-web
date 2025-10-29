@@ -58,6 +58,17 @@ export default {
                     const e = d[i],
                         operations = e.operations || []
 
+                    if (operations.length === 0) {
+                        keys.push({
+                            key: e.entity,
+                            label: e.title,
+                            title: e.title,
+                            entity: e.entity
+                        })
+
+                        continue
+                    }
+
                     for (let j = 0; j < operations.length; j++) {
                         const op = operations[j]
                         keys.push({
@@ -81,6 +92,11 @@ export default {
                 for (let i = 0, d = res; i < d.length; i++) {
                     const e = d[i],
                         operations = e.operations || []
+
+                    if (operations.length === 0) {
+                        keys.push(e.entity)
+                        continue
+                    }
 
                     for (let j = 0; j < operations.length; j++) {
                         const op = operations[j]
@@ -109,7 +125,7 @@ export default {
                     authorizationsObj[e.entity] = {
                         entity: e.entity,
                         title: e.title,
-                        operations: [e.operation],
+                        operations: e.operation ? [e.operation] : null,
                     }
                 }
             }

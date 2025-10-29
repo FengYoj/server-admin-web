@@ -590,7 +590,7 @@ class LoginPage extends ComponentMethods implements ComponentEntity {
                     admin_id: res.admin_id,
                     userinfo: res.userinfo,
                 },
-                { storage: "cookie", expires: 2 * 60 * 60 * 1000 }
+                { expires: 2 * 60 * 60 * 1000 }
             )
 
             // 刷新页面
@@ -687,7 +687,7 @@ class LoginPage extends ComponentMethods implements ComponentEntity {
                         admin_id: res.admin_id,
                         userinfo: res.userinfo,
                     },
-                    { storage: "cookie", expires: 2 * 60 * 60 * 1000 }
+                    { expires: 2 * 60 * 60 * 1000 }
                 )
 
                 if (this.auto_login) {
@@ -698,7 +698,7 @@ class LoginPage extends ComponentMethods implements ComponentEntity {
                                 password: md5(this.password),
                             },
                         },
-                        { storage: "cookie", expires: 7 * 24 * 60 * 60 * 1000 }
+                        { expires: 7 * 24 * 60 * 60 * 1000 }
                     )
                 }
 

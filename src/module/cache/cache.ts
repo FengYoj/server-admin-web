@@ -26,11 +26,6 @@ const Cache: Cache = class {
             Utils.extend(data, JSON.parse(session))
         }
 
-        Utils.each(document.cookie.split(";"), v => {
-            let strs = v.replace(/\s/g, "").split("=")
-            data[strs[0]] = { value: Utils.isJson(strs[1]) ? JSON.parse(strs[1]) : strs[1] }
-        })
-
         return data
     })()
 
@@ -121,6 +116,7 @@ const Cache: Cache = class {
         })
 
         // 清除本地缓存
+        sessionStorage.clear()
         localStorage.clear()
     }
 
@@ -137,31 +133,13 @@ const Cache: Cache = class {
         }
 
         if (storage === undefined) {
-            this.removeCookie(key)
-            this.removeLocal(key)
             delete this.__data[key]
-        } else if (storage === "cookie") {
-            this.removeCookie(key)
-            if (val.storage === "cookie") {
-                delete this.__data[key]
-            }
         } else if (storage === "local") {
             this.removeLocal(key)
             if (val.storage === "local") {
                 delete this.__data[key]
             }
         }
-    }
-
-    private static removeCookie(key: string): void {
-        // 获取所有 Cookie
-        Utils.each(document.cookie.split(";"), v => {
-            let strs = v.replace(/\s/g, "").split("=")
-            // 移除指定 Key Cookie
-            if (strs[0] === key) {
-                document.cookie = strs[0] + "=0;expires=" + new Date(0).toUTCString()
-            }
-        })
     }
 
     private static removeLocal(key: string): void {
@@ -192,8 +170,6 @@ const Cache: Cache = class {
 
             if (d.storage === "local") {
                 local[k] = d
-            } else {
-                document.cookie = `${k}=${Utils.isJson(d.value) ? JSON.stringify(d.value) : d.value}${d.expires ? `;expires=${new Date(d.date.getTime() + d.expires).toUTCString()}` : ""}`
             }
         }
 
@@ -268,7 +244,7 @@ interface Cache {
     onUnload(): void
 }
 
-type storageType = "cookie" | "local"
+type storageType = "local"
 
 interface CacheData {
     value: any

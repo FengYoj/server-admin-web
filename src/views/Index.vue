@@ -17,8 +17,9 @@
             </div>
             <div class="main-menu-pc">
                 <div class="menu-item" v-for="(menu, idx) in menus" :key="idx" :class="{ 'menu-item-activity': d_menu_root === menu.root }">
-                    <a class="menu-item-box" :href="menu.href" :title="menu.name">
+                    <a class="menu-item-box" :href="menu.href">
                         <img class="icon" :src="'static/icon/menu_icon/' + menu.icon" />
+                        <p class="name">{{ menu.name }}</p>
                     </a>
                     <div class="menu-child-base menu-child-box" v-if="menu.child" v-html="getMenuChild(menu.child)" @click="hideMenuChild()"></div>
                 </div>
@@ -91,9 +92,10 @@
                         <elem-icon class="icon" name="setting_white" hover="#2faaf7" width="20px" height="20px"></elem-icon>
                         <comp-menu :value="settingMenu" @select="onSelectSettingMenu"></comp-menu>
                     </div>
-                    <div class="user-box" v-if="userinfo && userinfo.avatar">
+                    <div class="user-box">
                         <div class="avatar-box">
-                            <img class="avatar" :src="userinfo.avatar.url" />
+                            <img class="avatar" v-if="userinfo?.avatar" :src="userinfo.avatar.url" />
+                            <elem-icon class="icon" v-else name="user"></elem-icon>
                             <div class="status"></div>
                         </div>
                         <div class="btn-icon">
@@ -121,8 +123,8 @@
 </template>
 
 <script lang="ts">
-import Mmenu from 'mmenu-js'
-import 'mmenu-js/dist/mmenu.css'
+import Mmenu from "mmenu-js"
+import "mmenu-js/dist/mmenu.css"
 
 import Utils from "@/module/utils/utils"
 import Component, { ComponentMethods } from "@/module/component/component"
@@ -280,13 +282,13 @@ class IndexView extends ComponentMethods implements ComponentEntity {
                 this._setMenuChildBoxStyle()
 
                 this.menu = new Mmenu("#menu-mobile", {
-                    "theme": "dark"
+                    theme: "dark",
                 })
 
                 // 为所有菜单链接绑定点击事件，点击后关闭菜单
-                const menuLinks = document.querySelectorAll('#menu-mobile a[child]')
-                    menuLinks.forEach(link => {
-                    link.addEventListener('click', () => {
+                const menuLinks = document.querySelectorAll("#menu-mobile a[child]")
+                menuLinks.forEach(link => {
+                    link.addEventListener("click", () => {
                         this.menu.close()
                     })
                 })
@@ -303,7 +305,7 @@ class IndexView extends ComponentMethods implements ComponentEntity {
     }
 
     beforeDestroy() {
-        this.menu?.destroy();
+        this.menu?.destroy()
     }
 
     /**
@@ -474,6 +476,51 @@ class IndexView extends ComponentMethods implements ComponentEntity {
                 this.jump("/table?name=AdminAccount")
         }
     }
+
+    /**
+     * 监听搜索框聚焦事件
+     */
+    onSearchInputFocus() {
+        this.display_search = true
+    }
+
+    /**
+     * 监听搜索框失焦事件
+     */
+    onSearchInputBlur() {
+        setTimeout(() => {
+            this.display_search = false
+        }, 200)
+    }
+
+    /**
+     * 监听搜索框变化事件
+     * @param evt event
+     */
+    async onSearchInput(evt: InputEvent) {
+        const node: HTMLInputElement = Utils.getNode(evt)
+
+        var val = node.value
+        console.log(val)
+        const pages: obj[] = (await Href.get()).pages
+        console.log(pages)
+
+        if (!val) {
+            this.search_result = []
+            return
+        }
+
+        this.search_result = pages.filter(v => v.title.includes(val))
+    }
+
+    /**
+     * 监听搜索框提交事件
+     */
+    onSearchSubmit() {
+        if (!this.search_result || this.search_result.length <= 0) {
+            Message.info("暂无搜索结果")
+        }
+    }
 }
 
 interface MenuObj {
@@ -560,16 +607,29 @@ export default Component.build(new IndexView())
                 margin: 5px 0;
 
                 .menu-item-box {
+                    position: relative;
                     height: 100%;
                     width: 100%;
 
                     .flex();
+                    .flex-column;
                     .flex-center-all();
 
                     .icon {
                         filter: grayscale(100%);
                         width: clamp(15px, 3vh, 25px);
                         height: clamp(15px, 3vh, 25px);
+
+                        .transition;
+                    }
+
+                    .name {
+                        position: absolute;
+                        top: calc(clamp(15px, 3vh, 25px) + 22px);
+                        color: #fff;
+                        font-size: 9px;
+                        letter-spacing: 1px;
+                        opacity: 0;
 
                         .transition;
                     }
@@ -697,8 +757,14 @@ export default Component.build(new IndexView())
                 }
 
                 &:hover {
-                    .icon {
-                        filter: grayscale(0);
+                    .menu-item-box {
+                        .icon {
+                            filter: grayscale(0);
+                        }
+
+                        .name {
+                            opacity: 1;
+                        }
                     }
 
                     > .menu-child-base {
@@ -950,6 +1016,7 @@ export default Component.build(new IndexView())
                                 padding: 0 20px;
                                 height: 40px;
                                 border-bottom: 1px solid #e3e3e3;
+                                background: #fff;
 
                                 .flex;
                                 .flex-center-items;
@@ -961,7 +1028,7 @@ export default Component.build(new IndexView())
 
                                 &:hover {
                                     color: #000;
-                                    background: #f3f3f3;
+                                    background: #d4d4d4;
                                 }
 
                                 p {
@@ -999,11 +1066,10 @@ export default Component.build(new IndexView())
                         position: relative;
                         width: 30px;
                         height: 30px;
+                        overflow: hidden;
 
-                        .avatar {
-                            .radius(50%);
-                            .shadow;
-                        }
+                        .radius(50%);
+                        .shadow;
 
                         .status {
                             width: 6px;
